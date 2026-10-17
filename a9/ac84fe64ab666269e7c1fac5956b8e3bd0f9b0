@@ -1,0 +1,48 @@
+lessonweave/progress.py
+  s_4552c046844e7c::t_83a3048b8c730c 29-33,41-42,51
+lessonweave/pipeline.py
+  s_4552c046844e7c::t_7e8ed0b802ab2e 97,99-101,104-105
+  s_4552c046844e7c::t_2490c92959fc64 13,102-103,284
+tests/test_diagnostics.py
+  s_4552c046844e7c::t_83a3048b8c730c 1-92
+lessonweave/agents.py
+  s_4552c046844e7c::t_7e8ed0b802ab2e 20-35,85-86,97-98,101-102,181-184,213-215
+lessonweave/trilium.py
+  s_4552c046844e7c::t_95eee36ef8469e 9,18-44
+  s_06c732a83d9614::t_1fa384e0312228 45-46
+.env.example
+  s_4552c046844e7c::t_95eee36ef8469e 15-16
+lessonweave/server.py
+  s_4552c046844e7c::t_95eee36ef8469e 100,126-134
+  s_4552c046844e7c::t_9077bc9da05d71 236-239
+integrations/readweave/HANDOFF.md
+  s_4552c046844e7c::t_93c739e87a3764 40,45-46,106-167
+web/workspace.html
+  s_4552c046844e7c::t_7ad5c2f30d10b7 5
+web/workspace.js
+  s_4552c046844e7c::t_68302555a296da 39-40,55,62-63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a9ac84fe64ab666269e7c1fac5956b8e3bd0f9b0",
+  "prompts": {},
+  "sessions": {
+    "s_06c732a83d9614": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14790-5a7f-7270-949b-02bf789793f3",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    },
+    "s_4552c046844e7c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14919-891d-7b32-9e12-b2bf212304ff",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    }
+  }
+}
