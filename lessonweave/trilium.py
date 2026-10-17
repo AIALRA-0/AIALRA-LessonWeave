@@ -6,13 +6,42 @@ import json
 import mimetypes
 import os
 import re
-from urllib.parse import urljoin
+from urllib.parse import urljoin,urlsplit
 import requests
 from .storage import read,save
 
 
 def configured():
     return bool(os.environ.get('LESSONWEAVE_TRILIUM_URL') and os.environ.get('LESSONWEAVE_TRILIUM_TOKEN') and os.environ.get('LESSONWEAVE_TRILIUM_ROOT'))
+
+
+def public_note_url(client,note_id,public_url):
+    parsed=urlsplit(public_url)
+    if parsed.scheme not in {'https','http'} or not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment:
+        raise ValueError('ReadWeave 的网页入口需要填写完整 HTTP 或 HTTPS 地址')
+    path=[];cursor=note_id
+    while cursor:
+        if cursor in path or len(path)>=64 or not re.fullmatch(r'[A-Za-z0-9_]+',cursor):
+            raise ValueError('对应笔记的目录关系需要重新核对')
+        path.insert(0,cursor)
+        if cursor=='root':
+            return public_url.rstrip('/')+'/#'+'/'.join(path)
+        note=client.call('GET','notes/'+cursor)
+        if not note.get('parentNoteIds'):
+            break
+        cursor=note['parentNoteIds'][0]
+    raise ValueError('对应笔记尚未连接到 ReadWeave 根目录')
+
+
+def reading_link(project,root,section=None):
+    public_url=os.environ.get('LESSONWEAVE_TRILIUM_PUBLIC_URL')
+    if not public_url or not configured():
+        raise ValueError('正式 ReadWeave 尚未关联，导入完成后可直达对应笔记')
+    mapping=read(Path(root)/'runtime/trilium/current.json',{})
+    target=mapping.get('sections',{}).get(section) if section else project.get('native_note_id') or mapping.get('project_note_id')
+    if not target:
+        raise ValueError('当前小节尚未导入 ReadWeave，已保留生成结果')
+    return public_note_url(Client(),target,public_url)
 
 
 class Client:

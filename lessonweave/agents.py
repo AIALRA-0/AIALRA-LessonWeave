@@ -17,6 +17,22 @@ SLOTS = threading.BoundedSemaphore(int(os.environ.get('LESSONWEAVE_CALLS', '3'))
 ADAPTERS = {}
 
 
+class AgentCallFailure(RuntimeError):
+    def __init__(self,kind,message):
+        super().__init__(message)
+        self.kind=kind
+
+
+def event_failure(events):
+    messages=[]
+    for event in events:
+        if event.get('type') in {'error','turn.failed'}:
+            messages.append(str(event.get('message') or event.get('error',{}).get('message','')))
+    if any('max_output_tokens' in message for message in messages):
+        return 'output_limit'
+    return 'execution_failed'
+
+
 def codex_executable():
     if os.environ.get('LESSONWEAVE_CODEX'):
         return os.environ['LESSONWEAVE_CODEX']
@@ -66,7 +82,8 @@ class CodexAdapter:
             except subprocess.TimeoutExpired:
                 process.kill()
                 process.communicate()
-                raise RuntimeError('Codex 已达到任务期限，保留现场等待恢复核对')
+                save(folder/'receipt.json',{'exit_code':process.returncode,'failure_kind':'timeout','usage':[],'usage_measurement':'unavailable'})
+                raise AgentCallFailure('timeout','Codex 已达到任务期限，已保留完成的阶段和本次调用记录')
         parsed = []
         for line in (folder / 'events.jsonl').read_text('utf-8').splitlines():
             try:
@@ -77,9 +94,12 @@ class CodexAdapter:
         record = {'exit_code': process.returncode, 'session_id': next((e.get('thread_id') for e in parsed if e.get('type') == 'thread.started'), None),
                   'usage': receipts, 'parent_conversation_inherited': False, 'resume_or_fork': False,
                   'tool_calls': [e.get('item', {}).get('type') for e in parsed if e.get('type') == 'item.started' and e.get('item', {}).get('type') in {'command_execution', 'mcp_tool_call'}]}
+        if process.returncode or not (folder/'response.json').is_file():
+            record.update(failure_kind=event_failure(parsed),usage_measurement='reported' if receipts else 'unavailable')
         save(folder / 'receipt.json', record)
         if process.returncode or not (folder / 'response.json').is_file():
-            raise RuntimeError('Codex 调用没有完成，原始退出状态已保存')
+            message='本次清点或生成超过模型输出上限，需要缩小任务后继续，已完成结果保留' if record['failure_kind']=='output_limit' else 'Codex 调用没有完成，原始退出状态已保存'
+            raise AgentCallFailure(record['failure_kind'],message)
         return read(folder / 'response.json'), record
 
 
@@ -158,7 +178,10 @@ class Backend:
             return read(folder / 'result.json')
         record = read(folder / 'usage.json', {})
         if record.get('status') in {'started', 'uncertain'} and not (folder / 'response.json').is_file():
-            raise RuntimeError('已有请求尚未确认结果，按原请求记录核对后再恢复：' + name)
+            receipt=read(folder/'receipt.json',{})
+            if receipt.get('failure_kind')=='output_limit':
+                raise AgentCallFailure('output_limit','已有任务超过模型输出上限，需要拆小后继续：'+name)
+            raise AgentCallFailure(record.get('failure_kind') or 'uncertain','已有请求尚未确认结果，按原请求记录核对后再恢复：' + name)
         adapter = ADAPTERS[self.provider]()
         if task['images'] and not adapter.capabilities.get('images'):
             raise ValueError('当前后端未声明支持图片，任务保留完整材料等待切换')
@@ -187,6 +210,8 @@ class Backend:
                 return formatted
             except Exception as error:
                 tick(self.root,name,'failed')
-                save(folder / 'usage.json', dict(read(folder / 'usage.json', {}), status='uncertain' if not (folder / 'response.json').is_file() else 'invalid',
+                receipt=read(folder/'receipt.json',{})
+                save(folder / 'usage.json', dict(read(folder / 'usage.json', {}),receipt=receipt,status='uncertain' if not (folder / 'response.json').is_file() else 'invalid',
+                     failure_kind=getattr(error,'kind',None),usage=receipt.get('usage',[]),usage_measurement=receipt.get('usage_measurement','unavailable'),
                      error_type=type(error).__name__, elapsed_seconds=round(time.monotonic()-started, 3)))
                 raise

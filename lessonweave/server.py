@@ -97,7 +97,7 @@ class Handler(SimpleHTTPRequestHandler):
                 for project in self.store.projects():
                     root = Path(project['path'])
                     book = read(root/'05_writing/preview-book.json', read(root/'05_writing/book.json', {}))
-                    result.append(dict(public_project(project), state=public_state(read(root/'runtime/state.json', {'status':'existing'})), title=book.get('title'), ready=bool(book) and (root/'05_writing/source-location/index.json').is_file()))
+                    result.append(dict(public_project(project), state=public_state(read(root/'runtime/state.json', {'status':'existing'})), title=book.get('title'), ready=bool(book) and (root/'05_writing/source-location/index.json').is_file(),readweave_available=bool(os.environ.get('LESSONWEAVE_TRILIUM_PUBLIC_URL') and project.get('native_note_id'))))
                 self.json(result)
             elif route == '/api/library':
                 from .trilium import configured
@@ -123,7 +123,15 @@ class Handler(SimpleHTTPRequestHandler):
                 project = self.store.project(parts[2])
                 root = Path(project['path']).resolve()
                 name = '/'.join(parts[3:]) or 'book.html'
-                if name in {'book.html', 'readweave.html'}:
+                if name=='open-readweave':
+                    from .trilium import reading_link
+                    section=parse_qs(urlsplit(self.path).query).get('section',[None])[0]
+                    target=reading_link(project,root,section)
+                    self.send_response(302)
+                    self.send_header('Location',target)
+                    self.send_header('Cache-Control','no-store')
+                    self.end_headers()
+                elif name in {'book.html', 'readweave.html'}:
                     html = (REPO/'integrations/readweave/demo.html' if name=='readweave.html' else READER/'book.html').read_text('utf-8')
                     config = {'project_id': parts[2], 'base': '/p/'+parts[2], 'readweave_demo': name=='readweave.html', 'legacy': bool(project['legacy'])}
                     html = html.replace('<head>', '<head><script>window.LESSONWEAVE='+json.dumps(config)+';</script><script src="/reader-mount.js"></script>')
@@ -225,6 +233,10 @@ class Handler(SimpleHTTPRequestHandler):
             elif route.startswith('/api/jobs/') and route.endswith('/resume'):
                 key=route.split('/')[3]
                 previous=self.store.job(key)
+                from .progress import view
+                root=Path(self.store.project(previous['project_id'])['path'])
+                if view(root,previous).get('diagnosis',{}).get('failure_kind')=='output_limit':
+                    raise ValueError('这次调用已超过输出上限，需要先拆小任务，已完成结果继续保留')
                 if previous['status'] in {'interrupted','cancelled'}:
                     from .jobs import mark_cancelled
                     mark_cancelled(Path(self.store.project(previous['project_id'])['path']),reason='user_resumed_stopped_task')

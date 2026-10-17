@@ -10,7 +10,7 @@ import threading
 import time
 
 from .storage import read, save, WRITE_LOCK
-from .agents import Backend
+from .agents import Backend,AgentCallFailure
 from .progress import begin
 from . import legacy as flow
 
@@ -94,9 +94,15 @@ def collect(pool, items, function):
         try:
             results.append(future.result())
         except Exception as error:
-            errors.append(str(error))
+            errors.append(error)
     if errors:
-        raise ValueError('\n'.join(errors))
+        message='\n'.join(str(error) for error in errors)
+        # 输出超限、超时和结果未知会暂停本轮，保留语义检查的修复次数
+        if any(isinstance(error,RuntimeError) for error in errors):
+            if all(getattr(error,'kind',None)=='output_limit' for error in errors if isinstance(error,RuntimeError)):
+                raise AgentCallFailure('output_limit',message)
+            raise RuntimeError(message)
+        raise ValueError(message)
     return results
 
 
@@ -275,7 +281,7 @@ def run(root, maximum=3):
             if isinstance(error, (NameError, ImportError, AttributeError, TypeError)):
                 return update_state(root, status='failed', usage=usage(root))
             if isinstance(error, RuntimeError):
-                return update_state(root, status='interrupted', usage=usage(root))
+                return update_state(root, status='interrupted',failure_kind=getattr(error,'kind',None),usage=usage(root))
         current=read(root/'runtime/state.json')
         print(json.dumps({'project': root.name, 'round': number, 'stage':current.get('stage'), 'issues':current.get('issues',[])}, ensure_ascii=False), flush=True)
     return update_state(root, status='needs_review', usage=usage(root), elapsed_seconds=round(time.monotonic()-started, 3))
