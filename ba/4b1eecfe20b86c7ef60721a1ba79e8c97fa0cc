@@ -1,0 +1,35 @@
+integrations/readweave/demo.js
+  s_4552c046844e7c::t_0e6357de9f571a 5
+04-framework/05_writing/build_book.py
+  s_4552c046844e7c::t_d73a73f6a0ecf9 7,210,226-229,253
+tests/test_materials.py
+  s_4552c046844e7c::t_d73a73f6a0ecf9 13,42-59
+04-framework/01_tree/tree_document.py
+  s_4552c046844e7c::t_d73a73f6a0ecf9 393,400
+integrations/readweave/build_component.py
+  s_4552c046844e7c::t_0e6357de9f571a 32
+04-framework/05_writing/book_sources.py
+  s_4552c046844e7c::t_d73a73f6a0ecf9 100-130
+integrations/readweave/reader-component.js
+  s_4552c046844e7c::t_3abf2ee57ce3bf 18
+web/app.js
+  s_4552c046844e7c::t_ae8c9c1f96adcd 13
+web/reader-integration.js
+  s_4552c046844e7c::t_57a3c5a58e8cfe 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ba4b1eecfe20b86c7ef60721a1ba79e8c97fa0cc",
+  "prompts": {},
+  "sessions": {
+    "s_4552c046844e7c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14919-891d-7b32-9e12-b2bf212304ff",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    }
+  }
+}
