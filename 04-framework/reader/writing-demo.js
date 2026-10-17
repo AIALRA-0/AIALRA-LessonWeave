@@ -553,7 +553,7 @@
       if (!Array.isArray(sourcePack.sources) || !Array.isArray(explanationCoverage.items)) throw new Error('材料版本正在准备');
       originalSourcePack = sourcePack;
       sourcePack = { ...sourcePack, sources: mergeSourceViews(sourcePack.sources) };
-      sourceLinks = { ...(explanationCoverage.block_sources || {}) };
+      sourceLinks = structuredClone(explanationCoverage.block_sources || {});
       if (isPreview) {
         for (const [blockId, references] of Object.entries(data.preview_source_links || {})) {
           if (!Array.isArray(references)) continue;
@@ -564,6 +564,31 @@
             JSON.stringify(other.region_ids || []) === JSON.stringify(reference.region_ids || [])) === index);
         }
       }
+      // 用清单中的实际引文补充精确对照，覆盖记录与审查快照保持原样
+      try {
+        const [inventory,bindings]=await Promise.all([data.grounding.inventory_path,data.grounding.bindings_path].map(async path=>{
+          if(!path)return null;const response=await fetch(projectPath(path),{cache:'no-store'});return response.ok?response.json():null;
+        }));
+        if(inventory&&bindings){
+          const responsibilities=new Map(bindings.points.map(row=>[row.point_id,row.block_ids]));
+          for(const point of inventory.points)for(const blockId of responsibilities.get(point.id)||[]){
+            for(const quote of point.source_quotes){
+              const source=originalSourcePack.sources.find(item=>item.id===quote.source_id);
+              const reference=(sourceLinks[blockId]||[]).find(ref=>ref.source_id===quote.source_id);
+              if(!source||!reference)continue;
+              const normal=text=>text.replace(/\s+/g,' ').trim().toLocaleLowerCase();
+              for(const sentence of source.sentences||[]){
+                if(reference.sentence_ids?.length&&!reference.sentence_ids.includes(sentence.id))continue;
+                if(quote.sentence_ids?.length&&!quote.sentence_ids.includes(sentence.id))continue;
+                if(normal(sentence.original).includes(normal(quote.quote))){
+                  reference.quotes||=[];
+                  if(!reference.quotes.some(row=>row.sentence_id===sentence.id&&row.text===quote.quote))reference.quotes.push({sentence_id:sentence.id,text:quote.quote});
+                }
+              }
+            }
+          }
+        }
+      }catch(error){console.debug('当前清单的精确引文尚未载入',error);}
       document.body.classList.add('grounded-demo');
       get('demo-original').hidden = false;
       get('demo-pane-tabs').hidden = false;
@@ -634,7 +659,7 @@
         }
       }
     }
-    if (!isBook) return;
+    if (!isBook || (window.LESSONWEAVE && !window.LESSONWEAVE.legacy)) return;
     try {
       const response = await fetch('/05_writing/demo.json', { cache: 'no-store' });
       if (!response.ok) return;

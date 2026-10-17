@@ -22,6 +22,8 @@ def main():
     add.add_argument('--name', required=True)
     export = sub.add_parser('export')
     export.add_argument('path', type=Path)
+    native = sub.add_parser('sync-trilium')
+    native.add_argument('project')
     args = parser.parse_args()
     if args.command == 'serve':
         from .server import serve as start
@@ -31,6 +33,11 @@ def main():
     elif args.command == 'export':
         from .package import export_package
         print(json.dumps(export_package(args.path), ensure_ascii=False))
+    elif args.command == 'sync-trilium':
+        from .trilium import sync_project
+        store=Store();project=store.project(args.project)
+        mapping=sync_project(store,project,Path(project['path']))
+        print(json.dumps({key:mapping[key] for key in ['project_note_id','render_note_id','version','validated']},ensure_ascii=False))
     elif args.command == 'run':
         from .pipeline import scaffold, run as execute
         store = Store()

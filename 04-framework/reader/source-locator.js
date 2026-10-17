@@ -172,10 +172,11 @@
     return { text: chars.join(''), offsets };
   }
   // 在实际 DOM 文本节点中逐字找回当前句，链接、强调和原始节点继续保留
-  function markSentence(root, sentence, sentenceId) {
+  function markSentence(root, sentence, sentenceId, allowedRows=null) {
     const nodes = [], walker = root.ownerDocument.createTreeWalker(root, NodeFilter.SHOW_TEXT); let node, raw = '';
     while (node = walker.nextNode()) {
       if (node.parentElement.closest('script,style')) continue;
+      if(allowedRows&&!allowedRows.has(node.parentElement.closest('.code-line')))continue;
       nodes.push({ node, start: raw.length }); raw += node.textContent;
     }
     const actual = normalizedMap(raw), needle = normalizedMap(sentence).text, start = actual.text.indexOf(needle);
@@ -193,6 +194,12 @@
   function highlightDOM(options) {
     if (!domLoaded || !currentSource) return;
     const doc = iframe.contentDocument; if (!doc?.body) return;
+    if(currentFile){
+      let style=doc.getElementById('lessonweave-code-location-style');
+      if(!style){style=doc.createElement('style');style.id='lessonweave-code-location-style';doc.head.append(style);}
+      const dark=document.body.dataset.theme==='dark';
+      style.textContent='.code-lines{white-space:pre;width:max-content;min-width:100%;margin:0}.code-line{display:block;width:max-content;min-width:100%}.code-line.location-selected{background:transparent!important;outline:0!important}mark[data-locator-mark]{background:'+(dark?'#383838':'#dededb')+';color:inherit;box-shadow:none;outline:none}body{background:'+(dark?'#1e1e1e':'#ffffff')+';color:'+(dark?'#eeeeee':'#232321')+'}';
+    }
     if (!options.center && !options.anchor) options = { ...options, anchor: captureView() };
     const width = iframe.clientWidth, height = iframe.clientHeight;
     if (!originalDOMWidths.has(doc.body)) originalDOMWidths.set(doc.body, doc.body.style.width);
@@ -215,8 +222,24 @@
     if (currentFile) {
       const location = sentenceLocation();
       if (location?.status !== 'exact' || location.file_id !== currentFile.id) { describe(); return; }
-      for (let line = location.start_line; line <= location.end_line; line++) doc.getElementById('L' + line)?.classList.add('location-selected');
-      const nodes = [...doc.querySelectorAll('.location-selected')];
+      const rows=new Set();
+      for(let line=location.start_line;line<=location.end_line;line++){const row=doc.getElementById('L'+line);if(row)rows.add(row);}
+      const quotes=currentRefs.flatMap(ref=>ref.quotes||[]).filter(quote=>quote.sentence_id===activeSentenceId);
+      let precise=false;
+      for(const quote of quotes)precise=markSentence(doc.querySelector('.code-lines'),quote.text,activeSentenceId,rows)||precise;
+      if(!precise){
+        for(let line=location.start_line;line<=location.end_line;line++){
+          const row=doc.getElementById('L'+line);if(!row)continue;
+          const text=row.firstChild;if(!text||text.nodeType!==Node.TEXT_NODE)continue;
+          const start=line===location.start_line?location.start_column||0:0;
+          const end=line===location.end_line?location.end_column??[...text.textContent].length:[...text.textContent].length;
+          const first=[...text.textContent].slice(0,start).join('').length,last=[...text.textContent].slice(0,end).join('').length;
+          if(last<=first)continue;
+          const range=doc.createRange();range.setStart(text,first);range.setEnd(text,last);
+          const mark=doc.createElement('mark');mark.dataset.locatorMark='true';mark.dataset.sentenceId=activeSentenceId;range.surroundContents(mark);
+        }
+      }
+      const nodes=[...doc.querySelectorAll('[data-locator-mark]')];
       domHighlights = { doc, key, nodes }; fitDOM(nodes, options);
       describe(); return;
     }
@@ -348,7 +371,7 @@
     activeSentenceId = (regionOnly && !preferredSentence) || wholeImage ? null : [preferredSentence, previous, ...candidates].find(id => candidates.includes(id)) || null;
     selectedId = id; currentSource = source;
     const selectedSentence = sentenceFor();
-    currentRefs = activeSentenceId ? [{ source_id: id, sentence_ids: [activeSentenceId], ...(selectedSentence?.region ? { region_ids: [selectedSentence.region] } : {}) }] : refs;
+    currentRefs = activeSentenceId ? [{ source_id: id, sentence_ids: [activeSentenceId], quotes:refs.flatMap(ref=>ref.quotes||[]).filter(quote=>quote.sentence_id===activeSentenceId), ...(selectedSentence?.region ? { region_ids: [selectedSentence.region] } : {}) }] : refs;
     if (!selection?.block_id) { normalId = id; normalSentenceId = activeSentenceId; }
     const location = sentenceLocation(), sourceLocation = locationFor(id);
     currentFile = location?.file_id ? manifest.files[location.file_id] : null;

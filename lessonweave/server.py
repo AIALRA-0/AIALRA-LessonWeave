@@ -25,20 +25,14 @@ def public_state(state):
 
 
 def worker(store):
-    from .pipeline import run
+    from .jobs import execute
     while True:
         job = store.claim()
         if job is None:
             time.sleep(1)
             continue
         try:
-            project = store.project(job['project_id'])
-            payload = json.loads(job['payload'])
-            if payload.get('_type') == 'qa':
-                from .qa import answer
-                result = answer(Path(project['path']), payload)
-            else:
-                result = run(Path(project['path']))
+            result=execute(store,job)
         except Exception as error:
             result = {'status': 'failed', 'issues': [str(error)]}
         store.finish(job['id'], result)
@@ -105,12 +99,17 @@ class Handler(SimpleHTTPRequestHandler):
                     book = read(root/'05_writing/preview-book.json', read(root/'05_writing/book.json', {}))
                     result.append(dict(public_project(project), state=public_state(read(root/'runtime/state.json', {'status':'existing'})), title=book.get('title'), ready=bool(book) and (root/'05_writing/source-location/index.json').is_file()))
                 self.json(result)
+            elif route == '/api/library':
+                from .trilium import configured
+                self.json({'folders':self.store.folders(),'projects':[public_project(p) for p in self.store.projects(include_deleted=True)],'storage':'trilium' if configured() else 'local','native_root':os.environ.get('LESSONWEAVE_TRILIUM_ROOT')})
             elif route == '/api/jobs':
-                self.json([{key: value for key, value in job.items() if key != 'payload'} for job in self.store.jobs()])
+                from .progress import view
+                self.json([dict({key:value for key,value in job.items() if key not in {'payload','result'}},progress=view(Path(self.store.project(job['project_id'])['path']),job)) for job in self.store.jobs()])
             elif route.startswith('/api/jobs/'):
                 job = self.store.job(route.split('/')[3])
                 job.pop('payload', None)
-                job['progress'] = public_state(read(Path(self.store.project(job['project_id'])['path'])/'runtime/state.json', {}))
+                from .progress import view
+                job['progress']=view(Path(self.store.project(job['project_id'])['path']),job)
                 self.json(job)
             elif route.startswith('/api/notes/'):
                 parts = route.split('/')
@@ -141,8 +140,8 @@ class Handler(SimpleHTTPRequestHandler):
                         self.file(path, html.encode(), 'text/html')
                     else:
                         self.file(path)
-            elif route in {'/', '/index.html', '/app.js', '/app.css', '/reader-mount.js', '/reader-integration.js', '/inspect.html', '/inspect.js'}:
-                self.file(REPO/'web'/('index.html' if route=='/' else route.lstrip('/')))
+            elif route in {'/', '/index.html', '/app.js', '/app.css', '/reader-mount.js', '/reader-integration.js', '/inspect.html', '/inspect.js','/workspace','/workspace.html','/workspace.js','/workspace.css','/theme.css'}:
+                self.file(REPO/'web'/('index.html' if route=='/' else 'workspace.html' if route=='/workspace' else route.lstrip('/')))
             elif route.startswith('/docs/assets/'):
                 path = (REPO/route.lstrip('/')).resolve()
                 if path.is_relative_to(REPO/'docs/assets'):
@@ -183,7 +182,14 @@ class Handler(SimpleHTTPRequestHandler):
                 self.json({'upload_id': key, 'name': name})
                 return
             payload = json.loads(self.body() or '{}')
-            if route == '/api/projects':
+            if route == '/api/folders':
+                from .trilium import create_folder
+                self.json(create_folder(self.store,self.store.clean_name(payload.get('name')),payload.get('parent_id','root')),201)
+            elif route.startswith('/api/library/'):
+                from .trilium import change
+                parts=route.split('/')
+                self.json(change(self.store,parts[3],parts[4],parts[5],payload))
+            elif route == '/api/projects':
                 from .pipeline import scaffold
                 key = self.headers.get('Idempotency-Key')
                 if not key or len(key) > 100:
@@ -194,7 +200,11 @@ class Handler(SimpleHTTPRequestHandler):
                 except KeyError:
                     root = self.store.root/'projects'/pid
                     scaffold(root)
-                    project = self.store.register(pid, payload.get('name','新的学习项目')[:100], root)
+                    from .trilium import ensure_project
+                    name=self.store.clean_name(payload.get('name','新的学习项目'))
+                    folder_id=payload.get('folder_id','root')
+                    native_note_id=ensure_project(self.store,pid,name,folder_id)
+                    project = self.store.register(pid,name,root,folder_id=folder_id,native_note_id=native_note_id)
                 kind = payload['kind']
                 if kind == 'url':
                     from .network import validate_url
@@ -213,8 +223,15 @@ class Handler(SimpleHTTPRequestHandler):
                 job = self.store.submit(pid, input_value, key)
                 self.json({'project_id': pid, 'job_id': job['id']}, 201)
             elif route.startswith('/api/jobs/') and route.endswith('/resume'):
-                self.store.resume(route.split('/')[3])
+                key=route.split('/')[3]
+                previous=self.store.job(key)
+                if previous['status'] in {'interrupted','cancelled'}:
+                    from .jobs import mark_cancelled
+                    mark_cancelled(Path(self.store.project(previous['project_id'])['path']),reason='user_resumed_stopped_task')
+                self.store.resume(key)
                 self.json({'status':'queued'})
+            elif route.startswith('/api/jobs/') and route.endswith('/cancel'):
+                self.json(self.store.cancel(route.split('/')[3]))
             elif route.startswith('/api/notes/'):
                 parts = route.split('/')
                 self.json({'value': self.store.note(parts[3], '/'.join(parts[4:]), payload['value'])})
@@ -234,8 +251,15 @@ class Handler(SimpleHTTPRequestHandler):
 def serve(host='127.0.0.1', port=8960):
     if os.environ.get('LESSONWEAVE_AUTH_REQUIRED')=='1' and not os.environ.get('LESSONWEAVE_OWNER'):
         raise ValueError('个人网站启用登录时，需要配置 LESSONWEAVE_OWNER 指定所有者')
-    store = Store(recover=True)
+    # 升级时可让旧进程处理已有任务，新进程只领取尚未开始的任务
+    store = Store(recover=os.environ.get('LESSONWEAVE_RECOVER_JOBS','1')!='0')
     Handler.store = store
     threading.Thread(target=worker, args=(store,), daemon=True).start()
     print('LessonWeave http://' + host + ':' + str(port), flush=True)
-    ThreadingHTTPServer((host, port), Handler).serve_forever()
+    server=ThreadingHTTPServer((host,port),Handler)
+    try:
+        server.serve_forever()
+    finally:
+        from .jobs import shutdown
+        shutdown()
+        server.server_close()

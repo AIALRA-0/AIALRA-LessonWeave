@@ -27,8 +27,8 @@ export function mountReader(container, options) {
   const tracked=kind=>class extends native[kind] {constructor(...args){super(...args);observers.add(this)}disconnect(){super.disconnect();observers.delete(this)}};
   const MutationObserver=tracked('MutationObserver'), ResizeObserver=tracked('ResizeObserver'), IntersectionObserver=tracked('IntersectionObserver');
   const config={project_id:options.projectId,base:options.base,readweave_demo:true,legacy:!!options.legacy};
-  const path=value=>{let text=String(value||'');if(/^(https?:|data:|blob:|#)/.test(text))return text;if(text.startsWith(config.base+'/'))return text;if(text.startsWith('/book.html')||text.startsWith('book.html'))text=text.replace('book.html','readweave.html');return config.base+'/'+text.replace(/^\\/+/,'')};
-  const fetch=(value, init)=>options.fetch?options.fetch(value,init):native.fetch(typeof value==='string'&&/^\\/(0[0-5]_)/.test(value)?path(value):value,init);
+  const path=value=>{let text=String(value||'');const resolved=options.resolveResource?.(text);if(resolved)return resolved;if(/^(https?:|data:|blob:|#)/.test(text))return text;if(text.startsWith(config.base+'/'))return text;if(text.startsWith('/book.html')||text.startsWith('book.html'))text=text.replace('book.html','readweave.html');return config.base+'/'+text.replace(/^\\/+/,'')};
+  const fetch=(value, init)=>value==='/design-tokens.json'?Promise.resolve(new Response(JSON.stringify(DESIGN_TOKENS),{headers:{'Content-Type':'application/json'}})):options.fetch?options.fetch(value,init):native.fetch(typeof value==='string'&&/^\\/(0[0-5]_)/.test(value)?path(value):value,init);
   const location={pathname:'readweave/book.html',search:options.search??'?preview=true',hash:''};
   const owned={LESSONWEAVE:config,LWPath:path};
   const listen=(target,type,handler,settings={})=>target.addEventListener(type,handler,{...(typeof settings==='boolean'?{capture:settings}:settings),signal:abort.signal});
@@ -56,6 +56,7 @@ export function mountReader(container, options) {
     scripts=(READER/'reading-icons.js').read_text('utf-8')+'\nconst uiIcon=window.uiIcon;\n'+'\n\n'.join((READER/name).read_text('utf-8') for name in ['writing-demo.js','reading-ui.js','source-locator.js','source-split.js'])
     tail='''
   listen(root,'reading:source-selection',event=>options.onSourceSelection?.(event.detail));
+  if(options.onNavigate)listen(root,'click',event=>{const link=event.target.closest?.('a[href]');if(!link||event.ctrlKey||event.metaKey||event.shiftKey||link.target==='_blank')return;const url=new URL(link.href,native.location.href);if(/\\/(?:book|readweave)\\.html$/.test(url.pathname)&&url.pathname.startsWith(config.base+'/')){event.preventDefault();options.onNavigate(url.search)}},true);
   const bound=new WeakSet();
   const connectNotes=()=>root.querySelectorAll('.writing-note').forEach(box=>{
     if(bound.has(box))return;const state=owned.ReaderSourceBridge?.getState();if(!state?.doc)return;
@@ -72,7 +73,7 @@ export function mountReader(container, options) {
   };
 }
 '''
-    (HERE/'reader-component.js').write_text('const STYLES='+json.dumps(styles,ensure_ascii=False)+';\nconst TEMPLATE='+json.dumps(body,ensure_ascii=False)+';\n'+header+scripts+tail,'utf-8')
+    (HERE/'reader-component.js').write_text('const DESIGN_TOKENS='+(READER/'design-tokens.json').read_text('utf-8')+';\nconst STYLES='+json.dumps(styles,ensure_ascii=False)+';\nconst TEMPLATE='+json.dumps(body,ensure_ascii=False)+';\n'+header+scripts+tail,'utf-8')
 
 
 if __name__=='__main__':

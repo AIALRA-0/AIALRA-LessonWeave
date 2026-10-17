@@ -55,7 +55,7 @@ class CodexAdapter:
         args.append('-')
         env = dict(os.environ, PYTHONIOENCODING='utf-8')
         for key in list(env):
-            if key in {'OPENAI_API_KEY', 'CODEX_API_KEY'} or any(part in key for part in ('KUAFUSHE', 'DEEPSEEK', 'GITHUB_TOKEN', 'GH_TOKEN')):
+            if key in {'OPENAI_API_KEY', 'CODEX_API_KEY','LESSONWEAVE_API_KEY','LESSONWEAVE_TRILIUM_TOKEN'} or any(part in key for part in ('KUAFUSHE', 'DEEPSEEK', 'GITHUB_TOKEN', 'GH_TOKEN')):
                 env.pop(key)
         with (folder / 'events.jsonl').open('w', encoding='utf-8') as events, (folder / 'stderr.txt').open('w', encoding='utf-8') as errors:
             process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=events, stderr=errors,
@@ -144,8 +144,17 @@ class Backend:
         fingerprint = hashlib.sha256(json.dumps(identity, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
         safe_name = __import__('re').sub(r'[^\w.-]', '_', name)
         folder = self.root / 'runtime/calls' / safe_name / fingerprint
+        cancelled=read(folder/'usage.json',{}).get('status')=='cancelled'
+        if cancelled and not (folder/'result.json').is_file():
+            archive=self.root/'runtime/cancelled-calls'/safe_name/(fingerprint+'-'+str(time.time_ns()))
+            archive.parent.mkdir(parents=True,exist_ok=True)
+            if not folder.resolve().is_relative_to(self.root/'runtime') or not archive.resolve().is_relative_to(self.root/'runtime'):
+                raise ValueError('取消记录需要保留在当前项目中')
+            folder.rename(archive)
         folder.mkdir(parents=True, exist_ok=True)
+        from .progress import tick
         if (folder / 'result.json').is_file():
+            tick(self.root,name,'reused')
             return read(folder / 'result.json')
         record = read(folder / 'usage.json', {})
         if record.get('status') in {'started', 'uncertain'} and not (folder / 'response.json').is_file():
@@ -157,6 +166,7 @@ class Backend:
         (folder / 'prompt.txt').write_text(task['prompt'], encoding='utf-8')
         started = time.monotonic()
         with SLOTS:
+            tick(self.root,name,'running')
             save(folder / 'usage.json', {'task': name, 'model': self.model, 'reasoning_effort': self.effort, 'role': self.role, 'status': 'started', 'round': state.get('round', 0)})
             try:
                 if (folder / 'response.json').is_file():
@@ -173,8 +183,10 @@ class Backend:
                 save(folder / 'format-conversions.json', changes)
                 save(folder / 'usage.json', dict(receipt, task=name, model=self.model, reasoning_effort=self.effort,
                      role=self.role, status='completed', round=state.get('round', 0), elapsed_seconds=round(time.monotonic()-started, 3)))
+                tick(self.root,name,'completed')
                 return formatted
             except Exception as error:
+                tick(self.root,name,'failed')
                 save(folder / 'usage.json', dict(read(folder / 'usage.json', {}), status='uncertain' if not (folder / 'response.json').is_file() else 'invalid',
                      error_type=type(error).__name__, elapsed_seconds=round(time.monotonic()-started, 3)))
                 raise

@@ -10,6 +10,12 @@ python -m lessonweave run --input examples/pdf.input.json --name "鸟类观察�
 
 运行数据默认保存在用户目录下的 .local/share/lessonweave，设置 LESSONWEAVE_DATA 可以指定独立位置
 
+网站使用者打开 `/workspace`，先选择或新建文件夹，再点击“生成读本”，选择网页、PDF 或项目 ZIP 并提交，任务卡显示实际阶段和已完成任务数，关闭页面后后台继续执行
+
+点击“停止”会结束该任务及其模型、解析子进程，已完成的阶段和调用回执保留，点击“继续”后复用已完成结果，达到返修上限的稿件保留真实问题与预览
+
+左侧目录支持搜索、折叠、重命名、移动、移入回收站和恢复，正在执行的项目先停止再移入回收站，用户笔记随项目保留
+
 ## 1.1 怎样配置模型
 
 LESSONWEAVE_BACKEND 默认为 codex，LESSONWEAVE_MODEL 默认为 gpt-6.1-sol，LESSONWEAVE_EFFORT 默认为 high

@@ -11,6 +11,7 @@ import time
 
 from .storage import read, save, WRITE_LOCK
 from .agents import Backend
+from .progress import begin
 from . import legacy as flow
 
 FRAME = flow.FRAME
@@ -165,6 +166,7 @@ def write_sections(root, backend):
     work = root / '05_writing/work'
     work.mkdir(parents=True, exist_ok=True)
     update_state(root, stage='05_writing/materials')
+    begin(root,'清点各节原材料',[context['section_id']+'-05_inventory' for context in contexts])
     def plan_one(context):
         folder = work / 'sections' / context['section_id']
         folder.mkdir(parents=True, exist_ok=True)
@@ -176,6 +178,7 @@ def write_sections(root, backend):
     planned = [by_sid[context['section_id']] for context in contexts]
     tasks = [(row, index) for row in planned for index in range(len(row[0]['units']))]
     update_state(root, stage='05_writing/units')
+    begin(root,'逐问生成讲解',[context['section_id']+'-05_unit-'+item['question_id'] for context,_,_,_ in planned for item in context['units']])
     def write_one(task):
         (context, folder, pack, inventory), index = task
         qid = context['units'][index]['question_id']
@@ -189,9 +192,11 @@ def write_sections(root, backend):
     all_units = [read(folder / ('unit-' + item['question_id'] + '.json')) for context, folder, _, _ in planned for item in context['units']]
     overview_schema = flow.generation.obj({'introduction': flow.generation.STRING, 'answers': flow.generation.array(flow.generation.obj({'question_id': flow.generation.STRING, 'answer': flow.generation.STRING}))})
     parents = [question for question in questions.values() if question['children']]
+    begin(root,'收束章节与全书问题',['05_overview'])
     overview = backend.call('05_overview', '依据实际逐问总结回答全部父问题并写简短全书介绍，保持原材料中的条件和事实\n' + json.dumps({'chapters': chapters, 'parents': parents, 'summaries': [{'question_id': unit['question_id'], 'answer': unit['summary']['text']} for unit in all_units]}, ensure_ascii=False), overview_schema)
     save(work / 'overview.json', overview)
     update_state(root, stage='05_writing/review')
+    begin(root,'补齐练习与术语并独立审查',[context['section_id']+suffix for context,_,_,_ in planned for suffix in ['-05_extras','-05_review']]+['05_overview_review'])
     def finish_one(row):
         context, folder, pack, inventory = row
         context = flow.runtime.patch_context(context, chapters, questions, overview)
@@ -224,6 +229,7 @@ def write_sections(root, backend):
 
 def usage(root):
     calls = [read(path) for path in (root / 'runtime/calls').glob('*/*/usage.json')]
+    calls += [read(path) for path in (root/'runtime/cancelled-calls').glob('*/*/usage.json')]
     total = {'calls': len(calls), 'completed_calls': sum(c['status'] == 'completed' for c in calls), 'input_tokens': 0, 'output_tokens': 0, 'cached_input_tokens': 0, 'cache_measurement_missing_calls': 0, 'elapsed_call_seconds': 0}
     for call in calls:
         total['elapsed_call_seconds'] += call.get('elapsed_seconds', 0)

@@ -17,8 +17,8 @@ LessonWeave 适合希望围绕原材料深入学习的人，你提供一个网�
 写作与审查分别使用独立的 Sol 上下文，每个信息点关联实际正文位置，覆盖结果由程序重新计算，未通过的版本保留真实检查状态和完整预览
 
 <div align="center">
-<img src="docs/assets/workbench.png" width="1200" alt="使用自编材料的 LessonWeave 工作台，左侧提交材料，右侧继续阅读已生成的学习项目">
-<p><sub>图 1.2　实际工作台，自编示例分别讨论展品借展、鸟类观察与温度报表</sub></p>
+<img src="docs/assets/workbench.png" width="1200" alt="使用自编鸟类调查材料的 LessonWeave 工作台，左侧目录管理学习项目，右侧对照原页阅读">
+<p><sub>图 1.2　实际工作台，目录、原页与译文、讲解和术语共同服务当前学习项目</sub></p>
 </div>
 
 <div align="center">
@@ -31,7 +31,9 @@ LessonWeave 适合希望围绕原材料深入学习的人，你提供一个网�
 | 查术语 | 指向正文术语时，右栏展开对应解释 |
 | 回到来源 | 从讲解块定位到相关原句、页面区域或代码行 |
 | 消化所学 | 每个完整讲解单元保留一个笔记框，并提供练习反馈 |
-| 在 ReadWeave 阅读 | 导出阅读包，或打开独立的原生组件接入演示 |
+| 管理学习项目 | 在可折叠目录树中选择生成位置，重命名、移动和恢复项目 |
+| 控制生成任务 | 查看真实阶段进度，停止进程，保留已完成结果并继续 |
+| 在 ReadWeave 阅读 | 保存为 Trilium 原生笔记与附件，在 renderNote 中对照阅读 |
 
 </div>
 
@@ -73,7 +75,9 @@ codex login
 
 Windows 使用 `.venv\Scripts\python.exe -m lessonweave serve --port 8960` 启动
 
-打开 `http://localhost:8960`，选择网页、PDF 或项目 ZIP，提交后可以关闭页面，任务状态、阶段结果和笔记继续保存到站点数据目录
+打开 `http://localhost:8960/workspace`，选择或新建文件夹，点击“生成读本”，选择网页、PDF 或项目 ZIP 并提交，任务卡显示实际进度，关闭页面后后台继续处理
+
+目录支持搜索、折叠、重命名、移动、回收站与恢复，停止任务时会结束模型和解析子进程，已完成的阶段、调用回执和笔记继续保留
 
 生产部署需要配置个人登录和所有者限制，模型调用会使用你的 Codex 额度，安装、备份和权限配置见[部署指南](docs/deployment.md)
 
@@ -106,18 +110,19 @@ flowchart TD
 ## 4 怎样交给 ReadWeave
 
 <div align="center">
-<img src="docs/assets/reader.png" width="1200" alt="独立 ReadWeave 风格演示，原生挂载目录、来源对照、讲解和术语组件">
-<p><sub>图 4.1　独立组件演示，使用实际书稿与来源映射，正式 ReadWeave 项目由其维护者接入</sub></p>
+<img src="docs/assets/reader.png" width="1200" alt="独立 ReadWeave 实例中的 Trilium 原生笔记树与 LessonWeave 阅读组件，使用自编鸟类调查材料">
+<p><sub>图 4.1　真实 Trilium 宿主中的阅读组件，章节与资源保存在原生笔记和附件中</sub></p>
 </div>
 
-阅读组件提供挂载与卸载接口，正文、术语、练习、原页和定位记录来自带版本的阅读包，宿主负责登录、笔记保存与问答器
+Trilium 适配器通过 ETAPI 保存项目、章节和版本附件，renderNote 加载四栏阅读组件，学习笔记通过宿主前端接口保存，原生 text 章节沿用 ReadWeave 已有问答器
 
-当前仓库包含[组件交接说明](integrations/readweave/HANDOFF.md)与独立演示，接入正式 ReadWeave 时可以复用其已有的保存、追问与知识对象
+已在独立的 TriliumNext 0.104.0 ReadWeave 实例验证挂载、附件、章节与笔记往返，正式 ReadWeave 服务由其维护者接入，配置和验收范围见[组件交接说明](integrations/readweave/HANDOFF.md)
 
 ## 5 怎样检查结果与保护资料
 
 - `python -m pytest` 检查输入、任务去重、恢复、笔记、独立请求、修复上限和阅读包导入
 - `tests/check_pages.py` 在隔离浏览器中检查工作台与阅读界面，并保存实际截图
+- `tests/check_workspace.py` 检查目录操作、主题、窄屏与源码字符高亮，使用实际接口且不调用模型
 - 阶段检查记录、独立审查、来源快照和实际用量保存在各项目的运行目录
 - 普通阅读默认关闭 Debug，未通过的版本显示实际状态，详细检查可以从阶段预览进入
 

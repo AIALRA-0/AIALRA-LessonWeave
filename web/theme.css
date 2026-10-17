@@ -1,0 +1,7 @@
+/* These semantic roles follow the user's template workbench palette */
+:root{--bg:#eeeeec;--paper:#f7f7f5;--canvas:#fff;--ink:#232321;--muted:#61615d;--line:#d4d4d0;--accent:#232321;--soft:#dededb;--hover:#e9e9e6;--focus:#323230;--danger:#a52225;--shadow:0 8px 28px #00000006}
+body.dark{color-scheme:dark;--bg:#141414;--paper:#1b1b1b;--canvas:#1e1e1e;--ink:#eeeeee;--muted:#ababab;--line:#383838;--accent:#eeeeee;--soft:#383838;--hover:#303030;--focus:#dedede;--danger:#ffb4ab}
+body.dark .primary{color:var(--paper)}
+.dot{color:var(--ink)}.woven-line{border-color:#a4a4a0}.woven-line.two{border-color:#c0c0bc}.woven-line.three{border-color:#888884}.tag{background:var(--soft)}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.danger{color:var(--danger)}

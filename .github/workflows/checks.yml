@@ -13,4 +13,4 @@ jobs:
       - run: python -m pip install -r requirements.txt
       - run: python -m pytest
       - run: python -m compileall -q lessonweave
-      - run: node --check web/app.js && node --check integrations/readweave/reader-component.js
+      - run: node --check web/app.js && node --check web/workspace.js && node --check integrations/readweave/reader-component.js

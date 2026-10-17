@@ -17,8 +17,8 @@ Provide a web page, PDF or project ZIP, LessonWeave preserves the material and l
 Writing and review use independent Sol contexts, each information point links to actual explanation blocks, coverage is recalculated by code, and unsuccessful versions retain their real review status and complete previews
 
 <div align="center">
-<img src="docs/assets/workbench.png" width="1200" alt="Actual LessonWeave workspace with material submission and three self-authored learning examples">
-<p><sub>Figure 1.2　The running workspace with museum-loan, bird-count and temperature-report examples</sub></p>
+<img src="docs/assets/workbench.png" width="1200" alt="Actual LessonWeave workspace with a folder tree and source comparison using a self-authored bird-count example">
+<p><sub>Figure 1.2　The running workspace brings folders, source pages, translations, explanations and terms together</sub></p>
 </div>
 
 <div align="center">
@@ -31,7 +31,9 @@ Writing and review use independent Sol contexts, each information point links to
 | Look up a term | Hovering a registered term opens its glossary entry |
 | Trace an explanation | Source markers locate original sentences, regions or lines |
 | Reflect and practice | One note field per complete unit, with exercises and feedback |
-| Read in ReadWeave | Export a reading package or use the standalone native-component demo |
+| Manage learning projects | Choose a folder, rename or move projects, and restore items from trash |
+| Control generation | Follow actual stage progress, stop processes and resume completed work |
+| Read in ReadWeave | Store native Trilium notes and attachments, and compare sources through renderNote |
 
 </div>
 
@@ -73,7 +75,9 @@ codex login
 
 On Windows, start with `.venv\Scripts\python.exe -m lessonweave serve --port 8960`
 
-Open `http://localhost:8960`, choose a web page, PDF or project ZIP and submit it, processing and saved state continue after closing the page
+Open `http://localhost:8960/workspace`, choose or create a folder, select Generate Book, then submit a web page, PDF or project ZIP, task cards show actual progress and processing continues after closing the page
+
+The tree supports search, folding, renaming, moving, trash and restoration, stopping a task terminates its model and parsing processes while keeping completed stages, usage receipts and notes
 
 Production deployments require personal authentication and an owner restriction, model calls consume your Codex allowance, see [deployment](docs/deployment.md) for permissions and backups
 
@@ -106,18 +110,19 @@ See [usage](docs/usage.md) for direct input-file execution and [04-framework](04
 ## 4 Hand results to ReadWeave
 
 <div align="center">
-<img src="docs/assets/reader.png" width="1200" alt="Standalone ReadWeave-style demo with native outline, source comparison, explanation and glossary components">
-<p><sub>Figure 4.1　The standalone component demo uses actual book data and mappings, the ReadWeave maintainer owns production integration</sub></p>
+<img src="docs/assets/reader.png" width="1200" alt="Native Trilium tree and LessonWeave reader inside an isolated ReadWeave instance using a self-authored bird-count example">
+<p><sub>Figure 4.1　The reader runs in a real Trilium host, chapters and resources use native notes and attachments</sub></p>
 </div>
 
-The component exposes mount and unmount methods, versioned reading packages supply content and source locations, the host owns authentication, note persistence and its question-answer interface
+The Trilium adapter uses ETAPI for projects, chapters and version attachments, renderNote mounts the reader, personal notes use authenticated host APIs, native text chapters reuse ReadWeave's existing question-answer interface
 
-The [handoff guide](integrations/readweave/HANDOFF.md) describes integration with ReadWeave's existing knowledge objects, saved answers and follow-ups
+Mounting, attachments, native chapters and note round trips were verified in an isolated TriliumNext 0.104.0 ReadWeave instance, the production maintainer owns deployment, see the [handoff guide](integrations/readweave/HANDOFF.md) for configuration and verification boundaries
 
 ## 5 Validate results and protect data
 
 - `python -m pytest` checks input validation, deduplication, recovery, notes, independent requests, repair limits and package import
 - `tests/check_pages.py` checks the running workspace and readers in an isolated browser and saves screenshots
+- `tests/check_workspace.py` exercises folder operations, themes, narrow screens and character-level source highlighting through actual APIs without model calls
 - Stage checks, independent reviews, source snapshots and usage receipts remain in each project's runtime directory
 - Debug is off during normal reading, preview versions retain their actual status and stage inspection exposes detailed records
 

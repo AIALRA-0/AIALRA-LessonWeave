@@ -1,7 +1,7 @@
 LessonWeave
 Copyright 2026 LessonWeave contributors
 
-The independent ReadWeave-style integration demo is maintained in this repository.
+The Trilium ETAPI adapter and independent ReadWeave integration are maintained here.
 The production ReadWeave project is maintained separately.
 
 Runtime dependencies retain their respective licenses, including PyMuPDF,
