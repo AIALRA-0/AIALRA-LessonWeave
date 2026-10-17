@@ -1,0 +1,60 @@
+lessonweave/metrics.py
+  s_4552c046844e7c::t_f67a4435eba564 162
+  s_4552c046844e7c::t_575f781ec3e663 3,67-72,78-79
+  s_4552c046844e7c::t_30194a61c43f95 1-2,4-49,58-66,80-134,136-153,157-160,163-169,171,173-178,183,186-188,192-200,202-203
+  s_4552c046844e7c::t_947e193c567ecb 135,189-191,201
+  s_4552c046844e7c::t_b622b34bb7941a 50-57,154,170,179-182
+  s_4552c046844e7c::t_8252d1d12fe9de 73-77,161,184-185
+  s_4552c046844e7c::t_a63f15133b976f 155-156,172
+  s_4552c046844e7c::t_2a7cec0f79b19c 204
+lessonweave/agents.py
+  s_4552c046844e7c::t_b622b34bb7941a 177,197,215,222
+  s_4552c046844e7c::t_a0bb69b2d4e069 194-195,204-207,210,225
+  s_4552c046844e7c::t_575f781ec3e663 179,196,198-199,201,203,213-214,216-221,226
+  s_4552c046844e7c::t_606b95ceecf54a 154
+lessonweave/jobs.py
+  s_4552c046844e7c::t_575f781ec3e663 98,115-117
+web/metrics.js
+  s_4552c046844e7c::t_a63f15133b976f 1-3,5-13,15,18-19,21-45
+  s_4552c046844e7c::t_8252d1d12fe9de 14,20
+  s_4552c046844e7c::t_947e193c567ecb 4,16-17
+  s_4552c046844e7c::t_420214309d4ad7 46-47
+.github/workflows/checks.yml
+  s_4552c046844e7c::t_947e193c567ecb 16
+lessonweave/storage.py
+  s_4552c046844e7c::t_a0bb69b2d4e069 104-110,118-119,133,145-147
+  s_4552c046844e7c::t_3aea243cc6a48d 82-83,134-136
+lessonweave/pipeline.py
+  s_4552c046844e7c::t_6e777b5eba1753 16,57-58,62-63,80-81,84-85,90-91,94-96,118,189-190,202-207,232-233,281,289-290,300-301
+lessonweave/server.py
+  s_4552c046844e7c::t_a0bb69b2d4e069 110-113
+  s_4552c046844e7c::t_c3e451dc8eb2d0 155
+tests/test_metrics.py
+  s_4552c046844e7c::t_e8d0670dbe6abb 1-36,44-83
+  s_4552c046844e7c::t_6e777b5eba1753 37-43
+docs/usage.md
+  s_4552c046844e7c::t_947e193c567ecb 39-51
+lessonweave/legacy.py
+  s_4552c046844e7c::t_f67a4435eba564 105,109-112
+  s_4552c046844e7c::t_2a4c1ff049d76e 103,116-172
+web/workspace.css
+  s_4552c046844e7c::t_ea055e279866e5 2-3
+web/workspace.js
+  s_4552c046844e7c::t_f31cf6aaa0e26f 1,56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "577afefe91b1356e08598441738e627f750178c5",
+  "prompts": {},
+  "sessions": {
+    "s_4552c046844e7c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14919-891d-7b32-9e12-b2bf212304ff",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    }
+  }
+}
