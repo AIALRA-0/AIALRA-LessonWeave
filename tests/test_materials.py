@@ -10,6 +10,7 @@ from tree_document import parse_native_pdf
 from tree_model import TreeBuilder,walk
 from book_terminology import format_term_metadata
 from build_demo import check_terminology
+from book_sources import generated_pdf_container_sentence
 
 
 def test_pdf_vector_figures_keep_actual_page(tmp_path):
@@ -38,3 +39,21 @@ def test_unit_name_is_kept_once_with_its_alias():
     assert any(alias.casefold()=='lux' for alias in terms[0]['aliases'])
     assert not check_terminology(terms[0])
     assert changes
+
+
+def test_generated_pdf_labels_keep_body_and_heading_in_coverage(tmp_path):
+    # 仅排除经过原文件和整页坐标核对的结构标签，同字正文和局部标题继续逐句核对
+    path=tmp_path/'notes.pdf'
+    with fitz.open() as pdf:
+        page=pdf.new_page()
+        page.insert_text((40,50),'notes 1')
+        rect=list(page.rect)
+        pdf.save(path)
+    root={'id':'root','type':'document','child_ids':['page'],'raw_content':{'text':'notes','source_text':[]},'source':{'kind':'file','path':'notes.pdf'},'sentences':[{'id':'root.s1','original':'notes'}]}
+    assert generated_pdf_container_sentence(tmp_path,root)
+    root['type']='paragraph'
+    assert generated_pdf_container_sentence(tmp_path,root) is None
+    source={'id':'page','type':'section','child_ids':['text'],'raw_content':{'text':'1'},'source':{'kind':'pdf','path':'notes.pdf','page':1,'bbox':rect},'sentences':[{'id':'page.s1','original':'1'}]}
+    assert generated_pdf_container_sentence(tmp_path,source)
+    source['source']['bbox']=[40,40,90,60]
+    assert generated_pdf_container_sentence(tmp_path,source) is None

@@ -29,7 +29,7 @@ export function mountReader(container, options) {
   const config={project_id:options.projectId,base:options.base,readweave_demo:true,legacy:!!options.legacy};
   const path=value=>{let text=String(value||'');if(/^(https?:|data:|blob:|#)/.test(text))return text;if(text.startsWith(config.base+'/'))return text;if(text.startsWith('/book.html')||text.startsWith('book.html'))text=text.replace('book.html','readweave.html');return config.base+'/'+text.replace(/^\\/+/,'')};
   const fetch=(value, init)=>options.fetch?options.fetch(value,init):native.fetch(typeof value==='string'&&/^\\/(0[0-5]_)/.test(value)?path(value):value,init);
-  const location={pathname:'readweave/book.html',search:options.search||'?preview=true',hash:''};
+  const location={pathname:'readweave/book.html',search:options.search??'?preview=true',hash:''};
   const owned={LESSONWEAVE:config,LWPath:path};
   const listen=(target,type,handler,settings={})=>target.addEventListener(type,handler,{...(typeof settings==='boolean'?{capture:settings}:settings),signal:abort.signal});
   const document=new Proxy(native.document,{get(target,key){

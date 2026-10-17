@@ -97,6 +97,37 @@ def _texts(node):
     return values
 
 
+def generated_pdf_container_sentence(root, source):
+    """核对旧解析器生成的文件名和整页编号，实际正文及局部标题继续参与逐句检查"""
+    if source.get('type') not in {'document','section'} or not source.get('child_ids'):
+        return None
+    content=source.get('raw_content',{})
+    if content.get('source_text') or len(source.get('sentences',[]))!=1:
+        return None
+    ref=source.get('source',{})
+    try:
+        path=_local(Path(root),ref.get('path',''))
+        if path.suffix.lower()!='.pdf':
+            return None
+        if source['type']=='document' and ref.get('kind')=='file':
+            expected=path.stem
+        elif source['type']=='section' and ref.get('kind')=='pdf':
+            import fitz
+            with fitz.open(path) as pdf:
+                page=pdf[int(ref['page'])-1]
+                if len(ref.get('bbox',[]))!=4 or any(abs(a-b)>0.1 for a,b in zip(ref['bbox'],list(page.rect))):
+                    return None
+            expected=str(ref['page'])
+        else:
+            return None
+        sentence=source['sentences'][0]
+        if content.get('text')!=expected or sentence.get('original')!=expected:
+            return None
+        return {'source_id':source['id'],'sentence_id':sentence['id'],'kind':'generated_pdf_container_label','original':expected,'file':path.relative_to(root).as_posix()}
+    except (OSError,ValueError,KeyError,IndexError):
+        return None
+
+
 def _derived_file_role(path, text, mime, declared_role):
     """用实际文本和明确文件名补充角色，字体、图像和安装文件索引继续保留原职责"""
     if text is None:

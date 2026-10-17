@@ -390,14 +390,14 @@ def parse_native_pdf(builder, root, path, output):
     """直接保存 PDF 的文本、原图和页面坐标，图内信息交给后续视觉清点"""
     pages = []
     title = path.stem
-    tree = builder.node('document', {'text': title}, [file_source(root, path)])
+    tree = builder.node('document', {'name': title}, [file_source(root, path)])
     with fitz.open(path) as pdf:
         for number, page in enumerate(pdf, 1):
             preview = output / f'page-{number:04d}.png'
             page.get_pixmap(matrix=fitz.Matrix(1.5, 1.5), alpha=False).save(preview)
             pages.append({'number': number, 'width': page.rect.width, 'height': page.rect.height, 'preview': file_source(root, preview)['url']})
             refs = lambda box: [{**file_source(root, path), 'kind': 'pdf', 'page': number, 'bbox': list(box)}]
-            branch = builder.node('section', {'text': str(number)}, refs(page.rect))
+            branch = builder.node('section', {'name': str(number)}, refs(page.rect))
             tree['children'].append(branch)
             for index, block in enumerate(page.get_text('dict')['blocks']):
                 box = block['bbox']

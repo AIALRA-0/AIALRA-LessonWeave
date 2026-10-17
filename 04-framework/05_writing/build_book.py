@@ -4,6 +4,7 @@ import copy
 import importlib.util
 import json
 import re
+from book_sources import generated_pdf_container_sentence
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
@@ -206,6 +207,7 @@ def material_audit_from_book(book, root):
     required = {node['id'] for node in writing.walk(material['tree'])}
     covered = set()
     sentences = {}
+    metadata_sentences = []
     assigned = set()
     sections = []
     errors = []
@@ -221,6 +223,10 @@ def material_audit_from_book(book, root):
         actual_sources = {source['id'] for source in inventory['sources']}
         covered.update(actual_sources)
         for source in pack['sources']:
+            generated=generated_pdf_container_sentence(root,source)
+            if generated:
+                metadata_sentences.append(generated)
+                continue
             for sentence in source.get('sentences', []):
                 if sentence.get('evidence_kind') == 'material_index':
                     continue
@@ -244,6 +250,7 @@ def material_audit_from_book(book, root):
         'total_nodes': len(required), 'covered_nodes': len(covered & required),
         'missing_source_ids': missing_sources, 'total_sentences': len(sentences),
         'assigned_sentences': len(set(sentences) & assigned), 'missing_sentences': missing_sentences,
+        'generated_metadata_sentences': metadata_sentences,
         'sections': sections, 'passed': not errors and not missing_sources and not missing_sentences
             and all(section['review_passed'] for section in sections)}
     return audit, errors
