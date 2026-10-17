@@ -1,0 +1,254 @@
+lessonweave/package.py
+  s_4552c046844e7c::t_2efd9bd12ea847 1-124
+tests/test_runtime.py
+  s_4552c046844e7c::t_91ccac32eeddfe 84-98
+  s_4552c046844e7c::t_3fee6aa1ebfebd 99-107
+  s_4552c046844e7c::t_a190c366b36916 1-83,108-140
+integrations/readweave/HANDOFF.md
+  s_4552c046844e7c::t_8a4ae66ff66352 1-51
+04-framework/00_source/test_input_schema.py
+  s_4552c046844e7c::t_3fee6aa1ebfebd 1-12
+04-framework/05_writing/structure.md
+  s_4552c046844e7c::t_9d11ca6841ba71 1-46
+04-framework/00_source/input.schema.json
+  s_4552c046844e7c::t_3fee6aa1ebfebd 1-48
+lessonweave/legacy.py
+  s_4552c046844e7c::t_8a4ae66ff66352 1-292
+tests/check_pages.py
+  s_4552c046844e7c::t_2b6058c5c0e088 19-24,39-41
+  s_4552c046844e7c::t_a190c366b36916 1-18,25-38,42-134
+web/reader-integration.js
+  s_4552c046844e7c::t_2efd9bd12ea847 1-15
+lessonweave/pipeline.py
+  s_4552c046844e7c::t_91ccac32eeddfe 1-275
+.env.example
+  s_4552c046844e7c::t_3fee6aa1ebfebd 1-9
+integrations/readweave/build_component.py
+  s_4552c046844e7c::t_2efd9bd12ea847 1-79
+lessonweave/server.py
+  s_4552c046844e7c::t_3fee6aa1ebfebd 1-241
+04-framework/00_source/input.json
+  s_4552c046844e7c::t_3fee6aa1ebfebd 1-6
+docs/deployment.md
+  s_4552c046844e7c::t_91ccac32eeddfe 1-33
+.github/workflows/checks.yml
+  s_4552c046844e7c::t_70d2bc9889083d 1-16
+.gitignore
+  s_06c732a83d9614::t_699469eea492d8 1-15
+04-framework/00_source/acquire.py
+  s_4552c046844e7c::t_f064dd9923a3fd 1-211
+04-framework/00_source/source.schema.json
+  s_4552c046844e7c::t_ab81210a5ce1d1 1-122
+04-framework/01_tree/architecture.py
+  s_4552c046844e7c::t_04f486781e5af0 1-127
+04-framework/01_tree/build_tree.py
+  s_4552c046844e7c::t_d01dfea986a1e7 1-79
+04-framework/01_tree/content_checks.py
+  s_4552c046844e7c::t_9735b02f438502 1-392
+04-framework/01_tree/reading.py
+  s_4552c046844e7c::t_7892c422594c70 1-100
+04-framework/01_tree/tree.schema.json
+  s_4552c046844e7c::t_5e0510cd179d7f 1-1125
+04-framework/01_tree/tree_code.py
+  s_4552c046844e7c::t_92b8db5f548a0b 1-187
+04-framework/01_tree/tree_document.py
+  s_4552c046844e7c::t_56c885d0d291e0 1-419
+04-framework/01_tree/tree_model.py
+  s_4552c046844e7c::t_0796d21fc94f20 1-87
+04-framework/01_tree/tree_web.py
+  s_4552c046844e7c::t_e2b6313638b58a 1-120
+04-framework/02_questions/build_questions.py
+  s_4552c046844e7c::t_11c0843d28358e 1-139
+04-framework/02_questions/generation.md
+  s_4552c046844e7c::t_84f8138347c665 1-59
+04-framework/02_questions/questions.schema.json
+  s_4552c046844e7c::t_28c20103e75754 1-256
+04-framework/03_chapters/build_chapters.py
+  s_4552c046844e7c::t_de74b54f28886a 1-165
+04-framework/03_chapters/chapters.schema.json
+  s_4552c046844e7c::t_fa1023c1e4372d 1-244
+04-framework/03_chapters/generation.md
+  s_4552c046844e7c::t_413b8c57ee203c 1-44
+04-framework/04_transitions/build_transitions.py
+  s_4552c046844e7c::t_857f8d6c469ae5 1-120
+04-framework/04_transitions/generation.md
+  s_4552c046844e7c::t_b0854410c3359d 1-38
+04-framework/04_transitions/transitions.schema.json
+  s_4552c046844e7c::t_4b0cd9e425957b 1-289
+04-framework/05_writing/book.schema.json
+  s_4552c046844e7c::t_010dfb5e6ecbaa 1-289
+04-framework/05_writing/book_extras.py
+  s_4552c046844e7c::t_c58f74e1d4edd8 1-405
+04-framework/05_writing/book_generation.py
+  s_4552c046844e7c::t_515e5621d7bf79 1-358
+04-framework/05_writing/book_inventory_amendments.py
+  s_4552c046844e7c::t_d0008fe33e5518 1-345
+04-framework/05_writing/book_inventory_expansion.py
+  s_4552c046844e7c::t_a2e2facb627baf 1-234
+04-framework/05_writing/book_languages.py
+  s_4552c046844e7c::t_a4b5f0fdb8631a 1-464
+04-framework/05_writing/book_material_registry.py
+  s_4552c046844e7c::t_425c92d743e048 1-608
+04-framework/05_writing/book_planning.py
+  s_4552c046844e7c::t_b9429ccbf015d7 1-320
+04-framework/05_writing/book_preview.py
+  s_4552c046844e7c::t_65a5f639e49662 1-378
+04-framework/05_writing/book_readable_materials.py
+  s_4552c046844e7c::t_bb170ce8802d14 1-94
+04-framework/05_writing/book_review.py
+  s_4552c046844e7c::t_eadeb8f8c97e61 1-300
+04-framework/05_writing/book_runtime.py
+  s_4552c046844e7c::t_b4c5f1a1953659 1-163
+04-framework/05_writing/book_sources.py
+  s_4552c046844e7c::t_4df503c7046cc9 1-889
+04-framework/05_writing/book_terminology.py
+  s_4552c046844e7c::t_addcdeae35fb7b 1-249
+04-framework/05_writing/book_units.py
+  s_4552c046844e7c::t_3ee2d58e8e7ed6 1-285
+04-framework/05_writing/build_book.py
+  s_4552c046844e7c::t_7c5cd736b7e16c 1-474
+04-framework/05_writing/build_demo.py
+  s_4552c046844e7c::t_59d88e01327a17 1-299
+04-framework/05_writing/coverage-inventory.schema.json
+  s_4552c046844e7c::t_825a6034e968b6 1-179
+04-framework/05_writing/demo.schema.json
+  s_4552c046844e7c::t_6b2d006e7c78af 1-905
+04-framework/05_writing/local_notations.py
+  s_4552c046844e7c::t_380a2fb79586b0 1-202
+04-framework/05_writing/positive_writing.py
+  s_4552c046844e7c::t_5d16b356eb2917 1-79
+04-framework/05_writing/prepare_source_locations.py
+  s_4552c046844e7c::t_2c0b9892bfb185 1-568
+04-framework/05_writing/reading-package.schema.json
+  s_4552c046844e7c::t_c68a12e958b871 1-20
+04-framework/05_writing/review_contract.py
+  s_4552c046844e7c::t_5f46d97a6771be 1-43
+04-framework/05_writing/teaching_coverage.py
+  s_4552c046844e7c::t_e1974806361b23 1-279
+04-framework/05_writing/terminology.rules.md
+  s_4552c046844e7c::t_716d89162eacb0 1-39
+04-framework/reader/book.html
+  s_4552c046844e7c::t_a248571a546798 1-79
+04-framework/reader/design-tokens.json
+  s_4552c046844e7c::t_05b6ffa93b9f56 1-100
+04-framework/reader/reader.css
+  s_4552c046844e7c::t_80934515394699 1-8
+04-framework/reader/reading-icons.js
+  s_4552c046844e7c::t_f109668f6d3c85 1-22
+04-framework/reader/reading-ui.css
+  s_4552c046844e7c::t_f6d77904e8dd33 1-279
+04-framework/reader/reading-ui.js
+  s_4552c046844e7c::t_ef12469a2644e7 1-217
+04-framework/reader/source-locator.js
+  s_4552c046844e7c::t_b9b66b90bbb4b6 1-521
+04-framework/reader/source-split.js
+  s_4552c046844e7c::t_9a1ff0444536f6 1-66
+04-framework/reader/writing-demo.css
+  s_4552c046844e7c::t_64ede8dd54e526 1-178
+04-framework/reader/writing-demo.js
+  s_4552c046844e7c::t_d3966fedaea64c 1-1113
+04-framework/requirements-parser.txt
+  s_4552c046844e7c::t_8c69f8a031386d 1-13
+AGENTS.md
+  s_06c732a83d9614::t_7a12c6e6802049 1-11
+LICENSE
+  s_4552c046844e7c::t_f2447d8d91cb39 1-661
+NOTICE
+  s_4552c046844e7c::t_be30d27ee75c30 1-13
+README.en.md
+  s_4552c046844e7c::t_db24c9f88a45bc 1-130
+README.md
+  s_4552c046844e7c::t_23b8ec909e5a07 1-130
+SECURITY.md
+  s_4552c046844e7c::t_81c1e7db0a2768 1-12
+deploy/lessonweave.service
+  s_06c732a83d9614::t_77da48e133203e 1-25
+deploy/nginx.conf.template
+  s_06c732a83d9614::t_76adcfadbff3b7 1-24
+docs/architecture.md
+  s_06c732a83d9614::t_2f9fa6be0b4fad 1-35
+docs/assets/lessonweave.svg
+  s_4552c046844e7c::t_472fec1197df28 1
+docs/usage.md
+  s_4552c046844e7c::t_cd482d380e3e47 1-32
+examples/code.input.json
+  s_4552c046844e7c::t_7c0b2f2b263ac9 1-6
+examples/code/README.md
+  s_4552c046844e7c::t_b1649171e181b7 1-4
+examples/code/main.py
+  s_4552c046844e7c::t_6fb29e3338a956 1-6
+examples/code/report.py
+  s_4552c046844e7c::t_6104560e430f03 1-23
+examples/create_fixtures.py
+  s_06c732a83d9614::t_63b068cad763c0 1-75
+examples/pdf.input.json
+  s_4552c046844e7c::t_73a5867a36e2f7 1-6
+examples/run_smoke.py
+  s_06c732a83d9614::t_5747a24fea5684 1-26
+examples/web.input.json
+  s_4552c046844e7c::t_fe017b9180f529 1-6
+examples/web/index.html
+  s_4552c046844e7c::t_1beb843977ab57 1
+integrations/readweave/artifact-tree.js
+  s_4552c046844e7c::t_114f5a5611a257 1-11
+integrations/readweave/demo.html
+  s_4552c046844e7c::t_6160763ba6b4a4 1-2
+integrations/readweave/demo.js
+  s_4552c046844e7c::t_c065608dd2a236 1-12
+integrations/readweave/reader-component.js
+  s_4552c046844e7c::t_8d9f58077cd9c8 1-2004
+lessonweave/__init__.py
+  s_4552c046844e7c::t_5a9988ce5f970c 1
+lessonweave/__main__.py
+  s_06c732a83d9614::t_709f8a22d8f18f 1-55
+lessonweave/agents.py
+  s_4552c046844e7c::t_0b2c4dcc7f0c8d 1-180
+lessonweave/network.py
+  s_06c732a83d9614::t_a92971c1ce0f55 1-13
+lessonweave/qa.py
+  s_06c732a83d9614::t_bdc8f123372db2 1-17
+lessonweave/storage.py
+  s_06c732a83d9614::t_9c238020aeca2f 1-112
+pyproject.toml
+  s_06c732a83d9614::t_3f26d242d44fa0 1-13
+requirements.txt
+  s_06c732a83d9614::t_7d88f5069c6ac3 1-9
+tests/test_materials.py
+  s_4552c046844e7c::t_8ff467b111e964 1-40
+web/app.css
+  s_06c732a83d9614::t_0463158b2c9c25 1-2
+web/app.js
+  s_4552c046844e7c::t_0ac4fc7ff0df4b 1-14
+web/index.html
+  s_06c732a83d9614::t_2e8844ccdd016c 1-5
+web/inspect.html
+  s_06c732a83d9614::t_fc183a62c61c81 1
+web/inspect.js
+  s_06c732a83d9614::t_915404139414f0 1-4
+web/reader-mount.js
+  s_06c732a83d9614::t_8296857baebd39 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "47f43bd0ec6ac5811008e10e179406a4fd39cd18",
+  "prompts": {},
+  "sessions": {
+    "s_06c732a83d9614": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14790-5a7f-7270-949b-02bf789793f3",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    },
+    "s_4552c046844e7c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14919-891d-7b32-9e12-b2bf212304ff",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    }
+  }
+}
