@@ -100,70 +100,76 @@ def remove_empty_extras(value, schema):
     return changes
 
 def tree_stages(root, backend):
+    from .metrics import span
     if (root / '04_transitions/transitions.json').is_file():
+        from .metrics import span
         from build_questions import check_questions
         from build_chapters import check_chapters
         from build_transitions import check_transitions
-        errors = check_questions(read(root / '02_questions/questions.json'), root)
-        errors += check_chapters(read(root / '03_chapters/chapters.json'), root)
-        errors += check_transitions(read(root / '04_transitions/transitions.json'), root)
+        errors=[]
+        for sid,path,check in [('questions','02_questions/questions.json',check_questions),('chapters','03_chapters/chapters.json',check_chapters),('transitions','04_transitions/transitions.json',check_transitions)]:
+            with span(root,sid,'reuse'):pass
+            with span(root,sid,'check'):errors+=check(read(root/path),root)
         if errors:
             raise ValueError('\n'.join(errors))
         return
-    tree = read(root / '01_tree/tree.json')
-    schema = clean_schema(read(root / '02_questions/questions.schema.json'), ['question_run', 'coverage'])
-    metadata = {'profile': 'learning-questions-v1', 'scope': 'full_material',
-                'material_tree': f'01_tree/history/{tree["run"]}/tree.json', 'material_run': tree['run'],
-                'source_roots': [tree['tree']['id']], 'context_nodes': [], 'validation': {'passed': False, 'errors': []}}
-    originals = []
-    for source_node in walk(tree['tree']):
-        if source_node['type'] == 'file' and source_node['content'].get('role') in {'source', 'document'}:
-            locator = source_node['source'][0]
-            actual = (root / locator['path']).resolve()
-            if not actual.is_relative_to(root.resolve()):
-                raise ValueError('原件路径越过当前项目目录')
-            originals.append({'source_id': source_node['id'], 'path': locator['path'], 'text': actual.read_text(encoding='utf-8'), 'start_line': 1})
-    prompt = (root / '02_questions/generation.md').read_text(encoding='utf-8')
-    prompt += '\n完整输入\n' + json.dumps({'input': read(root / '00_source/input.json'), 'material': tree, 'actual_source_files': originals, 'fixed_fields': metadata}, ensure_ascii=False)
-    prompt += '\n依据材料规模安排有递进关系的问题和小节，材料较小时可以只用二至三个问题，较大时按理解职责分组，根问题统领全书，每个材料节点都要由叶子直接引用，保留元信息来源但正文围绕材料事实展开，ID 使用 q.root、q.1 等稳定格式，learning_order 只列叶子，所有问题使用同一行 premise 加 question 的完整问句，来源、容器和未知节点均保留映射'
-    def questions(candidate):
-        candidate.update(metadata)
-        by_id = {node['id']: node for node in walk(tree['tree'])}
-        changes = []
-        for question in walk(candidate['tree']):
-            if question['children']:
-                continue
-            original = set(question['source_nodes'])
-            for source in by_id.values():
-                if source['children'] and any(node['id'] in original for child in source['children'] for node in walk(child)):
-                    if source['id'] not in question['source_nodes']:
-                        question['source_nodes'].append(source['id'])
-                        changes.append({'question_id': question['id'], 'source_id': source['id'], 'reason': '该容器的实际子项已经归入当前问题，脚本沿材料树补全容器对应'})
-        save(root / 'runtime/checks/container-mapping-conversion.json', changes)
-        return publish_questions(root, candidate)
-    qdoc = stage_call(backend, '02_questions', prompt, schema, questions)
-    schema = clean_schema(read(root / '03_chapters/chapters.schema.json'), ['chapter_run', 'coverage'])
-    metadata = {'profile': 'chapter-outline-v1', 'question_tree': f'02_questions/history/{qdoc["question_run"]}/questions.json',
-                'question_run': qdoc['question_run'], 'material_tree': qdoc['material_tree'], 'material_run': qdoc['material_run'],
-                'validation': {'passed': False, 'errors': []}}
-    prompt = (root / '03_chapters/generation.md').read_text(encoding='utf-8') + '\n' + json.dumps({'questions': qdoc, 'fixed_fields': metadata}, ensure_ascii=False)
-    prompt += '\n根据材料规模安排章节，小型材料可以安排一章一节，书根ID固定为book，书标题分配根问题，章节可以用空 question_ids，具体叶子各恰好分给一节，source_nodes 和 requires 暂填空数组，由框架按实际分配计算，标题必须是 premise 加 question 的同一行完整问句'
-    def chapters(candidate):
-        candidate.update(metadata)
-        candidate['tree']['id'] = 'book'
-        return publish_chapters(root, candidate)
-    cdoc = stage_call(backend, '03_chapters', prompt, schema, chapters)
-    schema = clean_schema(read(root / '04_transitions/transitions.schema.json'), ['transition_run', 'coverage'])
-    metadata = {key: cdoc[key] for key in ['question_tree', 'question_run', 'material_tree', 'material_run']}
-    metadata.update(profile='transition-plan-v1', status='preview', chapters_path=f'03_chapters/history/{cdoc["chapter_run"]}/chapters.json',
-                    chapter_run=cdoc['chapter_run'], validation={'passed': False, 'errors': []})
-    prompt = (root / '04_transitions/generation.md').read_text(encoding='utf-8')
-    prompt += '\n本任务直接执行已确认的 04 阶段，无需等待用户，按下面当前输入生成承接树\n' + json.dumps({'chapters': cdoc, 'questions': qdoc, 'fixed_fields': metadata}, ensure_ascii=False)
-    prompt += '\n承接树逐项对应书、章、节标题，title_id 保持相同，text 为承上启下：加 premise 加 question，不添加其他内容，关系字段由框架重新推导，最后一个单元 next_question_id 和 next_section_id 为 null'
-    def transitions(candidate):
-        candidate.update(metadata)
-        return publish_transitions(root, candidate)
-    stage_call(backend, '04_transitions', prompt, schema, transitions)
+    with span(root,'questions','phase'):
+        tree = read(root / '01_tree/tree.json')
+        schema = clean_schema(read(root / '02_questions/questions.schema.json'), ['question_run', 'coverage'])
+        metadata = {'profile': 'learning-questions-v1', 'scope': 'full_material',
+                    'material_tree': f'01_tree/history/{tree["run"]}/tree.json', 'material_run': tree['run'],
+                    'source_roots': [tree['tree']['id']], 'context_nodes': [], 'validation': {'passed': False, 'errors': []}}
+        originals = []
+        for source_node in walk(tree['tree']):
+            if source_node['type'] == 'file' and source_node['content'].get('role') in {'source', 'document'}:
+                locator = source_node['source'][0]
+                actual = (root / locator['path']).resolve()
+                if not actual.is_relative_to(root.resolve()):
+                    raise ValueError('原件路径越过当前项目目录')
+                originals.append({'source_id': source_node['id'], 'path': locator['path'], 'text': actual.read_text(encoding='utf-8'), 'start_line': 1})
+        prompt = (root / '02_questions/generation.md').read_text(encoding='utf-8')
+        prompt += '\n完整输入\n' + json.dumps({'input': read(root / '00_source/input.json'), 'material': tree, 'actual_source_files': originals, 'fixed_fields': metadata}, ensure_ascii=False)
+        prompt += '\n依据材料规模安排有递进关系的问题和小节，材料较小时可以只用二至三个问题，较大时按理解职责分组，根问题统领全书，每个材料节点都要由叶子直接引用，保留元信息来源但正文围绕材料事实展开，ID 使用 q.root、q.1 等稳定格式，learning_order 只列叶子，所有问题使用同一行 premise 加 question 的完整问句，来源、容器和未知节点均保留映射'
+        def questions(candidate):
+            candidate.update(metadata)
+            by_id = {node['id']: node for node in walk(tree['tree'])}
+            changes = []
+            for question in walk(candidate['tree']):
+                if question['children']:
+                    continue
+                original = set(question['source_nodes'])
+                for source in by_id.values():
+                    if source['children'] and any(node['id'] in original for child in source['children'] for node in walk(child)):
+                        if source['id'] not in question['source_nodes']:
+                            question['source_nodes'].append(source['id'])
+                            changes.append({'question_id': question['id'], 'source_id': source['id'], 'reason': '该容器的实际子项已经归入当前问题，脚本沿材料树补全容器对应'})
+            save(root / 'runtime/checks/container-mapping-conversion.json', changes)
+            return publish_questions(root, candidate)
+        qdoc = stage_call(backend, '02_questions', prompt, schema, questions)
+    with span(root,'chapters','phase'):
+        schema = clean_schema(read(root / '03_chapters/chapters.schema.json'), ['chapter_run', 'coverage'])
+        metadata = {'profile': 'chapter-outline-v1', 'question_tree': f'02_questions/history/{qdoc["question_run"]}/questions.json',
+                    'question_run': qdoc['question_run'], 'material_tree': qdoc['material_tree'], 'material_run': qdoc['material_run'],
+                    'validation': {'passed': False, 'errors': []}}
+        prompt = (root / '03_chapters/generation.md').read_text(encoding='utf-8') + '\n' + json.dumps({'questions': qdoc, 'fixed_fields': metadata}, ensure_ascii=False)
+        prompt += '\n根据材料规模安排章节，小型材料可以安排一章一节，书根ID固定为book，书标题分配根问题，章节可以用空 question_ids，具体叶子各恰好分给一节，source_nodes 和 requires 暂填空数组，由框架按实际分配计算，标题必须是 premise 加 question 的同一行完整问句'
+        def chapters(candidate):
+            candidate.update(metadata)
+            candidate['tree']['id'] = 'book'
+            return publish_chapters(root, candidate)
+        cdoc = stage_call(backend, '03_chapters', prompt, schema, chapters)
+    with span(root,'transitions','phase'):
+        schema = clean_schema(read(root / '04_transitions/transitions.schema.json'), ['transition_run', 'coverage'])
+        metadata = {key: cdoc[key] for key in ['question_tree', 'question_run', 'material_tree', 'material_run']}
+        metadata.update(profile='transition-plan-v1', status='preview', chapters_path=f'03_chapters/history/{cdoc["chapter_run"]}/chapters.json',
+                        chapter_run=cdoc['chapter_run'], validation={'passed': False, 'errors': []})
+        prompt = (root / '04_transitions/generation.md').read_text(encoding='utf-8')
+        prompt += '\n本任务直接执行已确认的 04 阶段，无需等待用户，按下面当前输入生成承接树\n' + json.dumps({'chapters': cdoc, 'questions': qdoc, 'fixed_fields': metadata}, ensure_ascii=False)
+        prompt += '\n承接树逐项对应书、章、节标题，title_id 保持相同，text 为承上启下：加 premise 加 question，不添加其他内容，关系字段由框架重新推导，最后一个单元 next_question_id 和 next_section_id 为 null'
+        def transitions(candidate):
+            candidate.update(metadata)
+            return publish_transitions(root, candidate)
+        stage_call(backend, '04_transitions', prompt, schema, transitions)
 
 def prepare_section(root, backend, context, folder):
     sid = context['section_id']

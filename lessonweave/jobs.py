@@ -95,6 +95,7 @@ def mark_cancelled(root,reason='user_cancelled'):
 
 def main():
     store=Store(sys.argv[1]);job=store.job(sys.argv[2]);project=store.project(job['project_id'])
+    os.environ['LESSONWEAVE_JOB_ID']=job['id']
     root=Path(project['path'])
     payload=json.loads(job['payload'])
     try:
@@ -111,7 +112,9 @@ def main():
             from .trilium import sync_project,configured
             if configured() and (root/'05_writing/preview-book.json').is_file():
                 try:
-                    sync_project(store,project,root)
+                    from .metrics import span
+                    with span(root,'library','phase'):
+                        sync_project(store,project,root)
                     result.update(library_sync='completed')
                 except Exception as error:
                     result.update(status='interrupted',library_sync='failed',library_issue=str(error),issues=result.get('issues',[])+['书稿已经保存，笔记树保存遇到问题：'+str(error)])

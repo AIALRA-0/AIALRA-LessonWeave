@@ -107,6 +107,10 @@ class Handler(SimpleHTTPRequestHandler):
                 self.json([dict({key:value for key,value in job.items() if key not in {'payload','result'}},progress=view(Path(self.store.project(job['project_id'])['path']),job)) for job in self.store.jobs()])
             elif route.startswith('/api/jobs/'):
                 job = self.store.job(route.split('/')[3])
+                if route.endswith('/metrics'):
+                    from .metrics import report
+                    self.json(report(Path(self.store.project(job['project_id'])['path']),job))
+                    return
                 job.pop('payload', None)
                 from .progress import view
                 job['progress']=view(Path(self.store.project(job['project_id'])['path']),job)
@@ -148,7 +152,7 @@ class Handler(SimpleHTTPRequestHandler):
                         self.file(path, html.encode(), 'text/html')
                     else:
                         self.file(path)
-            elif route in {'/', '/index.html', '/app.js', '/app.css', '/reader-mount.js', '/reader-integration.js', '/inspect.html', '/inspect.js','/workspace','/workspace.html','/workspace.js','/workspace.css','/theme.css'}:
+            elif route in {'/', '/index.html', '/app.js', '/app.css', '/reader-mount.js', '/reader-integration.js', '/inspect.html', '/inspect.js','/workspace','/workspace.html','/workspace.js','/metrics.js','/workspace.css','/theme.css'}:
                 self.file(REPO/'web'/('index.html' if route=='/' else 'workspace.html' if route=='/workspace' else route.lstrip('/')))
             elif route.startswith('/docs/assets/'):
                 path = (REPO/route.lstrip('/')).resolve()

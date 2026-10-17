@@ -79,6 +79,8 @@ class Store:
             jid = uuid.uuid4().hex
             now = time.time()
             db.execute('INSERT INTO jobs VALUES(?,?,?,?,?,?,?,?)', (jid, project, key, serialized, 'queued', now, now, None))
+            from .metrics import start
+            start(Path(self.project(project)['path']),'other','job_queue',job_id=jid)
         return self.job(jid)
 
     def job(self, key):
@@ -99,7 +101,13 @@ class Store:
             if row is None:
                 return None
             db.execute("UPDATE jobs SET status='running',updated=? WHERE id=?", (time.time(), row['id']))
-            return dict(row)
+            job=dict(row)
+        from .metrics import finish,start
+        root=Path(self.project(job['project_id'])['path'])
+        for record in read(root/'runtime/timing.json',{'records':[]})['records']:
+            if record.get('job_id')==job['id'] and record['operation']=='job_queue' and record['status']=='running':finish(root,record['id'])
+        start(root,'other','job_run',job_id=job['id'])
+        return job
 
     def finish(self, key, result):
         with self.connect() as db:
@@ -107,6 +115,8 @@ class Store:
             if current and current['status'] in {'cancelling','cancelled'}:
                 result=dict(result,status='cancelled')
             db.execute('UPDATE jobs SET status=?,updated=?,result=? WHERE id=?', (result['status'], time.time(), json.dumps(result, ensure_ascii=False), key))
+        from .metrics import close_job
+        close_job(Path(self.project(self.job(key)['project_id'])['path']),key,result['status'])
 
     def resume(self, key):
         with self.connect() as db:
@@ -120,7 +130,10 @@ class Store:
                     raise ValueError('本次已经达到返修上限，完整稿和检查问题已保留')
             if db.execute("SELECT 1 FROM jobs WHERE project_id=? AND id<>? AND status IN ('running','queued','cancelling')",(job['project_id'],key)).fetchone():
                 raise ValueError('这个项目已有任务正在处理')
-            db.execute("UPDATE jobs SET status='queued',updated=? WHERE id=? AND status IN ('interrupted','needs_review','failed','cancelled')", (time.time(), key))
+            changed=db.execute("UPDATE jobs SET status='queued',updated=? WHERE id=? AND status IN ('interrupted','needs_review','failed','cancelled')", (time.time(), key)).rowcount
+            if changed:
+                from .metrics import start
+                start(Path(self.project(job['project_id'])['path']),'other','job_queue',job_id=key)
 
     def cancel(self,key):
         with self.connect() as db:
@@ -129,6 +142,9 @@ class Store:
                 raise KeyError('找不到这个任务')
             status='cancelled' if row['status']=='queued' else 'cancelling' if row['status']=='running' else row['status']
             db.execute('UPDATE jobs SET status=?,updated=? WHERE id=?',(status,time.time(),key))
+        if status=='cancelled':
+            from .metrics import close_job
+            close_job(Path(self.project(self.job(key)['project_id'])['path']),key,status)
         return self.job(key)
 
     def folders(self):

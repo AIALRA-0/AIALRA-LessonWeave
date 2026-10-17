@@ -13,6 +13,7 @@ from .storage import read, save, WRITE_LOCK
 from .agents import Backend,AgentCallFailure
 from .progress import begin
 from . import legacy as flow
+from .metrics import span,timed,start,finish,stage
 
 FRAME = flow.FRAME
 STAGES = ['00_source', '01_tree', '02_questions', '03_chapters', '04_transitions', '05_writing']
@@ -53,11 +54,13 @@ def feedback(root, name, details):
 def stage_call(backend, name, prompt, schema, validate, images=None):
     published = {'02_questions':'02_questions/questions.json','03_chapters':'03_chapters/chapters.json','04_transitions':'04_transitions/transitions.json'}.get(name)
     if published and (backend.root/published).is_file():
-        return read(backend.root/published)
+        with span(backend.root,stage(name),'reuse',task=name):
+            return read(backend.root/published)
     candidate = None
     try:
         candidate = backend.call(name, prompt, schema, images)
-        result = validate(candidate)
+        with span(backend.root,stage(name),'check',task=name):
+            result = validate(candidate)
         save(backend.root / 'runtime/checks' / (name + '.json'), {'passed': True})
         return result
     except Exception as error:
@@ -74,17 +77,23 @@ flow.stage_call = stage_call
 
 def prepare(root):
     payload = read(root / '00_source/input.json')
-    flow.jsonschema.Draft202012Validator(read(root / '00_source/input.schema.json')).validate(payload)
+    with span(root,'input_check','check'):
+        flow.jsonschema.Draft202012Validator(read(root / '00_source/input.schema.json')).validate(payload)
     update_state(root, stage='00_source')
     if not (root / '01_tree/tree.json').is_file():
-        source = flow.acquire(root, payload)
+        with span(root,'acquire','phase'):
+            source = flow.acquire(root, payload)
         if source['status'] != 'acquired':
             raise ValueError('获取材料时遇到问题：' + source.get('reason', ''))
         update_state(root, stage='01_tree')
         with PARSE:
-            tree = flow.build_tree(root, payload, source)
+            with span(root,'parse','phase'):
+                tree = flow.build_tree(root, payload, source)
         if not tree['validation']['passed']:
             raise ValueError('\n'.join(tree['validation']['errors']))
+    else:
+        for sid in ['acquire','parse']:
+            with span(root,sid,'reuse'):pass
 
 
 def collect(pool, items, function):
@@ -106,6 +115,7 @@ def collect(pool, items, function):
     return results
 
 
+@timed('review','phase')
 def review_section(root, context, folder, pack, inventory, units, extras):
     doc, bindings, catalog = flow.runtime.build_doc(root, context, folder, pack, inventory, units, extras)
     structural = []
@@ -176,7 +186,8 @@ def write_sections(root, backend):
     def plan_one(context):
         folder = work / 'sections' / context['section_id']
         folder.mkdir(parents=True, exist_ok=True)
-        pack, inventory = flow.prepare_section(root, Backend(root, role='planning'), context, folder)
+        with span(root,'inventory','phase',task=context['section_id']):
+            pack, inventory = flow.prepare_section(root, Backend(root, role='planning'), context, folder)
         return context, folder, pack, inventory
     with futures.ThreadPoolExecutor(max_workers=3) as pool:
         planned = collect(pool, contexts, plan_one)
@@ -188,11 +199,12 @@ def write_sections(root, backend):
     def write_one(task):
         (context, folder, pack, inventory), index = task
         qid = context['units'][index]['question_id']
-        prompt = flow.generation.writer_prompt(context, flow.runtime.source_view(pack), inventory, qid,
-                 context['units'][index-1] if index else None, context['units'][index+1] if index+1 < len(context['units']) else context['next_title'])
-        value = backend.call(context['section_id'] + '-05_unit-' + qid, prompt, flow.generation.UNIT_SCHEMA, pack.get('images'))
-        save(folder / ('unit-' + qid + '.json'), value)
-        return value
+        with span(root,'writing','phase',task=qid):
+            prompt = flow.generation.writer_prompt(context, flow.runtime.source_view(pack), inventory, qid,
+                     context['units'][index-1] if index else None, context['units'][index+1] if index+1 < len(context['units']) else context['next_title'])
+            value = backend.call(context['section_id'] + '-05_unit-' + qid, prompt, flow.generation.UNIT_SCHEMA, pack.get('images'))
+            save(folder / ('unit-' + qid + '.json'), value)
+            return value
     with futures.ThreadPoolExecutor(max_workers=3) as pool:
         collect(pool, tasks, write_one)
     all_units = [read(folder / ('unit-' + item['question_id'] + '.json')) for context, folder, _, _ in planned for item in context['units']]
@@ -217,7 +229,8 @@ def write_sections(root, backend):
     save(work / 'sections.json', sections)
     book = flow.make_preview(root, sections, chapters, questions, {row['question_id']: row['answer'] for row in overview['answers']}, overview['introduction'])
     from prepare_source_locations import prepare_locations
-    prepare_locations(root, list((work / 'sections').glob('*/source-pack.json')))
+    with span(root,'locations','phase'):
+        prepare_locations(root, list((work / 'sections').glob('*/source-pack.json')))
     errors = [error for doc in sections.values() for error in doc['validation']['errors']]
     if not book['validation']['passed']:
         errors.extend(book['validation']['errors'])
@@ -265,6 +278,7 @@ def run(root, maximum=3):
     started = time.monotonic()
     for number in range(state.get('round', 0), maximum + 1):
         update_state(root, round=number, maximum=maximum, status='running')
+        repair=start(root,'other','repair_round',round=number) if number>0 else None
         try:
             prepare(root)
             update_state(root, stage='02_questions–04_transitions')
@@ -272,7 +286,8 @@ def run(root, maximum=3):
             flow.tree_stages(root, backend)
             sections, passed, issues = write_sections(root, Backend(root, role='writing'))
             from .package import export_package
-            export_package(root)
+            with span(root,'package','phase'):
+                export_package(root)
             if passed:
                 return update_state(root, status='completed', issues=[], usage=usage(root), elapsed_seconds=round(time.monotonic()-started, 3))
             update_state(root, issues=issues)
@@ -282,6 +297,8 @@ def run(root, maximum=3):
                 return update_state(root, status='failed', usage=usage(root))
             if isinstance(error, RuntimeError):
                 return update_state(root, status='interrupted',failure_kind=getattr(error,'kind',None),usage=usage(root))
+        finally:
+            if repair:finish(root,repair)
         current=read(root/'runtime/state.json')
         print(json.dumps({'project': root.name, 'round': number, 'stage':current.get('stage'), 'issues':current.get('issues',[])}, ensure_ascii=False), flush=True)
     return update_state(root, status='needs_review', usage=usage(root), elapsed_seconds=round(time.monotonic()-started, 3))

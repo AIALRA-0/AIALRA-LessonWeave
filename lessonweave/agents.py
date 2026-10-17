@@ -151,6 +151,7 @@ class Backend:
         from .legacy import author_format, remove_empty_extras
         state = read(self.root / 'runtime/state.json', {})
         feedback = state.get('feedback', {}).get(name)
+        call_round=0 if self.role=='reader_qa' else state.get('round',0)
         if feedback:
             prompt += '\n根据这一轮集中反馈修正当前任务，保留未受影响的事实和映射\n' + json.dumps(feedback, ensure_ascii=False)
         common = '\n'.join(__import__('book_generation').RULES)
@@ -173,7 +174,9 @@ class Backend:
             folder.rename(archive)
         folder.mkdir(parents=True, exist_ok=True)
         from .progress import tick
+        from .metrics import span,stage,annotate
         if (folder / 'result.json').is_file():
+            with span(self.root,stage(name),'reuse',task=name,request_id=fingerprint):pass
             tick(self.root,name,'reused')
             return read(folder / 'result.json')
         record = read(folder / 'usage.json', {})
@@ -188,24 +191,39 @@ class Backend:
         save(folder / 'schema.json', schema)
         (folder / 'prompt.txt').write_text(task['prompt'], encoding='utf-8')
         started = time.monotonic()
+        previous_usage=read(folder/'usage.json',{})
+        response_reused=(folder/'response.json').is_file()
+        queued_at=time.time()
+        kind='repair' if feedback else 'retry' if cancelled else 'repair' if call_round>0 else 'initial'
+        queue=__import__('contextlib').ExitStack()
+        queue.enter_context(span(self.root,stage(name),'slot_queue',task=name,request_id=fingerprint))
         with SLOTS:
+            queue.close()
             tick(self.root,name,'running')
-            save(folder / 'usage.json', {'task': name, 'model': self.model, 'reasoning_effort': self.effort, 'role': self.role, 'status': 'started', 'round': state.get('round', 0)})
+            save(folder / 'usage.json', {'task': name, 'model': self.model, 'reasoning_effort': self.effort, 'role': self.role, 'status': 'started', 'round': call_round,
+                 'job_id':previous_usage.get('job_id') if response_reused else os.environ.get('LESSONWEAVE_JOB_ID'),
+                 'queued_at':previous_usage.get('queued_at',queued_at) if response_reused else queued_at,
+                 'started_at':previous_usage.get('started_at',read(folder/'process.json',{}).get('started')) if response_reused else time.time(),
+                 'attempt_kind':previous_usage.get('attempt_kind',kind) if response_reused else kind})
             try:
                 if (folder / 'response.json').is_file():
+                    with span(self.root,stage(name),'reuse',task=name,request_id=fingerprint):pass
                     value, receipt = read(folder / 'response.json'), read(folder / 'receipt.json', {})
                 else:
-                    value, receipt = adapter.execute(task, folder)
-                formatted, changes = author_format(value)
-                changes += remove_empty_extras(formatted, schema)
-                for key in ('$schema', '$id'):
-                    if key not in schema.get('properties', {}):
-                        formatted.pop(key, None)
-                jsonschema.Draft202012Validator(schema).validate(formatted)
+                    with span(self.root,stage(name),'model',task=name,request_id=fingerprint,kind=kind,round=call_round,role=self.role):
+                        value, receipt = adapter.execute(task, folder)
+                with span(self.root,stage(name),'format',task=name,request_id=fingerprint) as conversion:
+                    formatted, changes = author_format(value)
+                    changes += remove_empty_extras(formatted, schema)
+                    for key in ('$schema', '$id'):
+                        if key not in schema.get('properties', {}):
+                            formatted.pop(key, None)
+                    jsonschema.Draft202012Validator(schema).validate(formatted)
+                annotate(self.root,conversion,converted_items=len(changes))
                 save(folder / 'result.json', formatted)
                 save(folder / 'format-conversions.json', changes)
-                save(folder / 'usage.json', dict(receipt, task=name, model=self.model, reasoning_effort=self.effort,
-                     role=self.role, status='completed', round=state.get('round', 0), elapsed_seconds=round(time.monotonic()-started, 3)))
+                save(folder / 'usage.json', dict({**read(folder/'usage.json'),**receipt}, task=name, model=self.model, reasoning_effort=self.effort,
+                     role=self.role, status='completed', round=call_round, elapsed_seconds=round(time.monotonic()-started, 3)))
                 tick(self.root,name,'completed')
                 return formatted
             except Exception as error:
