@@ -1,0 +1,112 @@
+web/theme.css
+  s_4552c046844e7c::t_d2fbf7a37abc1d 1-7
+lessonweave/pipeline.py
+  s_4552c046844e7c::t_5fe6a8b3f62315 14,169,181,195,199,232
+lessonweave/storage.py
+  s_4552c046844e7c::t_38ab140c42d738 40,42-45,47,54,56,65,67-68,106-108,114-115,121-218
+  s_4552c046844e7c::t_323064dcfc18c2 113,116-120
+integrations/readweave/trilium-render.js
+  s_4552c046844e7c::t_34efa3a9bc2d9f 2
+  s_4552c046844e7c::t_9a3769cc7b269c 33-34,36-37
+  s_4552c046844e7c::t_5a6282c23afc94 1,3-6,14-17,19,30,35,39-41
+  s_4552c046844e7c::t_229c266705a5b5 7-9,13,18,20-29,31-32,38
+  s_4552c046844e7c::t_ba9edd510147e2 10-12
+04-framework/reader/writing-demo.js
+  s_4552c046844e7c::t_9a3769cc7b269c 556
+  s_4552c046844e7c::t_f8f796294c4d05 567-591
+  s_4552c046844e7c::t_229c266705a5b5 662
+.github/workflows/checks.yml
+  s_4552c046844e7c::t_0edbd50f0f0e42 16
+lessonweave/agents.py
+  s_4552c046844e7c::t_34efa3a9bc2d9f 58
+  s_4552c046844e7c::t_5fe6a8b3f62315 147-153,155,157,169,186,189
+lessonweave/server.py
+  s_4552c046844e7c::t_501be4951e1447 226-231,259-265
+  s_4552c046844e7c::t_323064dcfc18c2 102-104,106-107,111-112,143-144,185-192,203-207,233-234
+  s_4552c046844e7c::t_1db6aeeb26c387 28,35
+  s_4552c046844e7c::t_c3bb002e9161b0 254-255
+web/workspace.html
+  s_4552c046844e7c::t_d2fbf7a37abc1d 1-10
+lessonweave/__main__.py
+  s_4552c046844e7c::t_c3bb002e9161b0 25-26,36-40
+integrations/readweave/HANDOFF.md
+  s_4552c046844e7c::t_666b37dea1bbf1 1-33,35-48,50,52-64,71,74,77,81,83,85,87,89,91,93,95-100,102
+.env.example
+  s_4552c046844e7c::t_c3bb002e9161b0 10-14
+web/workspace.css
+  s_4552c046844e7c::t_d2fbf7a37abc1d 1
+integrations/readweave/build_component.py
+  s_4552c046844e7c::t_229c266705a5b5 31,76
+  s_4552c046844e7c::t_5a6282c23afc94 30
+  s_4552c046844e7c::t_9a3769cc7b269c 59
+integrations/readweave/artifact-tree.js
+  s_4552c046844e7c::t_81be3eaa102e89 3-4,10-11
+docs/usage.md
+  s_4552c046844e7c::t_37620e95f75729 13-18
+docs/deployment.md
+  s_4552c046844e7c::t_37620e95f75729 34-43
+lessonweave/trilium.py
+  s_4552c046844e7c::t_1b93198187dcf7 80-81
+  s_4552c046844e7c::t_666b37dea1bbf1 214
+  s_4552c046844e7c::t_323064dcfc18c2 160,169
+  s_4552c046844e7c::t_d827b2c4b59fa1 210,224,234-240,256-259,261,264
+  s_4552c046844e7c::t_229c266705a5b5 63-71,251-252,260,262-263
+  s_4552c046844e7c::t_4483051ea65e72 27-30,78-79
+  s_4552c046844e7c::t_0116797f0c9dcf 1-26,31-62,72-77,82-124,135,138-149,159,165-168,185-209,219-223,227-233,241-250,253-255,265-270
+  s_4552c046844e7c::t_829549dea498d4 161-164,170-176,178,180-184
+  s_4552c046844e7c::t_ba9edd510147e2 150-158,211-213,215-218,225-226
+  s_4552c046844e7c::t_47fa30787b8e6a 125-134,136-137,177,179
+README.md
+  s_4552c046844e7c::t_8a7f69072b8169 20-21,34-36,78-80,113-114,117,119,125
+lessonweave/progress.py
+  s_4552c046844e7c::t_1db6aeeb26c387 1-3,5-29,32,34-42
+  s_4552c046844e7c::t_34efa3a9bc2d9f 4,30-31,33
+  s_4552c046844e7c::t_e61cdc1ca66830 43-44
+04-framework/reader/source-locator.js
+  s_4552c046844e7c::t_f8f796294c4d05 175,179,197-202,225-242,374
+lessonweave/jobs.py
+  s_4552c046844e7c::t_501be4951e1447 9-10,13-14,16-29,52-53,62-63,66-67,70-72,77,80-81
+  s_4552c046844e7c::t_e61cdc1ca66830 106-110,117
+  s_4552c046844e7c::t_1db6aeeb26c387 1-8,11-12,15,30-51,54-61,64-65,68-69,73-76,78-79,82-105,111-116,118-125
+tests/test_workspace.py
+  s_4552c046844e7c::t_666b37dea1bbf1 12-23
+  s_4552c046844e7c::t_47fa30787b8e6a 109-124
+  s_4552c046844e7c::t_32be529cd832dd 1-11,24-108
+web/workspace.js
+  s_4552c046844e7c::t_32be529cd832dd 6,37,45,56
+  s_4552c046844e7c::t_3621f460324ae2 1-5,7,9-35,39-41,43-44,46-55,57-61
+  s_4552c046844e7c::t_9a3769cc7b269c 8,36,38,42
+README.en.md
+  s_4552c046844e7c::t_8a7f69072b8169 20-21,34-36,78-80,113-114,117,119,125
+docs/architecture.md
+  s_4552c046844e7c::t_37620e95f75729 35-43
+tests/check_workspace.py
+  s_4552c046844e7c::t_1b1b555f8dfe40 23-25
+  s_4552c046844e7c::t_81be3eaa102e89 1-22,26-88
+NOTICE
+  s_4552c046844e7c::t_0edbd50f0f0e42 4
+docs/assets/lessonweave.svg
+  s_4552c046844e7c::t_5b64a06337c23f 1
+integrations/readweave/reader-component.js
+  s_4552c046844e7c::t_2e56d5ddbd7769 1-101,117-118,721,732-756,827,1699,1703,1721-1726,1749-1766,1898,2139
+web/app.js
+  s_4552c046844e7c::t_0309bd5e37ca9a 4,12-13,15-16
+web/index.html
+  s_4552c046844e7c::t_19ac5e7aebd6f6 2-3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8cbd4ce81a822db9ba1c971c7e71f9a43e1b4101",
+  "prompts": {},
+  "sessions": {
+    "s_4552c046844e7c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14919-891d-7b32-9e12-b2bf212304ff",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    }
+  }
+}
