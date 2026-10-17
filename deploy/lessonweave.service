@@ -1,0 +1,25 @@
+[Unit]
+Description=LessonWeave personal learning workspace
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/lessonweave/current
+EnvironmentFile=/etc/lessonweave.env
+ExecStart=/srv/lessonweave/venv/bin/python -B -m lessonweave serve --host 127.0.0.1 --port 18960
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/lessonweave /root/.codex
+MemoryHigh=1500M
+MemoryMax=2500M
+CPUQuota=150%
+TasksMax=160
+
+[Install]
+WantedBy=multi-user.target

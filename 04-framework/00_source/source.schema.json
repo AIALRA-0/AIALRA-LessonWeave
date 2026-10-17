@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "00_source 已取得哪些原材料",
+  "type": "object",
+  "required": [
+    "kind",
+    "material",
+    "status",
+    "entry",
+    "files"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "kind": {
+      "enum": [
+        "file",
+        "url",
+        "repository"
+      ]
+    },
+    "material": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "status": {
+      "enum": [
+        "acquired",
+        "unavailable"
+      ]
+    },
+    "entry": {
+      "type": "string"
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "bytes"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "original_path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "archive_member": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "pages": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "snapshot": {
+      "type": "object"
+    },
+    "positions": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "images": {
+      "type": "array"
+    },
+    "repository": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "revision": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "resources": {
+      "type": "array"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "acquired"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "entry": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "files": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}

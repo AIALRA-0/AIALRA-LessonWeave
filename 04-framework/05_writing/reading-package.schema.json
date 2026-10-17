@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "阅读器怎样接收完整书稿与原材料",
+  "type": "object",
+  "required": ["profile", "schema_version", "project_id", "version", "title", "book_path", "validation", "coverage", "source_location_path", "files", "user_data_included"],
+  "additionalProperties": false,
+  "properties": {
+    "profile": {"const": "lessonweave-reading-package-v1"},
+    "schema_version": {"const": 1},
+    "project_id": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "book_path": {"type": "string", "pattern": "^05_writing/"},
+    "validation": {"type": "object"},
+    "coverage": {"type": "object"},
+    "source_location_path": {"const": "05_writing/source-location/index.json"},
+    "files": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "user_data_included": {"const": false}
+  }
+}

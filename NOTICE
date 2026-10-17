@@ -1,0 +1,13 @@
+LessonWeave
+Copyright 2026 LessonWeave contributors
+
+The independent ReadWeave-style integration demo is maintained in this repository.
+The production ReadWeave project is maintained separately.
+
+Runtime dependencies retain their respective licenses, including PyMuPDF,
+Playwright, Beautiful Soup, Requests, jsonschema, markdown-it-py, Pillow,
+and tree-sitter-language-pack. Docling is an optional parser integration.
+The Codex CLI is installed separately from the official OpenAI distribution.
+
+The repository's examples are self-authored synthetic materials.
+User-supplied materials and generated private books are not distributed here.

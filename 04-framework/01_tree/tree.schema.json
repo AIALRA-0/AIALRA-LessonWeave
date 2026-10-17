@@ -1,0 +1,1125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "三类材料怎样组织为可回到来源的树",
+  "description": "脚本按固定节点类型生成树，agent 修正适配脚本，未知内容保留来源并标明原因",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "material",
+    "format",
+    "title",
+    "status",
+    "run",
+    "engine",
+    "tree",
+    "pages",
+    "original",
+    "summary",
+    "validation",
+    "notes",
+    "adaptations",
+    "relations",
+    "reading_policy",
+    "coverage"
+  ],
+  "properties": {
+    "kind": {
+      "enum": [
+        "file",
+        "url",
+        "repository"
+      ]
+    },
+    "material": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "format": {
+      "enum": [
+        "pdf",
+        "html",
+        "code"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "status": {
+      "enum": [
+        "parsed",
+        "needs_review",
+        "unavailable"
+      ]
+    },
+    "run": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "engine": {
+      "type": "object"
+    },
+    "tree": {
+      "$ref": "#/$defs/node"
+    },
+    "pages": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "original": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "summary": {
+      "type": "object"
+    },
+    "validation": {
+      "type": "object"
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "adaptations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "snapshot": {
+      "type": "object"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "from",
+          "to",
+          "type",
+          "source"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "from": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "to": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "type": {
+            "enum": [
+              "instantiates",
+              "implemented_by",
+              "refers_to"
+            ]
+          },
+          "source": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/source"
+            }
+          }
+        }
+      }
+    },
+    "reading_policy": {
+      "type": "object",
+      "required": [
+        "unit",
+        "classification",
+        "source_review",
+        "description"
+      ],
+      "properties": {
+        "unit": {
+          "const": "context_group"
+        },
+        "classification": {
+          "const": "hint"
+        },
+        "source_review": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "figure",
+              "table",
+              "equation",
+              "unknown"
+            ]
+          }
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "additionalProperties": false
+    },
+    "coverage": {
+      "type": "object",
+      "required": [
+        "profile",
+        "inventory",
+        "report",
+        "content",
+        "objects"
+      ],
+      "properties": {
+        "profile": {
+          "const": "content-tree-v1"
+        },
+        "inventory": {
+          "type": "string",
+          "minLength": 1
+        },
+        "report": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content": {
+          "type": "object"
+        },
+        "objects": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "node": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "content",
+        "source",
+        "children"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "type": {
+          "enum": [
+            "document",
+            "webpage",
+            "repository",
+            "directory",
+            "file",
+            "section",
+            "paragraph",
+            "heading",
+            "list",
+            "list_item",
+            "figure",
+            "image",
+            "caption",
+            "figure_label",
+            "table",
+            "equation",
+            "footnote",
+            "reference",
+            "header",
+            "footer",
+            "metadata",
+            "code_block",
+            "module",
+            "class",
+            "function",
+            "method",
+            "property",
+            "import",
+            "declaration",
+            "comment",
+            "unknown",
+            "subsystem",
+            "entrypoint"
+          ]
+        },
+        "content": {
+          "type": "object",
+          "required": [
+            "source_text"
+          ],
+          "properties": {
+            "source_text": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "text",
+                  "source"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "source": {
+                    "$ref": "#/$defs/source"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "source": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/node"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "repository",
+                  "directory"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "children": {
+                "items": {
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "directory",
+                        "file",
+                        "unknown",
+                        "section",
+                        "subsystem"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "document",
+                  "webpage",
+                  "section",
+                  "list_item"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "children": {
+                "items": {
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "section",
+                        "paragraph",
+                        "heading",
+                        "list",
+                        "list_item",
+                        "figure",
+                        "image",
+                        "caption",
+                        "figure_label",
+                        "table",
+                        "equation",
+                        "footnote",
+                        "reference",
+                        "header",
+                        "footer",
+                        "metadata",
+                        "code_block",
+                        "comment",
+                        "unknown",
+                        "subsystem",
+                        "entrypoint",
+                        "directory",
+                        "file",
+                        "module",
+                        "class",
+                        "function"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "file"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "children": {
+                "items": {
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "section",
+                        "paragraph",
+                        "heading",
+                        "list",
+                        "list_item",
+                        "figure",
+                        "image",
+                        "caption",
+                        "figure_label",
+                        "table",
+                        "equation",
+                        "footnote",
+                        "reference",
+                        "header",
+                        "footer",
+                        "metadata",
+                        "code_block",
+                        "comment",
+                        "unknown",
+                        "module",
+                        "class",
+                        "function",
+                        "method",
+                        "property",
+                        "import",
+                        "declaration"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "module",
+                  "function",
+                  "method"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "children": {
+                "items": {
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "module",
+                        "class",
+                        "function",
+                        "method",
+                        "property",
+                        "import",
+                        "declaration",
+                        "comment",
+                        "code_block",
+                        "unknown"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "class"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "children": {
+                "items": {
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "method",
+                        "function",
+                        "class",
+                        "property",
+                        "declaration",
+                        "comment",
+                        "code_block",
+                        "unknown"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "figure"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "children": {
+                "items": {
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "image",
+                        "caption",
+                        "figure_label",
+                        "unknown"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "table"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "children": {
+                "items": {
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "caption",
+                        "footnote",
+                        "unknown"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "list"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "children": {
+                "items": {
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "list_item",
+                        "unknown"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "paragraph",
+                  "heading",
+                  "image",
+                  "caption",
+                  "figure_label",
+                  "equation",
+                  "footnote",
+                  "reference",
+                  "header",
+                  "footer",
+                  "metadata",
+                  "code_block",
+                  "property",
+                  "import",
+                  "declaration",
+                  "comment",
+                  "unknown"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "children": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "section",
+                  "paragraph",
+                  "heading",
+                  "caption",
+                  "figure_label",
+                  "footnote",
+                  "reference",
+                  "header",
+                  "footer",
+                  "comment"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "content": {
+                "required": [
+                  "text"
+                ],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "unknown"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "content": {
+                "required": [
+                  "reason"
+                ],
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "subsystem"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "children": {
+                "items": {
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "section",
+                        "module",
+                        "entrypoint",
+                        "file",
+                        "unknown"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "entrypoint"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "children": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "image"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "content": {
+                "required": [
+                  "asset"
+                ],
+                "properties": {
+                  "asset": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  },
+                  "alt": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "module"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "content": {
+                "required": [
+                  "ports",
+                  "unresolved_references"
+                ],
+                "properties": {
+                  "ports": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "name",
+                        "declaration",
+                        "source"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "declaration": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        },
+                        "source": {
+                          "$ref": "#/$defs/source"
+                        }
+                      }
+                    }
+                  },
+                  "unresolved_references": {
+                    "type": "array"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "entrypoint"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "content": {
+                "required": [
+                  "file_ref",
+                  "actions"
+                ],
+                "properties": {
+                  "file_ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  },
+                  "actions": {
+                    "type": "array"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "file"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "content": {
+                "required": [
+                  "path",
+                  "role",
+                  "detail_state"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  },
+                  "role": {
+                    "enum": [
+                      "source",
+                      "document",
+                      "attachment",
+                      "resource"
+                    ]
+                  },
+                  "detail_state": {
+                    "enum": [
+                      "deferred",
+                      "expanded",
+                      "retained"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "table"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "content": {
+                "required": [],
+                "properties": {
+                  "rows": {
+                    "type": "array",
+                    "items": {
+                      "type": "array"
+                    }
+                  },
+                  "cell_sources": {
+                    "type": "array"
+                  }
+                },
+                "anyOf": [
+                  {
+                    "required": [
+                      "rows"
+                    ],
+                    "properties": {
+                      "rows": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "required": [
+                      "text"
+                    ],
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      }
+                    }
+                  },
+                  {
+                    "required": [
+                      "asset"
+                    ],
+                    "properties": {
+                      "asset": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "list"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "content": {
+                "required": [
+                  "ordered",
+                  "start",
+                  "items"
+                ],
+                "properties": {
+                  "ordered": {
+                    "type": "boolean"
+                  },
+                  "start": {
+                    "type": "integer"
+                  },
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "list_item"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "content": {
+                "required": [
+                  "marker",
+                  "ordinal"
+                ],
+                "properties": {
+                  "marker": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  },
+                  "ordinal": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "kind",
+        "path"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "file",
+            "pdf",
+            "html",
+            "code"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "bbox": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "dom_path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "engine_ref": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "start_byte": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end_byte": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "start_line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "end_line": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "pdf"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "page",
+              "bbox"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "html"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "dom_path",
+              "bbox"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "code"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "start_byte",
+              "end_byte",
+              "start_line",
+              "end_line"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "用户向 LessonWeave 提交什么",
+  "description": "每个项目使用相同的输入结构，每份 input.json 保存材料类型、材料入口、工作模式和实际采用的 System Prompt",
+  "type": "object",
+  "required": [
+    "kind",
+    "material",
+    "mode",
+    "system_prompt"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "kind": {
+      "description": "file 表示本地文件，url 表示网页链接，repository 表示代码仓库链接或本机仓库 ZIP",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "enum": [
+        "file",
+        "url",
+        "repository"
+      ]
+    },
+    "material": {
+      "description": "文件填写本机路径，网页填写原始链接，代码仓库填写 GitHub 首页链接或本机 ZIP 路径",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "mode": {
+      "description": "progressive 表示逐段披露，one_shot 表示一次性生成",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "enum": [
+        "progressive",
+        "one_shot"
+      ]
+    },
+    "system_prompt": {
+      "description": "当前任务实际采用的完整 System Prompt，后续角色同时遵守这份学习目标和各阶段输出合同",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+[project]
+name = "lessonweave"
+version = "0.1.0"
+description = "Build source-grounded learning books with independent agent tasks"
+requires-python = ">=3.11"
+dependencies = ["jsonschema>=4.23", "requests>=2.32", "beautifulsoup4>=4.13", "PyMuPDF>=1.26", "playwright>=1.54", "tree-sitter-language-pack>=1.22", "markdown-it-py>=3", "Pillow>=11"]
+
+[project.scripts]
+lessonweave = "lessonweave.__main__:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q -p no:cacheprovider"
