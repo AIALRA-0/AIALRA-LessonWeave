@@ -92,6 +92,26 @@ class Handler(SimpleHTTPRequestHandler):
         try:
             if route == '/api/health':
                 self.json({'service': 'LessonWeave', 'version': '0.1.0', 'backend': os.environ.get('LESSONWEAVE_BACKEND', 'codex'), 'model': os.environ.get('LESSONWEAVE_MODEL', 'gpt-6.1-sol')})
+            elif route == '/api/architecture':
+                from .architecture import snapshot
+                project = parse_qs(urlsplit(self.path).query).get('project', [None])[0]
+                self.json(snapshot(self.store, project))
+            elif route == '/api/architecture/rule':
+                from .architecture import FRAME, VIEW, load
+                stage = parse_qs(urlsplit(self.path).query).get('stage', [''])[0]
+                spec = next((s for s in load(VIEW/'stages.json')['stages'] if s['id'] == stage), None)
+                if not spec:
+                    self.send_error(404)
+                    return
+                self.file(FRAME/spec['rules_file'], kind='text/plain')
+            elif route == '/architecture' or route.startswith('/architecture/'):
+                from .architecture import VIEW
+                name = 'index.html' if route in {'/architecture', '/architecture/'} else route[len('/architecture/'):]
+                path = (VIEW/name).resolve()
+                if not path.is_relative_to(VIEW.resolve()) or path.suffix not in {'.html', '.js', '.css', '.json', '.txt'}:
+                    self.send_error(404)
+                    return
+                self.file(path)
             elif route == '/api/projects':
                 result = []
                 for project in self.store.projects():

@@ -7,6 +7,7 @@ const labels={queued:'正在排队',running:'正在生成',cancelling:'正在停
 let library={folders:[],projects:[]},projects=[],jobs=[],selected={kind:'folder',id:'root'},reader=null,readerKey='',artifact=null,artifactView=null,trashOpen=false,action=null,submitting=false,upload=null,cancelAfterSubmit=false,submitKey=null,uploadedFile=null,uploadedReceipt=null;
 let expanded=new Set(['root']);
 const readingQueries=new Map();
+$('architecture-link').onclick=()=>{$('architecture-link').href='/architecture'+(selected.kind==='project'?'?project='+encodeURIComponent(selected.id):'');};
 try{expanded=new Set(JSON.parse(localStorage.getItem('lessonweave:expanded')||'["root"]'));document.body.classList.toggle('dark',localStorage.getItem('lessonweave:theme')==='dark');document.body.classList.toggle('library-collapsed',localStorage.getItem('lessonweave:library-hidden')==='1'||innerWidth<650);const width=Number(localStorage.getItem('lessonweave:library-width'));if(width>=200&&width<=440)document.documentElement.style.setProperty('--library-width',width+'px');}catch{}
 const status=text=>$('work-status').textContent=text;
 async function api(path,options){const response=await fetch(path,options);if(!response.headers.get('content-type')?.includes('json'))throw Error('登录可能已经过期，请重新打开网站登录');const data=await response.json();if(!response.ok)throw Error(data.error||'这次操作没有完成');return data;}

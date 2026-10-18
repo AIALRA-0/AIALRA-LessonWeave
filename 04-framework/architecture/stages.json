@@ -1,0 +1,100 @@
+{
+  "profile": "lessonweave-architecture-v1",
+  "template_version": "0.4",
+  "stages": [
+    {
+      "id": "00", "name": "保存材料", "directory": "00_source", "metrics": ["input_check", "acquire"],
+      "note": "先保存上传文件或网页的本地副本，后续步骤读取同一份材料",
+      "diagram": "flowchart LR\nP[PDF] --> S[保存本地副本]\nW[网页 URL] --> S\nZ[仓库 ZIP] --> S\nS --> F[原文件与资源]\nS --> J[source.json]\nJ --> K[核对获取状态]",
+      "rules_file": "00_source/acquire.py",
+      "fields": [
+        ["input", "kind", "材料类型决定使用哪条获取路径", "文件、网页和仓库分别读取对应解析器"],
+        ["input", "material", "用户提交的材料入口", "文件需要能读取，网页需要取得本地副本"],
+        ["source", "entry", "下一步读取的本地材料入口", "沿用实际保存的文件"],
+        ["source", "status", "材料是否已取得", "获取失败时保留真实状态"]
+      ]
+    },
+    {
+      "id": "01", "name": "解析材料", "directory": "01_tree", "metrics": ["parse"],
+      "note": "PDF 使用 Docling 与 PyMuPDF，网页读取保存的 DOM，代码先解析架构，再按需展开实现，教学信息点目前在 05 清点",
+      "diagram": "flowchart LR\nP[PDF 副本] --> D[Docling + PyMuPDF]\nW[网页副本] --> H[DOM + BeautifulSoup]\nC[仓库文件] --> T[架构解析 + Tree-sitter]\nD --> M[材料树]\nH --> M\nT --> M\nM --> L[原文与资源位置]\nM --> K[内容与对象覆盖检查]",
+      "rules_file": "01_tree/content_checks.py",
+      "fields": [
+        ["material", "engine", "实际使用的解析器与版本", "按本次产物记录显示"],
+        ["material_node", "content", "从材料树选出的一个真实节点", "保留原文、图片、表格或代码内容"],
+        ["material_node", "source", "这个节点回到原材料的位置", "PDF 保留页码与坐标，网页保留 DOM，源码保留行号"]
+      ]
+    },
+    {
+      "id": "02", "name": "提出问题", "directory": "02_questions", "metrics": ["questions"],
+      "note": "问题按理解的前置关系递进，每个问题保留负责讲解的材料节点",
+      "diagram": "flowchart LR\nM[材料树与全局背景] --> Q[循序渐进的问题树]\nQ --> P[前提与问题]\nQ --> S[对应材料节点]\nQ --> D[理解前置关系]\nS --> K[核对全部材料都有问题承接]",
+      "rules_file": "02_questions/build_questions.py",
+      "fields": [
+        ["question_node", "premise", "已知条件怎样引出当前问题", "与问题连成一句自然的提问"],
+        ["question_node", "question", "读者在这里需要理解什么", "围绕材料组织学习递进"],
+        ["question_node", "source_nodes", "当前问题负责解释的材料", "允许同一材料支持多个问题"],
+        ["question_node", "depends_on", "回答当前问题前需要先理解什么", "按前置关系安排学习顺序"]
+      ]
+    },
+    {
+      "id": "03", "name": "编排章节", "directory": "03_chapters", "metrics": ["chapters"],
+      "note": "把相关问题分配到递进章节，每个问题恰好归属一次",
+      "diagram": "flowchart LR\nQ[全部问题] -->|多对一| S[小节]\nS -->|多对一| C[章节]\nD[理解前置关系] --> C\nC --> T[标题树]\nT --> K[每个问题恰好分配一次]",
+      "rules_file": "03_chapters/build_chapters.py",
+      "fields": [
+        ["chapter_node", "title", "目录中实际显示的小节标题", "标题准确概括本节核心内容"],
+        ["chapter_node", "question_ids", "这一节需要讲清的问题", "全部问题恰好分配一次"],
+        ["chapter_node", "requires", "本节需要先读哪些部分", "章节顺序满足理解前置关系"]
+      ]
+    },
+    {
+      "id": "04", "name": "生成承上启下", "directory": "04_transitions", "metrics": ["transitions"],
+      "note": "承接已经讲清的内容，明确下一节准备解决的问题，正文阶段再扩写成自然段",
+      "diagram": "flowchart LR\nC[章节与问题归属] --> T[承接树]\nB[前一节已讲内容] --> T\nT --> P[前提与下一问]\nT --> U[讲解单元顺序]\nT --> K[核对所有小节都有承接]",
+      "rules_file": "04_transitions/build_transitions.py",
+      "fields": [
+        ["transition_node", "premise", "本节从哪些已知内容继续", "承接前文实际已经讲清的内容"],
+        ["transition_node", "question", "承接以后引出什么问题", "与本节承担的问题一致"],
+        ["transition_node", "core_question_ids", "本节承接对应哪些核心问题", "沿用已确认的章节归属"]
+      ]
+    },
+    {
+      "id": "05", "name": "编写正文与术语", "directory": "05_writing", "metrics": ["inventory", "translation", "writing", "overview", "extras"],
+      "note": "材料清点、逐问写作和附属内容使用独立任务，保留材料与正文位置的对应",
+      "diagram": "flowchart LR\nS[对应材料] --> I[清点应讲信息点]\nQ[问题与前后文职责] --> W[独立写作任务]\nI --> W\nW --> P[问题段]\nW --> E[讲解段]\nW --> R[升华段]\nW --> G[总结 练习 术语]\nE --> B[信息点与正文块对应]",
+      "rules_file": "05_writing/structure.md",
+      "fields": [
+        ["section", "opening_title", "承上启下的提问放在正文第一段", "标题保留承上启下，随后展开承上与启下"],
+        ["unit", "problem.text", "把当前问题扩写到读者能理解的情景", "明确条件和需要解释的变化"],
+        ["unit", "explanation", "围绕原材料把问题讲清", "保留实际事实、数值、图表和限制"],
+        ["unit", "synthesis.text", "回答本单元问题并接向后文", "总结推理结果，避免重复承接"],
+        ["section", "glossary", "正文涉及的术语及其解释", "正文术语与右侧术语表相互定位"]
+      ]
+    },
+    {
+      "id": "06", "name": "审查讲解", "directory": "05_writing · 独立审查", "metrics": ["review"],
+      "note": "这是 05_writing 内的审查步骤，独立审查逐条核对材料与实际正文，程序重新计算 explained",
+      "diagram": "flowchart LR\nI[信息点与检查项] --> R[独立审查]\nB[实际正文块与来源] --> R\nR --> K[脚本核对引用 版本 子项]\nK --> P[重算 explained 与覆盖率]\nK --> F[集中记录需要批量修复的问题]",
+      "rules_file": "05_writing/teaching_coverage.py",
+      "fields": [
+        ["inventory_point", "description", "这一条材料需要解释什么", "材料清单与正文审查分别进行"],
+        ["inventory_point", "checks", "这一信息点包含哪些必须讲清的细节", "子项全部讲清后才能完成整点"],
+        ["coverage_point", "explained", "独立审查后重算的完成标记", "保留实际失败或尚未审查状态"],
+        ["coverage_point", "block_ids", "哪些正文位置实际解释了这一点", "正文块存在，内容对题，版本对应"]
+      ]
+    },
+    {
+      "id": "07", "name": "交付阅读", "directory": "05_writing · 阅读与导出", "metrics": ["locations", "package", "library"],
+      "note": "阅读器读取当前有效产物，预览与正式发布状态分别显示，已有笔记继续使用原保存位置",
+      "diagram": "flowchart LR\nC[章节目录] --> R[四栏阅读器]\nS[原文 译文 图片与定位] --> R\nW[讲解与练习] --> R\nG[术语表] --> R\nR --> P[阅读包]\nP --> N[ReadWeave 接入包]",
+      "rules_file": "05_writing/reading-package.schema.json",
+      "fields": [
+        ["book", "title", "当前读本的标题", "显示当前选中版本的实际内容"],
+        ["section", "title", "当前阅读小节的标题", "沿用已确认的章节安排"],
+        ["section", "core_questions", "当前小节的核心问题列表", "每个问题都有相应讲解"],
+        ["book", "validation", "当前读本的真实检查状态", "待审预览继续显示待审"]
+      ]
+    }
+  ]
+}

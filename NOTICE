@@ -9,5 +9,8 @@ Playwright, Beautiful Soup, Requests, jsonschema, markdown-it-py, Pillow,
 and tree-sitter-language-pack. Docling is an optional parser integration.
 The Codex CLI is installed separately from the official OpenAI distribution.
 
+The architecture viewer bundles Mermaid 10.9.3 under the MIT license.
+Its license is preserved in 04-framework/architecture/vendor/LICENSE-mermaid.txt.
+
 The repository's examples are self-authored synthetic materials.
 User-supplied materials and generated private books are not distributed here.
