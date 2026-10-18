@@ -1,0 +1,51 @@
+04-framework/architecture/stages.json
+  s_4552c046844e7c::t_ab88b3ef988ccc 1-20,22-100
+  s_4552c046844e7c::t_2995131ba1db32 21
+lessonweave/server.py
+  s_4552c046844e7c::t_2995131ba1db32 95-114
+web/workspace.js
+  s_4552c046844e7c::t_20db5f62eb0caa 10
+NOTICE
+  s_4552c046844e7c::t_20db5f62eb0caa 12-14
+lessonweave/architecture.py
+  s_4552c046844e7c::t_a9c4fe1d905e99 125-129,132,134-135,231
+  s_4552c046844e7c::t_2995131ba1db32 146-156,197
+  s_4552c046844e7c::t_ea1eb8b991761d 160-162
+  s_4552c046844e7c::t_9d862c67743d1a 1-124,130-131,133,136-145,157-159,163-196,198-230,232-254
+04-framework/architecture/compact.css
+  s_4552c046844e7c::t_20db5f62eb0caa 1-8
+docs/architecture-view.md
+  s_4552c046844e7c::t_20db5f62eb0caa 1-37
+tests/test_architecture.py
+  s_4552c046844e7c::t_ea1eb8b991761d 1-56,72-92
+  s_4552c046844e7c::t_a9c4fe1d905e99 57-71
+web/workspace.html
+  s_4552c046844e7c::t_20db5f62eb0caa 3
+04-framework/architecture/index.html
+  s_4552c046844e7c::t_2995131ba1db32 1-15
+docs/architecture.md
+  s_4552c046844e7c::t_20db5f62eb0caa 5-6
+04-framework/architecture/flow.js
+  s_4552c046844e7c::t_2995131ba1db32 1-84,86-102
+  s_4552c046844e7c::t_305deeb30de44e 85
+04-framework/architecture/vendor/LICENSE-mermaid.txt
+  s_4552c046844e7c::t_1941424d109700 1-21
+04-framework/architecture/vendor/mermaid-10.9.3.min.js
+  s_4552c046844e7c::t_19ec831b86aed1 1-2029
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e0529cc3bf94209fcce682d43bbaa4a3d6ee0374",
+  "prompts": {},
+  "sessions": {
+    "s_4552c046844e7c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14919-891d-7b32-9e12-b2bf212304ff",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    }
+  }
+}
