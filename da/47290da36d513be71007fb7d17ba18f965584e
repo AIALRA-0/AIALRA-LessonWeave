@@ -1,0 +1,25 @@
+framework/reader/reading-ui.js
+  s_bd317cec756d17::t_14db1cf16e233a 101
+integrations/readweave/build_component.py
+  s_bd317cec756d17::t_7f88e865342b22 67
+integrations/readweave/reader-component.js
+  s_bd317cec756d17::t_5cb70d74831929 1824,2654
+web/workspace.js
+  s_bd317cec756d17::t_a6ebb7da6c7c49 64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "da47290da36d513be71007fb7d17ba18f965584e",
+  "prompts": {},
+  "sessions": {
+    "s_bd317cec756d17": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b69-207f-7e61-ba85-f7edc501349a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    }
+  }
+}
