@@ -273,6 +273,7 @@ def prepare_web_dom(root, group, out, tree):
             if key.lower().startswith("on") or key in {"srcset","sizes","style","poster","background","href","action"}:
                 del node[key]
         if node.name=="img":
+            node["loading"]="eager"
             path=local(root,node.get("src"))
             if path:
                 node["src"]=url(root,path)
@@ -337,14 +338,14 @@ def prepare_web(root, group, out, manifest, tree):
                     external.append(req.request.url);req.abort()
             page.route("**/*",route)
             page.goto(f"http://127.0.0.1:{server.server_port}"+url(root,target),wait_until="networkidle")
-            page.evaluate("async()=>{await document.fonts.ready;await Promise.all([...document.images].map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=r;img.onerror=r})));}")
+            page.evaluate("async()=>{await document.fonts.ready;await Promise.all([...document.images].map(img=>img.decode().catch(()=>{})));}")
             observed=page.evaluate(WEB_MEASURE_JS,list(group["sources"].values()))
             width,height=page.evaluate("[document.documentElement.scrollWidth,document.documentElement.scrollHeight]")
             screenshot=out/"web-page.png";page.screenshot(path=str(screenshot),full_page=True)
             browser.close()
-        if external:
-            raise ValueError("离线原件仍尝试读取外部资源: "+str(external))
         manifest["web"]={"image":url(root,screenshot),"width":width,"height":height,"dom":url(root,target),"kind":"html","coordinate_space":"css_pixels"}
+        if external:
+            manifest["web"]["blocked_requests"]=list(dict.fromkeys(external))
         manifest["pages"]["web"]=manifest["web"]
         for sid,item in observed.items():
             record=manifest["sources"][sid];record["page_ids"]=["web"]

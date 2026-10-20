@@ -152,6 +152,34 @@ def test_locator_reads_registered_html_when_snapshot_display_is_a_replay_url(tmp
     assert 'A complete source sentence.' in target.read_text('utf-8')
 
 
+def test_locator_loads_below_fold_images_before_measuring_the_page(tmp_path):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'framework/05_writing'))
+    from prepare_source_locations import prepare_web
+    Image.new('RGB', (100, 1800), 'blue').save(tmp_path/'tall.png')
+    Image.new('RGB', (100, 300), 'green').save(tmp_path/'bottom.png')
+    (tmp_path/'broken.png').write_bytes(b'not an image')
+    (tmp_path/'original.html').write_text(
+        '<figure id="images"><div><img src="tall.png" loading="lazy"></div>'
+        '<div><img src="bottom.png" loading="lazy" srcset="https://example.test/remote.png 2x"></div>'
+        '<img src="broken.png" loading="lazy"></figure>'
+        '<p id="end">The final source sentence.</p>', encoding='utf-8')
+    sources = {
+        'pictures': {'id': 'pictures', 'source': {'dom_path': '#images'}, 'sentences': {}},
+        'last': {'id': 'last', 'source': {'dom_path': '#end'}, 'sentences': {
+            'sentence': {'id': 'sentence', 'original': 'The final source sentence.'}}},
+    }
+    manifest = {'sources': json.loads(json.dumps(sources)), 'pages': {}}
+    out = tmp_path/'locations'
+    out.mkdir()
+    prepare_web(tmp_path, {'sources': sources}, out, manifest, {'original': '/original.html'})
+    assert manifest['web']['height'] > 2100
+    assert manifest['sources']['last']['sentences']['sentence']['status'] == 'exact'
+    assert manifest['sources']['last']['locations'][0]['bbox'][1] > 2100
+    assert 'loading="lazy"' not in (out/'web-dom.html').read_text('utf-8')
+    assert 'example.test' not in (out/'web-dom.html').read_text('utf-8')
+    assert (out/'web-page.png').is_file()
+
+
 def test_replay_address_is_not_checked_as_a_local_snapshot_file(tmp_path):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'framework/01_tree'))
     from content_checks import check_objects

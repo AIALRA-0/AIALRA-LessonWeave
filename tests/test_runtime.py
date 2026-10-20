@@ -12,6 +12,26 @@ from lessonweave.pipeline import scaffold, run
 from lessonweave.package import import_package
 
 
+def test_saved_book_still_resumes_unfinished_location_and_export_steps(tmp_path, monkeypatch):
+    from lessonweave import jobs, pipeline, trilium
+    store = Store(tmp_path/'data')
+    project = tmp_path/'project'
+    store.register('x', '样例', project)
+    job = store.submit('x', {}, 'one')
+    save(project/'05_writing/book.json', {'validation': {'passed': True}})
+    save(project/'runtime/state.json', {'status': 'cancelled', 'stage': '05_writing/locations'})
+    called = []
+    def finish(root, maximum):
+        called.append((root, maximum))
+        return {'status': 'completed'}
+    monkeypatch.setattr(pipeline, 'run', finish)
+    monkeypatch.setattr(trilium, 'configured', lambda: False)
+    monkeypatch.setattr(jobs.sys, 'argv', ['jobs', str(tmp_path/'data'), job['id']])
+    jobs.main()
+    assert called == [(project, 1)]
+    assert read(project/'runtime/jobs'/job['id']/'result.json')['status'] == 'completed'
+
+
 def test_submit_is_idempotent_and_conflicts_fail(tmp_path):
     # 相同标识和内容只建立一个任务，变更内容时报告冲突
     store=Store(tmp_path)

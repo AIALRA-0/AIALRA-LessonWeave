@@ -104,11 +104,7 @@ def main():
             result=answer(root,payload)
         else:
             from .pipeline import run
-            published=read(root/'05_writing/book.json',{})
-            if published.get('validation',{}).get('passed'):
-                result=dict(read(root/'runtime/state.json',{}),status='completed',issues=[])
-            else:
-                result=run(root,maximum=1)
+            result=run(root,maximum=1)
             from .trilium import sync_project,configured
             if configured() and (root/'05_writing/preview-book.json').is_file():
                 try:

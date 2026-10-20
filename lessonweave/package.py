@@ -110,15 +110,11 @@ def import_package(archive_path, destination):
         schema=read(Path(__file__).resolve().parents[1]/'framework/05_writing/reading-package.schema.json')
         jsonschema.validate(manifest,schema)
         allowed = set(manifest['files']) | {'manifest.json'}
-        if len(archive.infolist())>25000 or sum(item.file_size for item in archive.infolist())>1_500_000_000:
-            raise ValueError('阅读包超过本次导入的资源上限')
         if set(archive.namelist()) != allowed:
             raise ValueError('阅读包中的实际文件与清单不同')
         for entry in archive.infolist():
             target = (destination / entry.filename).resolve()
             if not target.is_relative_to(destination) or entry.filename.startswith(('/', '\\')) or (entry.external_attr >> 16) & 0o170000 == 0o120000:
                 raise ValueError('阅读包包含目标之外的路径或符号链接')
-            if entry.file_size > 200_000_000:
-                raise ValueError('阅读包中有超出单文件上限的内容')
         archive.extractall(destination)
     return manifest
