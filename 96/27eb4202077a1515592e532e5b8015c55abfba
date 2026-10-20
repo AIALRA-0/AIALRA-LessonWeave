@@ -1,0 +1,29 @@
+tests/test_workspace_polish.py
+  s_bd317cec756d17::t_6717ee33161754 12
+  s_bd317cec756d17::t_584a9bc2d218cd 16,91-100
+framework/01_tree/content_checks.py
+  s_bd317cec756d17::t_584a9bc2d218cd 19-31,144,296-297
+framework/02_questions/build_questions.py
+  s_bd317cec756d17::t_584a9bc2d218cd 22-23
+lessonweave/pipeline.py
+  s_bd317cec756d17::t_6717ee33161754 101
+  s_bd317cec756d17::t_584a9bc2d218cd 100,102-109
+framework/01_tree/tree_web.py
+  s_bd317cec756d17::t_584a9bc2d218cd 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9627eb4202077a1515592e532e5b8015c55abfba",
+  "prompts": {},
+  "sessions": {
+    "s_bd317cec756d17": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b69-207f-7e61-ba85-f7edc501349a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    }
+  }
+}
