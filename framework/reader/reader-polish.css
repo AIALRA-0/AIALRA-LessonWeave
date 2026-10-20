@@ -125,3 +125,29 @@
 @media(max-width:650px){.lw-embedded .demo-masthead>.document-heading{display:none}.lw-embedded .demo-header-actions{grid-column:1/-1;justify-self:stretch;justify-content:space-between;gap:4px}.lw-embedded .demo-header-actions .control-group{gap:0}.lw-embedded .demo-header-actions .control-group+.control-group{padding-left:0}.lw-embedded .demo-header-actions .icon-button{width:30px;min-width:30px;padding:5px}}
 
 .lw-embedded{--paper:var(--surface);--ink:var(--text);--soft:var(--selected)}
+
+/* 材料栏的选择、定位和译文各自留出间距，窄栏把定位工具自然排到下一行 */
+.reader-ui #demo-original .material-heading{display:grid;grid-template-columns:auto minmax(70px,1fr) auto;height:auto;min-height:52px;padding:10px 12px;gap:8px 10px}
+.reader-ui #demo-original .material-heading h2{max-width:none}
+.reader-ui #demo-original .locator-sources{max-width:none;min-width:0}
+.reader-ui #locator-source-select{height:32px;min-height:32px;padding:4px 7px;font-size:12px}
+.reader-ui #demo-original .source-view-actions{gap:8px}
+.reader-ui #demo-original .source-view-actions .icon-button{width:32px;height:32px;min-height:32px;padding:7px}
+.reader-ui #demo-original .source-view-actions .text-action{min-height:32px;font-size:12px}
+.reader-ui .source-question-choice{gap:10px;padding:10px 12px}
+.reader-ui #source-unit-select,.reader-ui #source-language-select{height:36px;min-height:36px;padding:6px 9px;font-size:12px}
+.reader-ui #demo-original .locator-heading{height:auto;min-height:48px;padding:8px 12px;gap:8px;flex-wrap:wrap}
+.reader-ui #locator-view-select,.reader-ui #locator-sentence-select,.reader-ui .locator-zoom-select{height:32px;min-height:32px;padding:4px 6px;font-size:12px}
+.reader-ui #locator-view-select{max-width:none}
+.reader-ui #demo-original .locator-sentence-navigation{gap:4px}
+.reader-ui #demo-original .locator-head-actions{gap:6px;width:100%;justify-content:flex-end;margin-left:0}
+.reader-ui #demo-original .locator-zoom-controls{gap:4px}
+.reader-ui #demo-original .locator-heading .icon-button{width:30px;height:32px;min-height:32px;padding:7px}
+.reader-ui #demo-original .locator-heading .zoom-reset{width:42px;min-width:42px;height:32px;min-height:32px;font-size:12px}
+.reader-ui #demo-original .locator-body{padding:8px 12px 12px}
+.reader-ui #demo-original #source-text-scroll{padding:16px 18px 24px}
+.reader-ui #source-text-scroll .demo-source-card{padding:8px 0 16px}
+.reader-ui #source-text-scroll .source-sentence-pair{margin:12px 0 20px}
+@container material (max-width:400px){.reader-ui #demo-original .material-heading{grid-template-columns:minmax(0,1fr) auto}.reader-ui #demo-original .material-heading h2{position:static;width:auto;height:auto;clip-path:none;overflow:visible}.reader-ui #demo-original .locator-sources{grid-column:1/-1;grid-row:2}}
+@container material (min-width:560px){.reader-ui #demo-original .locator-head-actions{width:auto;margin-left:auto}.reader-ui #locator-view-select{max-width:120px}}
+@media(pointer:coarse){.reader-ui #demo-original .locator-heading .icon-button,.reader-ui #demo-original .locator-heading .zoom-reset{height:40px;min-height:40px}}

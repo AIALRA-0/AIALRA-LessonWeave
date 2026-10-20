@@ -124,4 +124,4 @@ window.addEventListener('pagehide',()=>{reader?.unmount();artifact?.unmount();},
 $('open-readweave').onclick=()=>{if(selected.kind!=='project')return;const section=reader?.getState()?.doc?.section_id;window.open('/p/'+encodeURIComponent(selected.id)+'/open-readweave'+(section?'?section='+encodeURIComponent(section):''),'_blank','noopener');};
 
 for(const [id,name,label]of [['toggle-library','menu','折叠文件树'],['architecture-link','flow','流程与架构'],['new-project','plus','生成读本'],['theme','theme','切换明暗主题'],['new-folder','folder','新建文件夹'],['show-trash','trash','回收站'],['open-readweave','external','在 ReadWeave 打开'],['standalone-link','book','单独阅读'],['export-link','download','导出阅读包'],['show-tasks','progress','生成任务记录']])iconControl($(id),name,label);
-document.querySelectorAll('[data-close]').forEach(b=>iconControl(b,'close',b.getAttribute('aria-label')));
+document.querySelectorAll('[data-close].icon').forEach(b=>iconControl(b,'close',b.getAttribute('aria-label')));

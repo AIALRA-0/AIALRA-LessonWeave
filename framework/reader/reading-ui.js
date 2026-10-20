@@ -162,11 +162,12 @@
   function showTooltip(el){
     clearTimeout(tooltipTimer);const text=el.dataset.tooltip;if(!text||el.matches('select:open'))return;
     const host=el.closest('dialog[open]')||document.body;if(tooltip.parentElement!==host)host.append(tooltip);
-    const pane=el.closest('.demo-reading-pane,dialog[open]'),bounds=pane?.getBoundingClientRect();
-    const left=Math.max(8,bounds?.left||8),right=Math.min(innerWidth-8,bounds?.right||innerWidth-8);
-    tooltip.style.width=Math.max(100,Math.min(440,right-left-12))+'px';tooltip.style.maxWidth=tooltip.style.width;
+    const pane=el.closest('.demo-reading-pane,dialog[open]'),bounds=(pane||document.documentElement).getBoundingClientRect();
+    const viewport=window.visualViewport,width=viewport?.width||innerWidth,height=viewport?.height||innerHeight;
+    const left=Math.max(8,bounds.left+8),right=Math.min(width-8,bounds.right-8);
+    tooltip.style.width='max-content';tooltip.style.maxWidth=Math.max(0,Math.min(320,right-left))+'px';
     tooltip.textContent=text;tooltip.hidden=false;const r=el.getBoundingClientRect(),t=tooltip.getBoundingClientRect();
-    tooltip.style.left=Math.max(left,Math.min(right-t.width,r.left))+'px';tooltip.style.top=Math.max(8,Math.min(innerHeight-t.height-8,r.bottom+7))+'px';el.setAttribute('aria-describedby','ui-tooltip');
+    tooltip.style.left=Math.max(left,Math.min(right-t.width,r.left))+'px';tooltip.style.top=Math.max(8,Math.min(height-t.height-8,r.bottom+7))+'px';el.setAttribute('aria-describedby','ui-tooltip');
   }
   document.addEventListener('pointerover',event=>{const el=event.target.closest('[data-tooltip]');if(el)showTooltip(el);});
   function preparePicker(select){
@@ -181,7 +182,7 @@
     select.style.setProperty('--reader-picker-height',Math.max(80,height)+'px');
   }
   function closedLabel(select){
-    if(!CSS.supports('appearance','base-select')||select.querySelector(':scope>button'))return;
+    if(select.id!=='source-unit-select'||!CSS.supports('appearance','base-select')||select.querySelector(':scope>button'))return;
     const button=document.createElement('button'),label=document.createElement('selectedcontent');
     button.type='button';button.append(label);select.prepend(button);
   }
