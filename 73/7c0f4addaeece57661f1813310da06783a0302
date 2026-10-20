@@ -1,0 +1,21 @@
+framework/01_tree/information_points.py
+  s_bd317cec756d17::t_e5c0997aa62952 1
+tests/test_question_first_pass.py
+  s_bd317cec756d17::t_3839955a0594b5 178
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "737c0f4addaeece57661f1813310da06783a0302",
+  "prompts": {},
+  "sessions": {
+    "s_bd317cec756d17": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b69-207f-7e61-ba85-f7edc501349a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    }
+  }
+}
