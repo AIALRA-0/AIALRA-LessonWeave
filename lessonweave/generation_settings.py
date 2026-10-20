@@ -14,8 +14,11 @@ def load(root):
     result = copy.deepcopy(DEFAULTS)
     for role, values in result.items():
         prefix = 'LESSONWEAVE_' + role.upper() + '_'
-        values['model'] = os.environ.get(prefix + 'MODEL', os.environ.get('LESSONWEAVE_MODEL', values['model']))
-        values['effort'] = os.environ.get(prefix + 'EFFORT', os.environ.get('LESSONWEAVE_EFFORT', values['effort']))
+        # 旧全局选项只控制规划与写作，翻译继续使用自己的模型和思考力度
+        fallback_model=os.environ.get('LESSONWEAVE_MODEL',values['model']) if role=='generation' else values['model']
+        fallback_effort=os.environ.get('LESSONWEAVE_EFFORT',values['effort']) if role=='generation' else values['effort']
+        values['model'] = os.environ.get(prefix + 'MODEL', fallback_model)
+        values['effort'] = os.environ.get(prefix + 'EFFORT', fallback_effort)
         values.update(read(root / 'runtime/generation-settings.json', {}).get(role, {}))
     return result
 

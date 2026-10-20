@@ -32,7 +32,10 @@ def test_project_choice_reaches_backend_and_keeps_other_projects_independent(tmp
 def test_explicit_project_values_override_server_defaults(tmp_path,monkeypatch):
     monkeypatch.setenv('LESSONWEAVE_MODEL','server-model')
     monkeypatch.setenv('LESSONWEAVE_EFFORT','medium')
-    assert config.load(tmp_path)['translation']=={'model':'server-model','effort':'medium'}
+    assert config.load(tmp_path)['generation']=={'model':'server-model','effort':'medium'}
+    assert config.load(tmp_path)['translation']=={'model':'deepseek-flash','effort':'off'}
+    translator=Backend(tmp_path,role='lean_translation')
+    assert (translator.provider,translator.model,translator.effort)==('deepseek-official','deepseek-flash','off')
     config.update(tmp_path,config.DEFAULTS)
     assert config.load(tmp_path)==config.DEFAULTS
 
