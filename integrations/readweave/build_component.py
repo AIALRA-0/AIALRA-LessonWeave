@@ -27,7 +27,7 @@ export function mountReader(container, options) {
   const native=globalThis.window;
   const tracked=kind=>class extends native[kind] {constructor(...args){super(...args);observers.add(this)}disconnect(){super.disconnect();observers.delete(this)}};
   const MutationObserver=tracked('MutationObserver'), ResizeObserver=tracked('ResizeObserver'), IntersectionObserver=tracked('IntersectionObserver');
-  const config={project_id:options.projectId,base:options.base,readweave_demo:true,legacy:!!options.legacy};
+  const config={project_id:options.projectId,base:options.base,readweave_demo:true,legacy:!!options.legacy,sidebarWidth:options.sidebarWidth};
   const path=value=>{let text=String(value||'');const resolved=options.resolveResource?.(text);if(resolved)return resolved;if(/^(https?:|data:|blob:|#)/.test(text))return text;if(text.startsWith(config.base+'/'))return text;if(text.startsWith('/book.html')||text.startsWith('book.html'))text=text.replace('book.html','readweave.html');return config.base+'/'+text.replace(/^\\/+/,'')};
   const fetch=(value, init)=>value==='/design-tokens.json'?Promise.resolve(new Response(JSON.stringify(DESIGN_TOKENS),{headers:{'Content-Type':'application/json'}})):options.fetch?options.fetch(value,init):native.fetch(typeof value==='string'&&/^\\/(0[0-5]_)/.test(value)?path(value):value,init);
   const location={pathname:'readweave/book.html',search:options.search??'?preview=true',hash:'',get href(){return native.location.origin+config.base+'/book.html'+this.search},set href(value){options.onNavigate?.(new URL(value,native.location.href).search)}};
@@ -71,11 +71,11 @@ export function mountReader(container, options) {
     if(bound.has(box))return;const state=owned.ReaderSourceBridge?.getState();if(!state?.doc)return;
     bound.add(box);const input=box.querySelector('textarea'),button=box.querySelector('button');
     const key=state.doc.section_id+':'+box.dataset.noteId;
-    Promise.resolve(options.loadNote?.(key)).then(value=>{if(!disposed&&!input.value&&value)input.value=value});
+    Promise.resolve(options.loadNote?.(key)).then(value=>{if(!disposed&&!input.value&&!input.hasAttribute('data-note-draft')&&value)input.value=value});
     listen(button,'click',async()=>{await options.saveNote?.(key,input.value);const status=box.querySelector('.help');if(status)status.textContent='已保存到个人笔记'});
   });
   const observer=new MutationObserver(connectNotes);observer.observe(root,{childList:true,subtree:true});connectNotes();
-  return {root, setTheme:name=>owned.ReaderUI?.setTheme(name), getState:()=>owned.ReaderSourceBridge?.getState(),
+  return {root, navigate:search=>owned.ReaderSourceBridge.navigate(search), setTheme:name=>owned.ReaderUI?.setTheme(name), getState:()=>owned.ReaderSourceBridge?.getState(),
     focusNotes:()=>root.querySelector('.writing-note textarea')?.focus(),
     toggleGlossary:()=>root.querySelector('[data-toggle-pane="glossary"]')?.click(),
     unmount(){disposed=true;abort.abort();for(const item of [...observers])item.disconnect();for(const id of timers){native.clearTimeout(id);native.clearInterval(id)}for(const id of frames)native.cancelAnimationFrame(id);shadow.replaceChildren();}

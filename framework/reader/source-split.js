@@ -31,7 +31,8 @@
     pane.dataset.sourceView=view;
     const pageFirst=view==='page-translation';
     document.getElementById('demo-original-title').textContent=pageFirst?'原页与译文':'原文与译文';
-    toggle.textContent=pageFirst?'原文对照':'原页＋译文';
+    toggle.innerHTML=uiIcon(pageFirst?'source':'book');
+    toggle.dataset.tooltip=pageFirst?'原文对照':'原页与译文';
     toggle.setAttribute('aria-pressed',String(pageFirst));
     toggle.setAttribute('aria-label',pageFirst?'切换到原文与译文对照模式':'切换到原页与译文模式');
     if(languages)languages.hidden=pageFirst;

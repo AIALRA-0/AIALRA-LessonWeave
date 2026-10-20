@@ -3,13 +3,14 @@
   const $ = id => document.getElementById(id);
   const names = {directory:'目录',source:'原文与译文',glossary:'术语表'};
   const panes = Object.fromEntries([...document.querySelectorAll('[data-pane]')].map(el=>[el.dataset.pane,el]));
-  const defaults = {version:1,theme:'light',widths:{directory:224,source:420,glossary:272},visible:{directory:true,source:true,glossary:true},body:17,line:1.95,focus:false};
+  const defaults = {version:1,theme:'light',widths:{directory:224,source:515.2,glossary:224},customWidths:false,visible:{directory:true,source:true,glossary:true},body:17,line:1.95,focus:false};
   const key = 'aialra:reader-ui:v1';
-  let state = structuredClone(defaults), tokens, current = {}, drawer = null, trigger = null, dragging = null, initialized = false, frame = 0;
+  let state = structuredClone(defaults), tokens, current = {}, drawer = null, trigger = null, dragging = null, initialized = false, sectionObserver = null, frame = 0;
   let tooltipTimer, peekOpenTimer, peekCloseTimer, peekTarget = null, pinnedDrawer = false, restoringDrawerFocus=false;
   try { const old=JSON.parse(localStorage.getItem(key)); if(old?.version===1) state={...state,...old,widths:{...state.widths,...old.widths},visible:{...state.visible,...old.visible}}; } catch {}
+  try{const old=JSON.parse(localStorage.getItem(key));if(old&&old.customWidths===undefined)state.customWidths=Object.entries({directory:224,source:420,glossary:272}).some(([name,width])=>old.widths?.[name]!=null&&old.widths[name]!==width);}catch{}
   if(['light','dark'].includes(window.LESSONWEAVE_THEME))state.theme=window.LESSONWEAVE_THEME;
-  for(const name of Object.keys(names)) state.widths[name]=Math.max(180,Math.min(name==='source'?840:560,Number(state.widths[name])||defaults.widths[name]));
+  for(const name of Object.keys(names)) state.widths[name]=Math.max(180,Number(state.widths[name])||defaults.widths[name]);
   state.body=Math.max(16,Math.min(21,Number(state.body)||17));
   state.line=Math.max(1.65,Math.min(2.2,Number(state.line)||1.95));
   state.focus=false;
@@ -26,9 +27,10 @@
   function queueLayout(){cancelAnimationFrame(frame);frame=requestAnimationFrame(layout);}
   function layout(){
     const available=$('reader-shell').clientWidth;current={...state.visible};
-    if(state.focus||innerWidth<900) Object.keys(current).forEach(p=>current[p]=false);
     const gap=parseFloat(getComputedStyle($('reader-shell')).columnGap)||0;
-    const budget=()=>Object.entries(current).reduce((n,[p,on])=>n+(on?state.widths[p]+gap:0),0)+560;
+    if(!state.customWidths){const small=window.LESSONWEAVE?.sidebarWidth?.()||(available-3*gap)/6.6;state.widths={directory:small,source:small*2.3,glossary:small};}
+    if(state.focus||innerWidth<900) Object.keys(current).forEach(p=>current[p]=false);
+    const budget=()=>Object.entries(current).reduce((n,[p,on])=>n+(on?state.widths[p]+gap:0),0)+360;
     for(const p of ['directory','glossary','source'])if(budget()>available)current[p]=false;
     const cols=[];
     for(const p of ['directory','source'])if(current[p])cols.push(state.widths[p]+'px');
@@ -53,8 +55,9 @@
     }
   }
   function maxWidth(p){
-    const others=Object.entries(current).reduce((n,[name,on])=>n+(on&&name!==p?state.widths[name]+16:0),0);
-    return Math.min(p==='source'?840:600,$('reader-shell').clientWidth-others-16-560);
+    const gap=parseFloat(getComputedStyle($('reader-shell')).columnGap)||0;
+    const others=Object.entries(current).reduce((n,[name,on])=>n+(on&&name!==p?state.widths[name]+gap:0),0);
+    return Math.max(p==='directory'?180:240,$('reader-shell').clientWidth-others-gap-360);
   }
   function closeDrawer(restore=true){
     clearTimeout(peekOpenTimer);clearTimeout(peekCloseTimer);peekTarget=null;
@@ -100,17 +103,17 @@
   for(const el of document.querySelectorAll('[data-resize-pane]')){
     const p=el.dataset.resizePane;
     el.addEventListener('pointerdown',event=>{
-      if(event.button!==0)return;el.setPointerCapture(event.pointerId);dragging={p,el,x:event.clientX,width:state.widths[p],saved:{...state.widths}};document.body.classList.add('is-resizing');event.preventDefault();
+      if(event.button!==0)return;el.setPointerCapture(event.pointerId);dragging={p,el,x:event.clientX,width:state.widths[p],saved:{...state.widths},customWidths:state.customWidths};state.customWidths=true;document.body.classList.add('is-resizing');event.preventDefault();
     });
     el.addEventListener('pointermove',event=>{if(dragging?.el!==el)return;const change=(event.clientX-dragging.x)*(p==='glossary'?-1:1);state.widths[p]=Math.round(Math.max(p==='directory'?180:240,Math.min(maxWidth(p),dragging.width+change)));queueLayout();});
-    const finish=cancel=>{if(dragging?.el!==el)return;if(cancel)state.widths=dragging.saved;dragging=null;document.body.classList.remove('is-resizing');layout();if(!cancel)save();};
+    const finish=cancel=>{if(dragging?.el!==el)return;if(cancel){state.widths=dragging.saved;state.customWidths=dragging.customWidths;}dragging=null;document.body.classList.remove('is-resizing');layout();if(!cancel){state.customWidths=true;save();}};
     el.addEventListener('pointerup',()=>finish(false));el.addEventListener('pointercancel',()=>finish(true));
-    el.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const min=p==='directory'?180:240;let amount=(event.shiftKey?32:16)*(event.key==='ArrowRight'?1:-1)*(p==='glossary'?-1:1);state.widths[p]=event.key==='Home'?min:event.key==='End'?maxWidth(p):Math.max(min,Math.min(maxWidth(p),state.widths[p]+amount));layout();save();});
-    el.addEventListener('dblclick',()=>{state.widths[p]=defaults.widths[p];layout();save();});
+    el.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();state.customWidths=true;const min=p==='directory'?180:240;let amount=(event.shiftKey?32:16)*(event.key==='ArrowRight'?1:-1)*(p==='glossary'?-1:1);state.widths[p]=event.key==='Home'?min:event.key==='End'?maxWidth(p):Math.max(min,Math.min(maxWidth(p),state.widths[p]+amount));layout();save();});
+    el.addEventListener('dblclick',()=>{state.customWidths=false;layout();save();});
   }
   document.addEventListener('keydown',event=>{
     if(event.key==='Escape'){
-      if(dragging){state.widths=dragging.saved;dragging=null;document.body.classList.remove('is-resizing');layout();event.preventDefault();event.stopImmediatePropagation();return;}
+      if(dragging){state.widths=dragging.saved;state.customWidths=dragging.customWidths;dragging=null;document.body.classList.remove('is-resizing');layout();event.preventDefault();event.stopImmediatePropagation();return;}
       if(!$('ui-tooltip').hidden){$('ui-tooltip').hidden=true;event.preventDefault();event.stopImmediatePropagation();return;}
       if(drawer){closeDrawer();event.preventDefault();event.stopImmediatePropagation();}
     }
@@ -211,24 +214,25 @@
     message((detail.preview?'完整稿预览 · ':'')+(doc.validation?.passed?'本节检查通过':doc.validation?.passed===false?'本节检查未通过':'本节审查待完成')+' · '+doc.core_questions.length+' 个核心问题');
   }
   function enhance(){
-    if(initialized||!document.querySelector('.writing-unit')||!window.ReaderSourceBridge?.getState()?.ready)return;initialized=true;
+    if(!document.querySelector('.writing-unit')||!window.ReaderSourceBridge?.getState()?.ready)return;
+    sectionObserver?.disconnect();
     $('demo-title').dataset.tooltip=$('demo-title').textContent;
     
     
     const sourceChoice=$('source-unit-select');
     closedLabel(sourceChoice);
     const describeChoice=()=>{sourceChoice.dataset.tooltip=sourceChoice.selectedOptions[0]?.textContent||'';};
-    sourceChoice.addEventListener('change',describeChoice);describeChoice();
+    if(!initialized)sourceChoice.addEventListener('change',describeChoice);describeChoice();
     for(const el of document.querySelectorAll('.demo-outline-question,.demo-outline-section'))el.dataset.tooltip=el.textContent;
     const units=[...document.querySelectorAll('.writing-unit')];
     const unitLinks=[...document.querySelectorAll('.demo-outline-question')];
-    const observer=new IntersectionObserver(entries=>{
+    sectionObserver=new IntersectionObserver(entries=>{
       const active=entries.filter(e=>e.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top)[0];if(!active)return;
       const index=units.indexOf(active.target);$('reading-location').textContent=active.target.querySelector('h3')?.textContent.split(' ')[0]||'';
       unitLinks.forEach((el,i)=>{el.classList.toggle('is-reading-current',i===index);if(i===index)el.setAttribute('aria-current','location');else el.removeAttribute('aria-current');});
-    },{root:panes.lesson,rootMargin:'-55px 0px -60% 0px',threshold:0});units.forEach(el=>observer.observe(el));
-    $('demo-outline').addEventListener('click',()=>{if(drawer==='directory')closeDrawer(false);});
-    updateDocumentStatus();layout();
+    },{root:panes.lesson,rootMargin:'-55px 0px -60% 0px',threshold:0});units.forEach(el=>sectionObserver.observe(el));
+    if(!initialized)$('demo-outline').addEventListener('click',()=>{if(drawer==='directory')closeDrawer(false);});
+    initialized=true;updateDocumentStatus();layout();
   }
   document.addEventListener('reading:document-ready',event=>{enhance();updateDocumentStatus(event.detail);});
   new ResizeObserver(queueLayout).observe($('reader-shell'));

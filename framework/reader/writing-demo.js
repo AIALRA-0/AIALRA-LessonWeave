@@ -34,12 +34,13 @@
   let readerReady = false;
   let sourceLinks = {};
   let readerRepairs = {};
-  const noteAliases = new Map();
+  const noteAliases = new Map(), noteDrafts = new Map();
+  let bookTocKey = '', sourceObserver = null, glossaryBound = false, sourceBound = false, pendingNavigation = null, loading = null;
 
   const readingState = () => ({ doc: data, sourcePack: originalSourcePack, coverage: explanationCoverage,
     document_path: documentPath, source_pack_path: data?.grounding?.source_pack_path,
     preview: isPreview, ready: readerReady, selection: currentSourceSelection() });
-  window.ReaderSourceBridge = { getState: readingState };
+  window.ReaderSourceBridge = { getState: readingState, navigate };
 
   function currentSourceSelection() {
     if (!sourcePack) return null;
@@ -466,6 +467,7 @@
       target.classList.add('has-source-marker');
     }
     const pane = get('demo-original');
+    if(sourceBound)return;sourceBound=true;
     pane.addEventListener('pointerenter', () => clearTimeout(sourceRestoreTimer));
     pane.addEventListener('pointerleave', deferRestoreSources);
     pane.addEventListener('focusin', () => { if (sourcePreview) sourcePreview.focusActive = true; });
@@ -644,6 +646,7 @@
         button.onclick = () => openPane(button.dataset.openPane);
       });
       const select = get('source-unit-select');
+      select.querySelectorAll('option').forEach(option=>option.remove());
       for (const unit of data.units) {
         const option = make('option', numberedTitle(unit.number, unit.title));
         option.value = unit.question_id;
@@ -669,11 +672,11 @@
           }
         }
       }
-      const observer = new IntersectionObserver(entries => {
+      sourceObserver = new IntersectionObserver(entries => {
         const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
         if (visible.length && document.body.dataset.activePane === 'lesson') chooseQuestion(visible[0].target.dataset.unitQuestion);
       }, { root: document.querySelector('.demo-explanation'), threshold: [0.1, 0.4, 0.7] });
-      document.querySelectorAll('[data-unit-question]').forEach(unit => observer.observe(unit));
+      document.querySelectorAll('[data-unit-question]').forEach(unit => sourceObserver.observe(unit));
     } catch (error) {
       console.debug(error);
       sourcePack = null;
@@ -746,13 +749,14 @@
         }
       }
     } catch (error) { console.debug(error); }
-    input.value = saved || '';
+    input.value = noteDrafts.has(key) ? noteDrafts.get(key) : saved || '';
+    if(noteDrafts.has(key))input.dataset.noteDraft='true';
     const status = make('span', saved === null ? '' : '已保存到当前浏览器', 'help');
     const save = make('button', '保存笔记', 'small secondary');
-    input.oninput = () => { status.textContent = '尚未保存'; };
+    input.oninput = () => { noteDrafts.set(key,input.value);input.dataset.noteDraft='true';status.textContent = '尚未保存'; };
     save.onclick = () => {
       try {
-        localStorage.setItem(key, input.value);
+        localStorage.setItem(key, input.value);noteDrafts.delete(key);delete input.dataset.noteDraft;
         status.textContent = '已保存到当前浏览器';
       } catch (error) {
         status.textContent = '这次没有保存成功，请重试';
@@ -1061,6 +1065,7 @@
       if (end) { fragment.append(document.createTextNode(text.slice(end))); node.replaceWith(fragment); }
     }
     const pane = get('glossary-result');
+    if(glossaryBound)return;glossaryBound=true;
     pane.addEventListener('pointerenter', () => clearTimeout(glossaryRestoreTimer));
     pane.addEventListener('pointerleave', deferRestoreGlossary);
     pane.addEventListener('focusin', () => { if (glossaryPreview) glossaryPreview.focusActive = true; });
@@ -1068,6 +1073,17 @@
     if (get('glossary-preview-back')) get('glossary-preview-back').onclick = restoreGlossary;
   }
 
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'){restoreSources();restoreGlossary();}});
+  function navigate(search){
+    pendingNavigation=search;
+    if(loading)return loading;
+    loading=(async()=>{
+      get('demo-content').setAttribute('aria-busy','true');
+      try{while(pendingNavigation!==null){const next=pendingNavigation;pendingNavigation=null;if(location.search!==next)location.search=next;await load();}}
+      finally{get('demo-content').removeAttribute('aria-busy');loading=null;}
+    })();
+    return loading;
+  }
   async function load() {
     try {
       if (get('show-debug')) {
@@ -1081,9 +1097,6 @@
         setSourceLanguage(savedLanguage);
         get('source-language-select').onchange = event => setSourceLanguage(event.target.value);
       }
-      document.addEventListener('keydown', event => {
-        if (event.key === 'Escape') { restoreSources(); restoreGlossary(); }
-      });
       let sectionPath = '/05_writing/demo.json';
       let book = null;
       let navigationSuffix = '';
@@ -1103,6 +1116,8 @@
         if (!entry) throw new Error('找不到这个小节');
         sectionPath = '/' + entry.path;
         const toc = get('book-toc');
+        const tocKey=JSON.stringify(book.chapters);
+        if(tocKey!==bookTocKey){toc.replaceChildren();bookTocKey=tocKey;
         for (const chapter of book.chapters) {
           const group = make('details');
           group.open = chapter.sections.some(s => s.id === chosen);
@@ -1117,13 +1132,16 @@
           }
           group.append(list); toc.append(group);
         }
+        }
+        for(const link of toc.querySelectorAll('a')){const active=new URL(link.href,location.href).searchParams.get('section')===chosen;
+          if(active){link.setAttribute('aria-current','page');link.closest('details').open=true;}else link.removeAttribute('aria-current');}
         get('book-title').textContent = book.title;
         if (get('book-grounding-report') && book.grounding_report_path) {
           get('book-grounding-report').href = projectPath(book.grounding_report_path);
           get('book-grounding-report').hidden = false;
         }
         const index = sections.findIndex(s => s.id === chosen);
-        const nav = get('book-navigation');
+        const nav = get('book-navigation');nav.replaceChildren();
         for (const [label, target] of [['上一节', sections[index - 1]], ['下一节', sections[index + 1]]]) {
           if (target) { const link = make('a', label + ' ' + target.number); link.href = projectPath('book.html?section=' + target.id + navigationSuffix); nav.append(link); }
         }
@@ -1133,7 +1151,16 @@
         get('demo-status').textContent = '本案例尚未生成写作样稿';
         return;
       }
-      data = await response.json();
+      const incoming = await response.json();
+      if(pendingNavigation!==null)return;
+      for(const timer of [sourceTimer,glossaryTimer,glossaryRestoreTimer,sourceRestoreTimer])clearTimeout(timer);
+      sourceObserver?.disconnect();sourceObserver=null;sourcePreview=null;glossaryPreview=null;
+      sourcePack=null;originalSourcePack=null;explanationCoverage=null;sourceLinks={};readerRepairs={};activeQuestion=null;
+      noteAliases.clear();readerReady=false;data=incoming;
+      document.body.classList.remove('legacy-demo','grounded-demo');
+      get('book-overview').querySelectorAll(':scope > :not(summary)').forEach(node=>node.remove());
+      get('next-section').replaceChildren();
+      get('glossary-search').value='';get('glossary-preview-controls').hidden=true;get('source-preview-controls').hidden=true;
       // 仅恢复原始回执中可逐字核对的换行，原始数据、块编号和来源映射保持原样
       try {
         const restored = await fetch('/05_writing/reader-whitespace.json');
@@ -1165,6 +1192,7 @@
         previewStatus.textContent = '完整稿预览 · ' + (data.validation?.passed ? (data.validation_scope === 'format_and_references' ? '本节格式与引用检查通过' : '本节检查通过') : data.validation?.passed === false ? '本节检查未通过' : '审查待完成');
       }
       await loadNoteAliases(!!book);
+      if(pendingNavigation!==null)return;
       if (book) {
         // 书与章的整体回答保留在检查区，正常正文从承上启下开始
         if (data.book_introduction) get('book-overview').append(make('p', data.book_introduction));
@@ -1253,6 +1281,7 @@
       const next = make('a', data.next_title);
       next.href = book ? projectPath(`book.html?section=${data.next_section_id}${navigationSuffix}`) : `/?chapter=${data.next_section_id}#chapters`;
       if (data.next_section_id) get('next-section').replaceChildren(next);
+      get('demo-content').closest('.demo-explanation').scrollTop=0;
       await loadGrounding();
       readerReady = true;
       document.dispatchEvent(new CustomEvent('reading:document-ready', { detail: readingState() }));
@@ -1262,5 +1291,5 @@
       if (get('ui-status')) get('ui-status').textContent = '正文正在准备';
     }
   }
-  load();
+  navigate(location.search);
 })();
