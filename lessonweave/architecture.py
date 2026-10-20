@@ -17,6 +17,11 @@ FILES = {
     'questions': ('02_questions/questions.json', '02_questions/questions.schema.json'),
     'chapters': ('03_chapters/chapters.json', '03_chapters/chapters.schema.json'),
     'transitions': ('04_transitions/transitions.json', '04_transitions/transitions.schema.json'),
+    'independent_check': ('05_writing/checks/independent-before.json', None),
+    'repair': ('05_writing/checks/batch-repair.json', None),
+    'source_locations': ('05_writing/source-location/index.json', None),
+    'package': ('05_writing/book.json', '05_writing/book.schema.json'),
+    'library': ('runtime/trilium/current.json', None),
 }
 
 
@@ -148,6 +153,8 @@ def contexts(root):
         inventory_path = next(iter(sorted(work.glob('sections/*/coverage-inventory.json'))), None)
     for key, path, schema in [('inventory', inventory_path, '05_writing/coverage-inventory.schema.json'), ('coverage', coverage_path, None)]:
         docs[key] = {'value': load(path) if path else None, 'file': str(path.relative_to(root)).replace('\\', '/') if path else '05_writing/work/sections/尚未生成/' + key + '.json', 'schema': schema, 'prefix': ''}
+    if not docs['independent_check']['value'] and docs['coverage']['value']:
+        docs['independent_check']=dict(docs['coverage'])
     registry_path = root / '01_tree/points.json'
     docs['registry'] = {'value': load(registry_path), 'file': '01_tree/points.json', 'schema': '01_tree/points.schema.json', 'prefix': ''}
     points = (docs['registry']['value'] or {}).get('points', [])
@@ -289,6 +296,10 @@ def snapshot(store, project_id=None):
             status = '检查通过'
         if spec['id'] == '07' and artifact:
             status = '检查通过' if artifact.get('passed') is True else '检查未通过' if artifact.get('passed') is False else '已有覆盖记录，待审'
+        if spec['id']=='08' and artifact:
+            status='已完成，无需执行' if not artifact.get('model_calls') else '已完成一轮批量修复'
+        if spec['id']=='11' and root:
+            status='已导出阅读包' if (root/'05_writing/reading-package.zip').is_file() else '尚未导出'
         if spec['id'] == '00' and artifact:
             status = {'acquired': '材料已保存', 'unavailable': '获取失败'}.get(artifact.get('status'), '已有结果')
         related = [m for m in (metrics or {}).get('stages', []) if m['stage'] in spec['metrics']]

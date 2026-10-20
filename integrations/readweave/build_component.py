@@ -12,7 +12,7 @@ def build():
     html=(READER/'book.html').read_text('utf-8')
     body=html.split('<body',1)[1].split('>',1)[1].split('</body>',1)[0]
     body=re.sub(r'<script\b[^>]*>.*?</script>','',body,flags=re.S)
-    styles='\n'.join((READER/name).read_text('utf-8') for name in ['reader.css','writing-demo.css','reading-ui.css'])
+    styles='\n'.join((READER/name).read_text('utf-8') for name in ['reader.css','writing-demo.css','reading-ui.css','media-renderer.css','reader-polish.css'])
     styles=re.sub(r'(?<![\w-])(?:html|body|:root)(?![\w-])','.lw-reader-root',styles)
     header='''// This module mounts one independent reading view per container
 export function mountReader(container, options) {
@@ -29,11 +29,13 @@ export function mountReader(container, options) {
   const config={project_id:options.projectId,base:options.base,readweave_demo:true,legacy:!!options.legacy};
   const path=value=>{let text=String(value||'');const resolved=options.resolveResource?.(text);if(resolved)return resolved;if(/^(https?:|data:|blob:|#)/.test(text))return text;if(text.startsWith(config.base+'/'))return text;if(text.startsWith('/book.html')||text.startsWith('book.html'))text=text.replace('book.html','readweave.html');return config.base+'/'+text.replace(/^\\/+/,'')};
   const fetch=(value, init)=>value==='/design-tokens.json'?Promise.resolve(new Response(JSON.stringify(DESIGN_TOKENS),{headers:{'Content-Type':'application/json'}})):options.fetch?options.fetch(value,init):native.fetch(typeof value==='string'&&/^\\/(0[0-5]_)/.test(value)?path(value):value,init);
-  const location={pathname:'readweave/book.html',search:options.search??'?preview=true',hash:''};
+  const location={pathname:'readweave/book.html',search:options.search??'?preview=true',hash:'',get href(){return native.location.origin+config.base+'/book.html'+this.search},set href(value){options.onNavigate?.(new URL(value,native.location.href).search)}};
   const owned={LESSONWEAVE:config,LWPath:path};
   const listen=(target,type,handler,settings={})=>target.addEventListener(type,handler,{...(typeof settings==='boolean'?{capture:settings}:settings),signal:abort.signal});
   const document=new Proxy(native.document,{get(target,key){
     if(key==='body'||key==='documentElement')return root;
+    if(key==='currentScript')return {src:native.location.origin+'/writing-demo.js'};
+    if(key==='head')return {append(...nodes){for(const node of nodes){if(node.tagName==='LINK')shadow.append(node);else native.document.head.append(node)}}};
     if(key==='getElementById')return id=>root.querySelector('#'+CSS.escape(id));
     if(key==='querySelector'||key==='querySelectorAll')return root[key].bind(root);
     if(key==='addEventListener')return (type,handler,settings)=>listen(root,type,handler,settings);
@@ -53,7 +55,7 @@ export function mountReader(container, options) {
   const setInterval=(callback,delay)=>{const id=native.setInterval(()=>{if(!disposed)callback()},delay);timers.add(id);return id};
   const clearInterval=id=>{timers.delete(id);native.clearInterval(id)};
 '''
-    scripts=(READER/'reading-icons.js').read_text('utf-8')+'\nconst uiIcon=window.uiIcon;\n'+'\n\n'.join((READER/name).read_text('utf-8') for name in ['writing-demo.js','reading-ui.js','source-locator.js','source-split.js'])
+    scripts=(READER/'reading-icons.js').read_text('utf-8')+'\nconst uiIcon=window.uiIcon;\n'+(READER/'reader-text.js').read_text('utf8')+'\nconst ReaderText=window.ReaderText;\n'+(READER/'media-renderer.js').read_text('utf8')+'\n'+ '\n\n'.join((READER/name).read_text('utf-8') for name in ['reader-search.js','writing-demo.js','reading-ui.js','source-locator.js','source-split.js','generation-settings.js'])
     tail='''
   listen(root,'reading:source-selection',event=>options.onSourceSelection?.(event.detail));
   if(options.onNavigate)listen(root,'click',event=>{const link=event.target.closest?.('a[href]');if(!link||event.ctrlKey||event.metaKey||event.shiftKey||link.target==='_blank')return;const url=new URL(link.href,native.location.href);if(/\\/(?:book|readweave)\\.html$/.test(url.pathname)&&url.pathname.startsWith(config.base+'/')){event.preventDefault();options.onNavigate(url.search)}},true);

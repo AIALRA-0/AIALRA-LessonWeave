@@ -8,6 +8,19 @@ from content_checks import web_origin
 from tree_code import file_source
 
 
+def original_image_url(value):
+    # 回放地址和原站地址表示同一资源，移除回放前缀但保留尺寸、格式和查询参数
+    return re.sub(r'^https?://[^/]+/archive/replay/.*?/\d{1,14}[a-z]*_/(?=https?://)','',value or '')
+
+
+def image_asset(record,anchor,*addresses):
+    items=record.get('images',[])
+    direct=next((item['path'] for item in items if anchor and item.get('anchor')==anchor),None)
+    if direct:return direct
+    aliases={original_image_url(item['url']):item['path'] for item in items}
+    return next((aliases[original_image_url(address)] for address in addresses if original_image_url(address) in aliases),None)
+
+
 def parse_webpage(builder, root, source_record, output):
     import json
     original=root/source_record['entry']
@@ -36,7 +49,7 @@ def parse_webpage(builder, root, source_record, output):
         anchor=element['data-iqa-source']
         address=positions[anchor]['src'] or urljoin(url,element.get('src',''))
         node=builder.node('image',{'original_url':address,'alt':element.get('alt','')},source(element))
-        images.append((node,address))
+        images.append((node,address,element))
         return node
     def emit(element, target):
         if isinstance(element,Comment):
@@ -108,13 +121,29 @@ def parse_webpage(builder, root, source_record, output):
             emit(element,sections[-1][1]['children'] if sections else tree['children'])
     for element in body.children:
         traverse(element)
-    assets={item['url']:item['path'] for item in source_record['images']}
-    for node,address in images:
-        if address not in assets:raise ValueError('原材料清单中没有这张图像')
-        node['content']['asset']=file_source(root,root/assets[address])['url']
+    image_issues=[]
+    for node,address,element in images:
+        anchor=element.get('data-iqa-source')
+        path=image_asset(source_record,anchor,address,urljoin(url,element.get('src','')),element.get('data-src',''))
+        if not path:
+            # 原站未交付图片时保留原页中的实际区域，单个资源不再让整篇材料中断
+            screenshot=root/source_record['snapshot']['image'].lstrip('/')
+            bbox=positions.get(anchor,{}).get('bbox')
+            if screenshot.is_file() and bbox and bbox[2]>bbox[0] and bbox[3]>bbox[1]:
+                from PIL import Image
+                cropped=output/('image-'+anchor+'.png')
+                with Image.open(screenshot) as page:
+                    box=(max(0,int(bbox[0])),max(0,int(bbox[1])),min(page.width,int(bbox[2])),min(page.height,int(bbox[3])))
+                    if box[2]>box[0] and box[3]>box[1]:page.crop(box).save(cropped)
+                if cropped.is_file():
+                    path=cropped.relative_to(root).as_posix();node['content']['representation']='original_page_region'
+            image_issues.append({'anchor':anchor,'original_url':address,'reason':'使用原页区域' if path else '原站未提供可读取的图片，保留位置、链接与替代文字'})
+        if path:node['content']['asset']=file_source(root,root/path)['url']
+        else:
+            node['type']='unknown';node['content']['text']=node['content'].get('alt') or '原站图片暂不可读取'
     return {'tree':tree,'title':title,'pages':[],
             'snapshot':source_record['snapshot'],
-            'summary':{'downloaded_images':len(images)},
+            'summary':{'downloaded_images':len(images),'image_issues':image_issues},
             'notes':['正文按 DOM 层级组织，图像和图注归在 figure 中，导航和评论仍保留在原始页面快照中'],
             'adaptations':[{'rule':'figure-ownership','reason':'按 figure 容器绑定图片与图注，图片不再与图注平铺'},
                            {'rule':'independent-original','reason':'原文对照使用浏览器直接截取的原页，DOM 快照在提取前保存，不再由解析树重建'}],

@@ -39,7 +39,7 @@
   }
   function preview(stage) {
     const fields = stage.fields;
-    if (stage.id === '08') {
+    if (stage.id === '09') {
       const get = (sid, ending) => data.stages.find(s=>s.id===sid)?.fields.find(f=>f.key.endsWith(':'+ending));
       const columns = [['目录',get('03','title')],['原文与译文',get('01.1','content')],['讲解',get('04','explanation[0].claim')],['术语表',get('06','professional_definition.genus')]];
       return '<div class="reader-wrap"><div class="render-label">当前数据在四栏阅读器中的位置</div><div class="reader-grid">'+columns.map(([name,f])=>'<div class="reader-cell"><h4>'+fixed(name)+'</h4>'+(f?part(f):'<span class="muted">尚未生成</span>')+'</div>').join('')+'</div></div>'+(data.reader_url?'<p class="reader-link"><a href="'+esc(data.reader_url)+'" target="_blank" rel="noopener">打开这个版本的完整读本 ↗</a></p>':'');
@@ -74,7 +74,7 @@
       renderGraphs();
     }
     for (const stage of data.stages) {
-      const signature=JSON.stringify([stage.fields,stage.id==='01.1'?data.material_image:null,stage.id==='08'?data.reader_url:null]);
+      const signature=JSON.stringify([stage.fields,stage.id==='01.1'?data.material_image:null,stage.id==='09'?data.reader_url:null]);
       if(previous.get(stage.id)!==signature){$('content-'+stage.id).innerHTML=table(stage)+preview(stage);previous.set(stage.id,signature);}
       const node=$('runtime-'+stage.id),html=runtime(stage);if(node.innerHTML!==html)node.innerHTML=html;
     }

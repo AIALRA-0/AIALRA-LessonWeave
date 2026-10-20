@@ -1,4 +1,4 @@
-"""正式默认调度：材料直接进入问题规划，C 写作合并附加内容，末尾只做脚本检查"""
+"""正式默认调度：材料直接进入问题规划，逐问写作合并附加内容，末尾只做脚本检查"""
 import concurrent.futures as futures
 import copy
 import os
@@ -330,7 +330,7 @@ def run(root,maximum=1):
     state=read(root/'runtime/state.json',{})
     if state.get('status')=='completed':return state
     started=time.monotonic()
-    pipeline.update_state(root,status='running',round=0,maximum=1,workflow=contract.VERSION,stage='00_source')
+    pipeline.update_state(root,status='running',round=0,maximum=1,workflow=contract.VERSION,stage='00_source',issues=[])
     pipeline.prepare(root)
     pipeline.update_state(root,stage='02_questions–03_chapters')
     flow.tree_stages(root,Backend(root,role='lean_planning'))

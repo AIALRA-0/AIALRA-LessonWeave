@@ -1,4 +1,4 @@
-"""检查轻量 C 的调用次数、去重、复用与默认入口，测试只使用本地桩数据"""
+"""检查逐问生成的调用次数、去重、复用与默认入口，测试只使用本地桩数据"""
 import copy
 import json
 from lessonweave import pipeline, lean

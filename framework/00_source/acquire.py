@@ -58,6 +58,12 @@ def acquire(root,payload,force=False):
     kind=payload['kind'];result={'kind':kind,'material':payload['material'],'status':'acquired','entry':'','files':[]};begin=time.perf_counter()
     try:
         if kind=='url':
+            # 派生截图失败时继续使用已经抓完的归档，不重新访问原站
+            if not force and current.is_file() and old.get('kind')==kind and old.get('material')==payload['material']:
+                saved=next((p for p in sorted(materials.glob('source-*/original.wacz'),reverse=True) if p.parent!=output and (p.parent/'capture.json').is_file()),None)
+                if saved:
+                    shutil.copyfile(saved,output/'original.wacz')
+                    shutil.copyfile(saved.parent/'capture.json',output/'capture.json')
             result.update(capture_web(root,payload['material'],output));entry=output/'original.html'
         else:
             entry=output/('original.pdf' if kind=='file' else 'original.zip');path=Path(payload['material'])

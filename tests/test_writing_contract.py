@@ -178,7 +178,7 @@ def test_every_generation_schema_uses_supported_wire_shapes_and_keeps_local_rule
 def test_all_diagram_nodes_have_table_fields_and_vertical_direction(tmp_path):
     # 每个竖向图节点都能找到字段行，图中使用通用描述，实际案例从项目文件读取
     result=snapshot(Store(tmp_path))
-    assert result['template_version']=='0.14'
+    assert result['template_version']=='0.15'
     for stage in result['stages']:
         assert stage['diagram'].startswith('flowchart TB')
         keys={f['key'] for f in stage['fields']}

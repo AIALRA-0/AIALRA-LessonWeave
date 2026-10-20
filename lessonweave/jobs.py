@@ -125,6 +125,7 @@ def main():
         import traceback
         traceback.print_exc()
         result={'status':'failed','issues':[type(error).__name__+': '+str(error)]}
+        save(root/'runtime/state.json',dict(read(root/'runtime/state.json',{}),**result))
     save(root/'runtime/jobs'/job['id']/'result.json',result)
 
 

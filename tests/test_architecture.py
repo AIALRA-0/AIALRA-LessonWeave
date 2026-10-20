@@ -15,8 +15,8 @@ def test_framework_fields_follow_current_schemas_and_rule_files(tmp_path,monkeyp
     # 没有选择项目时仍显示真实字段类型，每个规则入口都指向存在的实现
     monkeypatch.setattr('lessonweave.architecture.EXAMPLE',tmp_path/'no-example')
     result = snapshot(Store(tmp_path))
-    assert len(result['stages']) == 9 and result['project'] is None
-    assert [s['id'] for s in result['stages']] == ['00','01.1','02','03','04','05','06','07','08']
+    assert len(result['stages']) == 13 and result['project'] is None
+    assert [s['id'] for s in result['stages']] == ['00','01.1','02','03','04','05','06','07','08','09','10','11','12']
     assert result['stages'][0]['fields'][0]['type'] == '字符串'
     for stage in result['stages']:
         assert (FRAME / stage['rules_file']).is_file()
@@ -39,7 +39,7 @@ def test_preview_version_and_failed_checks_remain_read_only(tmp_path):
     result = snapshot(store, 'book')
     assert result['version'] == 'revision-9' and result['preview']
     stages = {stage['id']: stage for stage in result['stages']}
-    assert stages['08']['status'] == '预览待审'
+    assert stages['09']['status'] == '预览待审'
     assert result['stages'][1]['coverage'][0]['percentage'] == 66.67
     assert result['stages'][0]['fields'][0]['value'] == 'original.pdf'
     assert result['writing_contract_version'] == 'legacy'
@@ -87,7 +87,7 @@ def test_coverage_uses_current_section_grounding_and_keeps_review_failure(tmp_pa
     save(root/(evidence+'coverage.json'),{'passed':False,'total_points':1,'explained_points':1,'items':[{'points':[{'explained':True,'block_ids':['b1']}]}]})
     value=next(s for s in snapshot(store,'book')['stages'] if s['id']=='07')
     assert value['status']=='检查未通过' and value['coverage'][0]['percentage']==100
-    assert value['artifact'] == 'coverage'
+    assert value['artifact'] == 'independent_check'
 
 
 def test_architecture_routes_require_owner_and_restrict_static_files(tmp_path,monkeypatch):

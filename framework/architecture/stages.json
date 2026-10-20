@@ -1,10 +1,10 @@
 {
   "profile": "lessonweave-architecture-v1",
-  "template_version": "0.14",
+  "template_version": "0.15",
   "stages": [
     {
       "id": "00",
-      "name": "保存材料",
+      "name": "保存原件与资源",
       "artifact": "source",
       "directory": "00_source",
       "rules_file": "00_source/acquire.py",
@@ -85,11 +85,11 @@
         }
       ],
       "diagram": "flowchart TB\nP[\"PDF 文件\"]\nW[\"网页地址\"]\nR[\"仓库压缩包\"]\nP1[\"本地 PDF\"]\nW1[\"离线网页与资源\"]\nR1[\"解压后的仓库文件\"]\nP -->|\"保存 · 一对一\"| P1\nW -->|\"抓取并保存 · 一对多\"| W1\nR -->|\"解压并保存 · 一对多\"| R1",
-      "note": "输入与输出读取当前项目保存的实际文件，字段、图节点与渲染内容可以相互定位"
+      "note": "网页由 Browsertrix 保存为 WACZ，再从离线回放读取 DOM、图片与定位；PDF 保留原始字节，仓库保留文件与路径"
     },
     {
       "id": "01.1",
-      "name": "解析为材料树",
+      "name": "解析材料树",
       "artifact": "material",
       "directory": "01_tree",
       "rules_file": "01_tree/content_checks.py",
@@ -189,7 +189,7 @@
         }
       ],
       "diagram": "flowchart TB\nP[\"PDF 原页\"]\nW[\"本地网页\"]\nR[\"仓库源码\"]\nM[\"材料树层级\"]\nC[\"原文、图表或代码\"]\nL[\"原始位置\"]\nP -->|\"Docling + PyMuPDF\"| M\nW -->|\"BeautifulSoup 读取 DOM\"| M\nR -->|\"架构解析 + Tree-sitter\"| M\nM -->|\"包含内容\"| C\nC -->|\"保留来源位置\"| L",
-      "note": "输入与输出读取当前项目保存的实际文件，字段、图节点与渲染内容可以相互定位"
+      "note": "网页解析 DOM，PDF 使用 Docling 与原页坐标，代码按语言路由语法解析；非主体内容只标记用途，原件继续保留"
     },
     {
       "id": "02",
@@ -314,7 +314,7 @@
         }
       ],
       "diagram": "flowchart TB\nN0[\"完整材料树\"]\nN1[\"直接引出问题的前提\"]\nN2[\"学习者需要解决的问题\"]\nN3[\"具体问题负责的来源\"]\nN4[\"第 0 章与正文的问题职责\"]\nN5[\"结构、查阅和排除用途\"]\nN0 --> N1\nN0 --> N2\nN1 --> N4\nN2 --> N4\nN4 --> N3\nN0 --> N5",
-      "note": "首轮同时规划第 0 章与正文，脚本查缺后有缺项才补，问题字段和用途记录共同保留来源"
+      "note": "Sol high 首轮同时规划第 0 章与正文，脚本核对每个节点去向，有缺项才发送差集补齐"
     },
     {
       "id": "03",
@@ -388,11 +388,11 @@
         }
       ],
       "diagram": "flowchart TB\nQ[\"完整问题\"]\nO[\"章节层级与阅读顺序\"]\nC[\"问题式章标题\"]\nQ -->|\"按前置理解关系分配 · 多对一\"| O\nO -->|\"按序生成标题\"| C",
-      "note": "输入与输出读取当前项目保存的实际文件，字段、图节点与渲染内容可以相互定位"
+      "note": "Sol high 读取带编号的问题树，只输出标题和问题归属，脚本继承来源、依赖及实际排列"
     },
     {
       "id": "04",
-      "name": "一次生成正文与阅读组件",
+      "name": "生成正文、媒体、练习与术语",
       "artifact": "authored",
       "directory": "05_writing",
       "rules_file": "05_writing/lean_contract.py",
@@ -417,7 +417,7 @@
           "key": "04:authored:plan.items",
           "label": "问题内部的多条讲解规划",
           "description": "问题内部的多条讲解规划",
-          "rule": "在 C 调用内部输出并保留材料对应",
+          "rule": "在 逐问调用内部输出并保留材料对应",
           "type": "对象列表"
         },
         {
@@ -494,11 +494,11 @@
         }
       ],
       "diagram": "flowchart TB\nN0[\"本问对应的材料范围\"]\nN1[\"问题内部的多条讲解规划\"]\nN2[\"围绕规划展开的正文与媒体\"]\nN3[\"当前问题的答案与可迁移结论\"]\nN4[\"同次输出的练习易错点与术语\"]\nN0 --> N1\nN0 --> N2\nN0 --> N3\nN0 --> N4",
-      "note": "当前默认流程只按实际文件展示，模型任务与脚本装配分开记录"
+      "note": "Sol high 每问同次输出多条讲解规划、问题、多组讲解、媒体、答案、易错点、练习及术语；默认并发 144，已有词义复用完整三段解释"
     },
     {
       "id": "05",
-      "name": "并行翻译去重原句",
+      "name": "并行生成中文译文",
       "artifact": "sentence",
       "directory": "05_writing",
       "rules_file": "05_writing/lean_contract.py",
@@ -582,11 +582,11 @@
         }
       ],
       "diagram": "flowchart TB\nN0[\"原句的稳定位置编号\"]\nN1[\"真实原句\"]\nN2[\"中文显示文本\"]\nN3[\"英文显示文本\"]\nN0 --> N2\nN0 --> N3\nN1 --> N2\nN1 --> N3",
-      "note": "当前默认流程只按实际文件展示，模型任务与脚本装配分开记录"
+      "note": "Flash 非推理只翻译去重后的自然语言，保留源码、公式、URL；每批约 24000 UTF-8 字节，并发 12，中文译英文按需生成"
     },
     {
       "id": "06",
-      "name": "集中承接并合并术语",
+      "name": "根据实际答案生成两段承接",
       "artifact": "bridge",
       "directory": "05_writing",
       "rules_file": "05_writing/lean_contract.py",
@@ -778,125 +778,65 @@
         }
       ],
       "diagram": "flowchart TB\nN0[\"当前问题实际讲清的结果\"]\nN1[\"第一段承上\"]\nN2[\"启下的直接条件\"]\nN3[\"启下的问题\"]\nN4[\"可为空的术语缩写\"]\nN5[\"术语的中文全称\"]\nN6[\"术语的英文全称\"]\nN7[\"专业定义的组装字段\"]\nN8[\"直观解释的组装字段\"]\nN9[\"典型实例的组装字段\"]\nN0 --> N1\nN0 --> N2\nN0 --> N3\nN0 --> N4\nN0 --> N5\nN0 --> N6\nN0 --> N7\nN0 --> N8\nN0 --> N9",
-      "note": "当前默认流程只按实际文件展示，模型任务与脚本装配分开记录"
+      "note": "全部正文完成后，Sol high 根据各节实际答案生成承上与启下两段，每批 16 节、并发 7；术语已经随正文生成，此处仅由脚本合并"
     },
     {
       "id": "07",
-      "name": "独立脚本检查并批量修复",
-      "artifact": "coverage",
+      "name": "脚本检查字段、格式与引用",
+      "artifact": "independent_check",
       "directory": "05_writing",
       "rules_file": "05_writing/independent_checks.py",
       "metrics": [
-        "review",
+        "review"
+      ],
+      "fields": [
+        {
+          "doc": "independent_check",
+          "field": "findings",
+          "key": "07:independent_check:findings",
+          "side": "输出",
+          "label": "脚本发现的具体问题",
+          "description": "每项记录所在文档、字段路径、规则和问题说明",
+          "rule": "只保留具体问题，不进行 AI 质量评分",
+          "type": "列表"
+        }
+      ],
+      "nodes": [],
+      "diagram": "flowchart TB\nA[\"已生成的正文与引用\"] --> B[\"脚本检测字段与格式\"]\nB --> C[\"具体问题清单\"]\nB --> D[\"没有问题时跳过修复\"]",
+      "note": "脚本检查 Schema、材料引用、媒体、代码行范围、练习配额及明确格式问题，不增加 AI 内容评分或阻止交付的质量门禁"
+    },
+    {
+      "id": "08",
+      "name": "按具体问题做一轮批量修复",
+      "artifact": "repair",
+      "directory": "05_writing",
+      "rules_file": "05_writing/repair_batches.py",
+      "metrics": [
         "repair"
       ],
       "fields": [
         {
-          "side": "输入",
-          "doc": "section",
-          "field": "validation.errors",
-          "key": "07:section:validation.errors",
-          "label": "当前格式与引用问题",
-          "description": "当前格式与引用问题",
-          "rule": "集中列出全部具体字段问题，一次批量处理，不进行 AI 质量评分",
-          "type": "列表"
-        },
-        {
+          "doc": "repair",
+          "field": "model_calls",
+          "key": "08:repair:model_calls",
           "side": "输出",
-          "doc": "coverage",
-          "field": "covered",
-          "key": "07:coverage:covered",
-          "label": "已经对应正文的材料数量",
-          "description": "已经对应正文的材料数量",
-          "rule": "按实际来源去重计算",
-          "type": "整数"
-        },
-        {
-          "side": "输出",
-          "doc": "coverage",
-          "field": "expected",
-          "key": "07:coverage:expected",
-          "label": "需要对应的材料数量",
-          "description": "需要对应的材料数量",
-          "rule": "使用原始材料分母",
-          "type": "整数"
-        },
-        {
-          "side": "输出",
-          "doc": "coverage",
-          "field": "percentage",
-          "key": "07:coverage:percentage",
-          "label": "材料引用覆盖率",
-          "description": "材料引用覆盖率",
-          "rule": "covered 除以 expected，目标 100%",
-          "type": "数值"
-        },
-        {
-          "side": "输出",
-          "doc": "coverage",
-          "field": "semantic_review",
-          "key": "07:coverage:semantic_review",
-          "label": "独立内容审查状态",
-          "description": "独立内容审查状态",
-          "rule": "当前流程记录 not_run",
-          "type": "字符串"
+          "label": "按具体问题做一轮批量修复的实际结果",
+          "description": "没有问题时不调用模型，有问题时仅发送相关字段，一轮批量修复后由脚本复核，默认并发 3",
+          "rule": "读取已保存的实际结果，不预填成功状态",
+          "type": "对象或列表"
         }
       ],
-      "nodes": [
-        {
-          "id": "N0",
-          "label": "当前格式与引用问题",
-          "side": "输入",
-          "field_keys": [
-            "07:section:validation.errors"
-          ]
-        },
-        {
-          "id": "N1",
-          "label": "已经对应正文的材料数量",
-          "side": "输出",
-          "field_keys": [
-            "07:coverage:covered"
-          ]
-        },
-        {
-          "id": "N2",
-          "label": "需要对应的材料数量",
-          "side": "输出",
-          "field_keys": [
-            "07:coverage:expected"
-          ]
-        },
-        {
-          "id": "N3",
-          "label": "材料引用覆盖率",
-          "side": "输出",
-          "field_keys": [
-            "07:coverage:percentage"
-          ]
-        },
-        {
-          "id": "N4",
-          "label": "独立内容审查状态",
-          "side": "输出",
-          "field_keys": [
-            "07:coverage:semantic_review"
-          ]
-        }
-      ],
-      "diagram": "flowchart TB\nN0[\"当前格式与引用问题\"]\nN1[\"已经对应正文的材料数量\"]\nN2[\"需要对应的材料数量\"]\nN3[\"材料引用覆盖率\"]\nN4[\"独立内容审查状态\"]\nN0 --> N1\nN0 --> N2\nN0 --> N3\nN0 --> N4",
-      "note": "脚本独立读取全部阶段产物，集中检查完成数、Schema、映射与 lint，确定格式由脚本转换，剩余问题只调用一次批量修复，最后保存实际检查结果，无问题时跳过修复模型"
+      "nodes": [],
+      "note": "没有问题时不调用模型，有问题时仅发送相关字段，一轮批量修复后由脚本复核，默认并发 3",
+      "diagram": "flowchart TB\nA[\"具体问题清单\"] --> B[\"只修改相关字段\"]\nB --> C[\"一次批量修复\"]\nC --> D[\"脚本复核并记录结果\"]"
     },
     {
-      "id": "08",
-      "name": "交付阅读",
+      "id": "09",
+      "name": "装配阅读页面",
       "artifact": "book",
       "directory": "05_writing",
       "rules_file": "05_writing/build_book.py",
-      "metrics": [
-        "locations",
-        "package"
-      ],
+      "metrics": [],
       "fields": [
         {
           "doc": "chapter_node",
@@ -1134,7 +1074,82 @@
         }
       ],
       "diagram": "flowchart TB\nC[\"章节目录\"]\nS[\"裸材料\"]\nT[\"对应译文\"]\nB[\"四段正文与升华\"]\nG[\"名称与三段术语正文\"]\nA[\"两段承上启下\"]\nK[\"实际脚本检查结果\"]\nR[\"完整阅读页与检查状态\"]\nC -->|\"按目录组装 · 多对一\"| R\nS -->|\"保留材料定位\"| R\nT -->|\"与原句对应\"| R\nB -->|\"读取当前正文\"| R\nG -->|\"保留术语联动\"| R\nA -->|\"放在本章开头\"| R\nK -->|\"保留实际检查结果\"| R",
-      "note": "输入与输出读取当前项目保存的实际文件，字段、图节点与渲染内容可以相互定位"
+      "note": "脚本按目录装配现有正文、总结、术语与笔记框，不重新生成正文"
+    },
+    {
+      "id": "10",
+      "name": "准备原文定位",
+      "artifact": "source_locations",
+      "directory": "05_writing",
+      "rules_file": "05_writing/prepare_source_locations.py",
+      "metrics": [
+        "locations"
+      ],
+      "fields": [
+        {
+          "doc": "source_locations",
+          "field": "versions",
+          "key": "10:source_locations:versions",
+          "side": "输出",
+          "label": "准备原文定位的实际结果",
+          "description": "脚本从原页、DOM 或源码行构建定位，保留实际可定位与歧义记录",
+          "rule": "读取已保存的实际结果，不预填成功状态",
+          "type": "对象或列表"
+        }
+      ],
+      "nodes": [],
+      "note": "脚本从原页、DOM 或源码行构建定位，保留实际可定位与歧义记录",
+      "diagram": "flowchart TB\nA[\"材料坐标与正文引用\"] --> B[\"生成来源定位索引\"]\nB --> C[\"阅读时跳到原位置\"]"
+    },
+    {
+      "id": "11",
+      "name": "导出完整阅读包",
+      "artifact": "package",
+      "directory": "05_writing",
+      "rules_file": "05_writing/lean-flow.md",
+      "metrics": [
+        "package"
+      ],
+      "fields": [
+        {
+          "doc": "package",
+          "field": "writing_run",
+          "key": "11:package:writing_run",
+          "side": "输出",
+          "label": "导出完整阅读包的实际结果",
+          "description": "脚本把读本、原件与映射一起打包，读取当前项目的现成文件",
+          "rule": "读取已保存的实际结果，不预填成功状态",
+          "type": "对象或列表"
+        }
+      ],
+      "nodes": [],
+      "note": "脚本把读本、原件与映射一起打包，读取当前项目的现成文件",
+      "diagram": "flowchart TB\nA[\"读本、原件与来源映射\"] --> B[\"导出阅读包\"]"
+    },
+    {
+      "id": "12",
+      "name": "保存到笔记库",
+      "artifact": "library",
+      "directory": "05_writing",
+      "rules_file": "05_writing/lean-flow.md",
+      "metrics": [
+        "library"
+      ],
+      "fields": [
+        {
+          "doc": "library",
+          "field": "render_note_id",
+          "key": "12:library:render_note_id",
+          "side": "输出",
+          "label": "保存到笔记库的实际结果",
+          "description": "已配置笔记库时自动保存，继续使用原笔记位置；未配置时完成读本即结束",
+          "rule": "读取已保存的实际结果，不预填成功状态",
+          "type": "对象或列表"
+        }
+      ],
+      "nodes": [],
+      "note": "已配置笔记库时自动保存，继续使用原笔记位置；未配置时完成读本即结束",
+      "diagram": "flowchart TB\nA[\"已保存读本\"] --> B[\"已配置的笔记库\"]\nA --> C[\"本站直接阅读\"]"
     }
   ]
 }

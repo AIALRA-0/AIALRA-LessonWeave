@@ -50,9 +50,12 @@ class Store:
             for name,definition in [('folder_id',"TEXT NOT NULL DEFAULT 'root'"),('native_note_id','TEXT'),('deleted','INTEGER NOT NULL DEFAULT 0'),('trash_batch','TEXT')]:
                 if name not in {row[1] for row in db.execute('PRAGMA table_info(projects)')}:
                     db.execute('ALTER TABLE projects ADD COLUMN '+name+' '+definition)
-            db.execute("INSERT OR IGNORE INTO folders(id,parent_id,name,created) VALUES('root','','我的材料',?)",(time.time(),))
+            if 'archived' not in {row[1] for row in db.execute('PRAGMA table_info(jobs)')}:
+                db.execute('ALTER TABLE jobs ADD COLUMN archived INTEGER NOT NULL DEFAULT 0')
+            db.execute("INSERT OR IGNORE INTO folders(id,parent_id,name,created) VALUES('root','','文件',?)",(time.time(),))
+            db.execute("UPDATE folders SET name='文件' WHERE id='root' AND name='我的材料'")
             if recover:
-                db.execute("UPDATE jobs SET status=CASE WHEN status='cancelling' THEN 'cancelled' ELSE 'interrupted' END,updated=? WHERE status IN ('running','cancelling')", (time.time(),))
+                db.execute("UPDATE jobs SET status=CASE WHEN status='cancelling' THEN 'cancelled' ELSE 'queued' END,updated=? WHERE status IN ('running','cancelling')", (time.time(),))
 
     def connect(self):
         connection = sqlite3.connect(self.root / 'lessonweave.sqlite', timeout=30)
@@ -86,7 +89,7 @@ class Store:
                 return dict(existing)
             jid = uuid.uuid4().hex
             now = time.time()
-            db.execute('INSERT INTO jobs VALUES(?,?,?,?,?,?,?,?)', (jid, project, key, serialized, 'queued', now, now, None))
+            db.execute('INSERT INTO jobs(id,project_id,idempotency_key,payload,status,created,updated,result) VALUES(?,?,?,?,?,?,?,?)', (jid, project, key, serialized, 'queued', now, now, None))
             from .metrics import start
             start(Path(self.project(project)['path']),'other','job_queue',job_id=jid)
         return self.job(jid)
@@ -100,7 +103,17 @@ class Store:
 
     def jobs(self):
         with self.connect() as db:
-            return [dict(row) for row in db.execute('SELECT * FROM jobs ORDER BY created DESC LIMIT 100')]
+            return [dict(row) for row in db.execute('SELECT j.* FROM jobs j JOIN projects p ON p.id=j.project_id WHERE j.archived=0 AND p.deleted=0 ORDER BY j.created DESC')]
+
+    def archive_job(self,key):
+        # 删除列表记录时保留任务凭据、正文和笔记，同一提交不会再次收费生成
+        with self.connect() as db:
+            row=db.execute('SELECT status FROM jobs WHERE id=?',(key,)).fetchone()
+            if not row:raise KeyError('找不到这个任务')
+            if row['status'] in {'queued','running','cancelling'}:
+                raise ValueError('任务仍在生成，请先停止任务再删除记录')
+            db.execute('UPDATE jobs SET archived=1 WHERE id=?',(key,))
+        return {'deleted':True}
 
     def claim(self):
         with self.connect() as db:

@@ -1,7 +1,7 @@
 <div align="center">
 <h1 align="center">LessonWeave</h1>
 <p><strong>Turn webpages, PDFs and repositories into source-grounded Chinese learning books</strong></p>
-<p>Personal self-hosting · Lightweight C workflow · AGPL-3.0</p>
+<p>Personal self-hosting · Question-based generation · AGPL-3.0</p>
 <p><a href="README.md">简体中文</a> · <a href="#2-how-to-start">Quick start</a> · <a href="framework/05_writing/lean-flow.md">Core workflow</a> · <a href="docs/deployment.md">VPS deployment</a></p>
 </div>
 
@@ -14,7 +14,7 @@
 
 Submit a webpage, PDF or project ZIP. LessonWeave preserves the originals, builds a material tree, plans questions and chapters, then writes explanations, independent media guides, exercises and terminology. Readers can return to original sentences, pages or source-code ranges and keep their notes
 
-The C workflow plans multiple explanation items and writes multiple explanation groups within the same call for each question. Scripts then check fields, format and source references. Concrete findings trigger one batch repair round; AI semantic quality review stays disabled
+The generation workflow plans multiple explanation items and writes multiple explanation groups within the same call for each question. Scripts then check fields, format and source references. Concrete findings trigger one batch repair round; AI semantic quality review stays disabled
 
 ## 2 How to start
 
@@ -61,7 +61,7 @@ flowchart TD
 
 A vertical stage list and its detail panel show completed units, active calls, waiting work, elapsed time and saved records on one page. Refreshing or reopening the page reads the same persistent background job
 
-Defaults are Sol high for planning and writing with 144 writing slots; Flash without reasoning with 12 translation slots; bridges in batches of 16 sections with 7 slots; repair with 3 slots. Existing senses reuse the full definition, everyday analogy and short generic example; special senses remain separate. See the [C workflow](framework/05_writing/lean-flow.md)
+Defaults are Sol high for planning and writing with 144 writing slots; Flash without reasoning with 12 translation slots; bridges in batches of 16 sections with 7 slots; repair with 3 slots. Existing senses reuse the full definition, everyday analogy and short generic example; special senses remain separate. See the [generation workflow](framework/05_writing/lean-flow.md)
 
 ## 4 Where the core harness lives
 

@@ -235,7 +235,7 @@ class Handler(SimpleHTTPRequestHandler):
                         self.file(path, html.encode(), 'text/html')
                     else:
                         self.file(path)
-            elif route in {'/', '/index.html', '/app.js', '/app.css', '/reader-mount.js', '/reader-integration.js', '/inspect.html', '/inspect.js','/workspace','/workspace.html','/workspace.js','/metrics.js','/workspace.css','/theme.css','/generation-progress.js'}:
+            elif route in {'/', '/index.html', '/app.js', '/app.css', '/reader-mount.js', '/reader-integration.js', '/inspect.html', '/inspect.js','/workspace','/workspace.html','/workspace.js','/metrics.js','/workspace.css','/theme.css','/generation-progress.js','/icons.js'}:
                 self.file(REPO/'web'/('index.html' if route=='/' else 'workspace.html' if route=='/workspace' else route.lstrip('/')))
             elif route.startswith('/docs/assets/'):
                 path = (REPO/route.lstrip('/')).resolve()
@@ -325,7 +325,7 @@ class Handler(SimpleHTTPRequestHandler):
                     if not material.is_relative_to(self.store.root/'uploads') or not material.is_file():
                         raise ValueError('上传文件已经失效')
                     material = str(material)
-                input_value = {'kind': kind, 'material': material, 'mode': 'one_shot', 'system_prompt': payload.get('system_prompt') or '围绕完整原材料生成循序渐进的学习读本，保留来源、图表、术语、练习与逐项审查记录'}
+                input_value = {'kind': kind, 'material': material, 'mode': 'one_shot', 'system_prompt': payload.get('system_prompt') or '围绕完整原材料生成循序渐进的学习读本，保留来源、图表、术语、练习，以及格式和引用的检查记录'}
                 path = Path(project['path'])/'00_source/input.json'
                 if not path.exists():
                     save(path, input_value)
@@ -333,13 +333,11 @@ class Handler(SimpleHTTPRequestHandler):
                     raise ValueError('同一个提交标识对应了不同的输入')
                 job = self.store.submit(pid, input_value, key)
                 self.json({'project_id': pid, 'job_id': job['id']}, 201)
+            elif route.startswith('/api/jobs/') and route.endswith('/delete'):
+                self.json(self.store.archive_job(route.split('/')[3]))
             elif route.startswith('/api/jobs/') and route.endswith('/resume'):
                 key=route.split('/')[3]
                 previous=self.store.job(key)
-                from .progress import view
-                root=Path(self.store.project(previous['project_id'])['path'])
-                if view(root,previous).get('diagnosis',{}).get('failure_kind')=='output_limit':
-                    raise ValueError('这次调用已超过输出上限，需要先拆小任务，已完成结果继续保留')
                 if previous['status'] in {'interrupted','cancelled'}:
                     from .jobs import mark_cancelled
                     mark_cancelled(Path(self.store.project(previous['project_id'])['path']),reason='user_resumed_stopped_task')

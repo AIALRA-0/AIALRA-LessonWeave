@@ -22,15 +22,15 @@ def test_submit_is_idempotent_and_conflicts_fail(tmp_path):
         store.submit('x',{'a':2},'same')
 
 
-def test_restart_keeps_notes_and_marks_interrupted(tmp_path):
-    # 服务重启后保留笔记，执行中的任务先进入待恢复状态
+def test_restart_keeps_notes_and_automatically_requeues(tmp_path):
+    # 服务重启后保留笔记，执行中的任务自动回到队列并复用已有结果
     store=Store(tmp_path)
     store.register('x','样例',tmp_path/'project')
     job=store.submit('x',{},'one')
     store.claim()
     store.note('x','unit','我理解了这个例子')
     restarted=Store(tmp_path,recover=True)
-    assert restarted.job(job['id'])['status']=='interrupted'
+    assert restarted.job(job['id'])['status']=='queued'
     assert restarted.note('x','unit')=='我理解了这个例子'
 
 

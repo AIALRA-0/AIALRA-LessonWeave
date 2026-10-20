@@ -33,7 +33,7 @@ def view(root,job):
     state=read(root/'runtime/state.json',{})
     if state.get('workflow') == 'lean-c-1.0':
         return lean_view(root,job,state)
-    # 旧项目只展示已有产物，继续执行时仍进入当前唯一的 C 流程
+    # 旧项目只展示已有产物，继续执行时仍使用当前的逐问生成流程
     return {'stages':[],'completed_stages':0,'stage_total':0,'phase':'历史任务，原有产物与笔记继续保留','done':0,'total':0,'active':0,'round':state.get('round',0),'maximum':0,'elapsed_seconds':round(max(0,job['updated']-job['created'])),'updated':job['updated'],'issues':state.get('issues',[]),'output_ready':(root/'05_writing/book.json').is_file() or (root/'05_writing/preview-book.json').is_file(),'workflow':'legacy_read_only'}
 
 
@@ -78,10 +78,15 @@ def detailed_view(root,job,state):
     add('10','准备原文定位',(root/'05_writing/source-location/index.json').is_file(),detail='保留精确、歧义和未定位的实际统计',running=stage=='05_writing/locations')
     add('11','导出完整阅读包',(root/'05_writing/reading-package.zip').is_file(),detail='读本、原件与来源映射一起打包',running=stage=='05_writing/package')
     if os.environ.get('LESSONWEAVE_TRILIUM_URL'):
-        add('12','保存到笔记库',bool(read(root/'runtime/trilium/current.json',{}).get('render_note_id')),detail='沿用已配置的笔记库和原有笔记位置',running=stage=='library/sync')
+        attachments={name:status for name,status in work.get('tasks',{}).items() if name.startswith('attachment:')}
+        library_done=bool(read(root/'runtime/trilium/current.json',{}).get('render_note_id')) and not (active and stage=='library/sync')
+        add('12','保存到笔记库',library_done,len(attachments) or None,sum(v in {'completed','reused'} for v in attachments.values()),detail='沿用已配置的笔记库和原有笔记位置',running=stage=='library/sync')
     if active and not any(r['status']=='running' for r in rows):
         pending=next((r for r in rows if r['status']=='waiting'),None)
         if pending:pending['status']='running'
+    if job['status'] in {'failed','interrupted','cancelled'}:
+        pending=next((r for r in rows if r['status']=='waiting'),None)
+        if pending:pending['status']='failed' if job['status']=='failed' else 'interrupted'
     detail=[]
     for name,status in tasks.items():
         t=times.get(name,{})
@@ -96,6 +101,6 @@ def detailed_view(root,job,state):
         'phase':'已完成并保存' if job['status']=='completed' else '；'.join(current) or work.get('label','等待执行'),
         'done':finished if expected else sum(v in {'completed','reused'} for v in tasks.values()),'total':len(expected) or len(tasks),'active':sum(v=='running' for v in tasks.values()),'round':int(bool(repair.get('model_calls'))),'maximum':1,
         'elapsed_seconds':round(max(0,end-job['created'])),'updated':work.get('updated',state.get('updated_at',job['updated'])),
-        'observed_at':now,'tasks':detail,'coverage':qcoverage,'issues':state.get('issues',[]) or result.get('issues',[]),
+        'observed_at':now,'tasks':detail,'coverage':qcoverage,'issues':state.get('issues',[]) or (result.get('issues',[]) if not active else []),
         'output_ready':(root/'05_writing/book.json').is_file() and (root/'05_writing/source-location/index.json').is_file(),
         'diagnosis':{},'workflow':'lean-c-1.0'}

@@ -1,9 +1,15 @@
 /* 每个问题完整讲完后提供一个笔记框，原材料与覆盖记录按当前样稿版本读取 */
 (() => {
   const get = id => document.getElementById(id);
-  // 标题已经带编号时直接显示，旧数据则由页面补齐编号后的点
-  const numberedTitle = (number, title) => /^\d+(?:\.\d+)*\.\s/.test(title)
-    ? title : String(number).replace(/\.+$/, '') + '. ' + title;
+  // 编号只由显示字段提供，兼容旧标题内已经保存的一次或多次相同前缀
+  const numberedTitle = (number, title) => {
+    const n=String(number??'').replace(/\.+$/, '');
+    let text=String(title??'').trim();
+    if(!n)return text;
+    const prefix=new RegExp('^(?:q\\.)?'+n.replace(/\./g,'\\.')+'(?:\\.(?=\\s|$)|(?=\\s))\\s*');
+    while(prefix.test(text))text=text.replace(prefix,'');
+    return n+'. '+text;
+  };
   const internalTitle = title => String(title);
   const make = (tag, text, cls) => {
     const node = document.createElement(tag);

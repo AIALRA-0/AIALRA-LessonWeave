@@ -36,3 +36,13 @@ def test_system_info_never_returns_credentials_or_paths(tmp_path,monkeypatch):
     assert value['profile']['writing_calls']>=1 and value['capabilities']['flash']
     assert 'synthetic-private-value' not in str(value)
     assert str(tmp_path) not in str(value)
+
+
+def test_library_progress_counts_saved_and_reused_attachments(tmp_path,monkeypatch):
+    monkeypatch.setenv('LESSONWEAVE_TRILIUM_URL','http://localhost')
+    save(tmp_path/'runtime/state.json',{'workflow':'lean-c-1.0','stage':'library/sync'})
+    save(tmp_path/'runtime/progress.json',{'tasks':{'attachment:a':'completed','attachment:b':'reused','attachment:c':'running'}})
+    save(tmp_path/'runtime/trilium/current.json',{'render_note_id':'previous-edition'})
+    value=view(tmp_path,{'status':'running','created':time.time()-10,'updated':time.time()})
+    row=next(r for r in value['stages'] if r['id']=='12')
+    assert row['status']=='running' and row['done']==2 and row['total']==3

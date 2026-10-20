@@ -1,9 +1,9 @@
 {
-  "version": "0.14",
+  "version": "0.15",
   "direction": "TB",
   "information_points": {
     "status": "legacy_records_only",
-    "note": "新任务直接从材料树进入问题规划，讲解规划在 C 写作调用内生成"
+    "note": "新任务直接从材料树进入问题规划，讲解规划在 逐问写作调用内生成"
   },
   "semantic_rules": [
     {
@@ -28,52 +28,72 @@
     "surface_check_is_grammar_proof": false,
     "generation_prompt": "写作前先在内部明确每个核心命题的主体、行为或状态、对象和成立条件，再写成自然语言；切换主体时写明新主体，同一主体可共享主语；操作步骤、因果解释与普遍规律分层分句；正文只引用材料内容，内部编号留在映射中；正常输出只保留既定字段和正文"
   },
-  "status": "正式调度使用轻量 C，正文与阅读组件同次生成，末尾执行独立脚本检查，有问题时只做一轮批量修复，保留实际结果",
+  "status": "正式调度使用逐问生成流程，正文与阅读组件同次生成，末尾执行独立脚本检查，有问题时只做一轮批量修复，保留实际结果",
   "stages": [
     {
       "id": "00",
-      "name": "保存材料",
-      "artifact": "00_source/source.json"
+      "name": "保存原件与资源",
+      "artifact": "source"
     },
     {
-      "id": "01",
+      "id": "01.1",
       "name": "解析材料树",
-      "artifact": "01_tree/tree.json"
+      "artifact": "material"
     },
     {
       "id": "02",
-      "name": "规划问题",
-      "artifact": "02_questions/questions.json"
+      "name": "规划第 0 章与正文问题",
+      "artifact": "questions"
     },
     {
       "id": "03",
       "name": "编排章节",
-      "artifact": "03_chapters/chapters.json"
+      "artifact": "chapters"
     },
     {
       "id": "04",
-      "name": "一次生成正文与阅读组件",
-      "artifact": "05_writing/work/sections/<section>/unit-<question>.json"
+      "name": "生成正文、媒体、练习与术语",
+      "artifact": "authored"
     },
     {
       "id": "05",
-      "name": "并行翻译去重原句",
-      "artifact": "05_writing/translations.json"
+      "name": "并行生成中文译文",
+      "artifact": "sentence"
     },
     {
       "id": "06",
-      "name": "集中生成两段承接",
-      "artifact": "05_writing/work/bridges.json"
+      "name": "根据实际答案生成两段承接",
+      "artifact": "bridge"
     },
     {
       "id": "07",
-      "name": "独立脚本检查并批量修复",
-      "artifact": "05_writing/checks/batch-repair.json"
+      "name": "脚本检查字段、格式与引用",
+      "artifact": "independent_check"
     },
     {
       "id": "08",
+      "name": "按具体问题做一轮批量修复",
+      "artifact": "repair"
+    },
+    {
+      "id": "09",
       "name": "装配阅读页面",
-      "artifact": "05_writing/book.json"
+      "artifact": "book"
+    },
+    {
+      "id": "10",
+      "name": "准备原文定位",
+      "artifact": "source_locations"
+    },
+    {
+      "id": "11",
+      "name": "导出完整阅读包",
+      "artifact": "package"
+    },
+    {
+      "id": "12",
+      "name": "保存到笔记库",
+      "artifact": "library"
     }
   ],
   "workflow": "lean-c-1.0",

@@ -214,7 +214,7 @@ def snapshot_from_archive(root, url, archive, output):
     """供解析器使用的 HTML、图片和定位只从本地回放读取，WACZ 保持原样"""
     images, resources, issues = [], [], []
     assets = output / 'assets'
-    assets.mkdir()
+    assets.mkdir(exist_ok=True)
     relative = archive.relative_to(root).as_posix()
     query = urlencode({'source': relative, 'url': url})
     with offline_view(root) as (base, proxy, outbound), sync_playwright() as p:
@@ -254,8 +254,8 @@ def snapshot_from_archive(root, url, archive, output):
                 suffix = mimetypes.guess_extension(data['mime'].split(';')[0]) or '.bin'
                 path = assets / f'image-{len(images)+1:03}{suffix}'
                 path.write_bytes(base64.b64decode(data['data']))
-                images.append({'url': address, 'path': path.relative_to(root).as_posix()})
-            for item in frame.evaluate('''()=>[...document.querySelectorAll('svg,canvas,video,audio,iframe,object,embed')].map(e=>{const r={anchor:e.getAttribute('data-iqa-source'),kind:e.localName,url:e.src||e.data||null};if(e.localName==='svg')r.svg=new XMLSerializer().serializeToString(e);if(e.localName==='canvas'){try{r.canvas=e.toDataURL('image/png').split(',')[1]}catch(error){r.error=String(error)}}return r})'''):
+                images.append({'url': address, 'anchor': image.get('anchor'), 'path': path.relative_to(root).as_posix()})
+            for item in frame.evaluate(resource_snapshot_script()):
                 path = archive
                 if item.get('svg'):
                     path = assets / (item['anchor'] + '.svg')
@@ -267,6 +267,10 @@ def snapshot_from_archive(root, url, archive, output):
                                   'url': item.get('url'), 'representation': 'archive' if path == archive else 'snapshot'})
                 if item.get('error'):
                     issues.append({'kind': item['kind'], 'anchor': item['anchor'], 'reason': item['error']})
+            # 动态 SVG、Canvas 可能在图片解码或截图期间出现，最终 HTML 与定位共用最新编号
+            final = frame.evaluate('''()=>{const positions={};for(const e of document.querySelectorAll('[data-iqa-source]')){const b=e.getBoundingClientRect();positions[e.getAttribute('data-iqa-source')]={bbox:[Math.max(0,b.left+scrollX),Math.max(0,b.top+scrollY),Math.max(0,b.right+scrollX),Math.max(0,b.bottom+scrollY)],src:e.currentSrc||e.src||null}}return {positions,html:document.documentElement.outerHTML}}''')
+            save(output/'dom.json',final['positions'])
+            (output/'original.html').write_text('<!doctype html>\n'+final['html'],encoding='utf8')
             state.update(scroll_reached_bottom=bottom, outbound_attempts=list(outbound), issues=issues,
                          screenshot=screenshot, snapshot_layout=layout)
             save(output / 'replay-check.json', state)
@@ -279,12 +283,21 @@ def snapshot_from_archive(root, url, archive, output):
             'positions': (output / 'dom.json').relative_to(root).as_posix(), 'images': images, 'resources': resources}, state
 
 
+def resource_snapshot_script():
+    return '''()=>{const used=new Set([...document.querySelectorAll('[data-iqa-source]')].map(e=>e.getAttribute('data-iqa-source')));let index=0;return [...document.querySelectorAll('svg,canvas,video,audio,iframe,object,embed')].map(e=>{let anchor=e.getAttribute('data-iqa-source');if(!anchor){do{anchor='s'+(++index)}while(used.has(anchor));used.add(anchor);e.setAttribute('data-iqa-source',anchor)}const r={anchor,kind:e.localName,url:e.src||e.data||null};if(e.localName==='svg')r.svg=new XMLSerializer().serializeToString(e);if(e.localName==='canvas'){try{r.canvas=e.toDataURL('image/png').split(',')[1]}catch(error){r.error=String(error)}}return r})}'''
+
+
 def capture_web_archive(root, url, output):
     from lessonweave.network import validate_url
     if os.environ.get('LESSONWEAVE_ALLOW_LOCAL_FETCH') != '1':
         validate_url(url)
     begin = time.perf_counter()
-    archive, receipt = capture_once(url, output)
+    archive=output/'original.wacz'
+    if archive.is_file():
+        receipt=json.loads((output/'capture.json').read_text('utf8'))
+        receipt=dict(receipt,reused_archive=True,crawl_seconds=0,transfer_seconds=0)
+    else:
+        archive, receipt = capture_once(url, output)
     inspect_begin = time.perf_counter()
     integrity = inspect_wacz(archive)
     save(output / 'archive-check.json', integrity)
