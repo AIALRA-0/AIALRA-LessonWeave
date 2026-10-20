@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "00_source 已取得哪些原材料",
+  "type": "object",
+  "required": [
+    "kind",
+    "material",
+    "status",
+    "entry",
+    "files"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "kind": {
+      "enum": [
+        "file",
+        "url",
+        "repository"
+      ]
+    },
+    "material": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "status": {
+      "enum": [
+        "acquired",
+        "unavailable"
+      ]
+    },
+    "entry": {
+      "type": "string"
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "bytes"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "original_path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "archive_member": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "pages": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "snapshot": {
+      "type": "object"
+    },
+    "positions": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "images": {
+      "type": "array"
+    },
+    "repository": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "revision": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "resources": {
+      "type": "array"
+    },
+    "web_archive": {
+      "type": "object",
+      "required": [
+        "engine",
+        "version",
+        "format",
+        "path",
+        "url",
+        "replay_version",
+        "capture_receipt",
+        "archive_check",
+        "replay_check"
+      ],
+      "properties": {
+        "engine": {
+          "const": "Browsertrix Crawler"
+        },
+        "version": {
+          "type": "string"
+        },
+        "format": {
+          "const": "wacz"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string"
+        },
+        "replay_version": {
+          "type": "string"
+        },
+        "capture_receipt": {
+          "type": "string"
+        },
+        "archive_check": {
+          "type": "string"
+        },
+        "replay_check": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "acquisition": {
+      "type": "object",
+      "required": [
+        "attempts",
+        "model_calls",
+        "api_cost_rmb",
+        "total_seconds"
+      ],
+      "properties": {
+        "attempts": {
+          "const": 1
+        },
+        "model_calls": {
+          "const": 0
+        },
+        "api_cost_rmb": {
+          "const": 0
+        },
+        "total_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "crawl_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "transfer_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "archive_check_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "offline_snapshot_seconds": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "integrity": {
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "acquired"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "entry": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "files": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,43 +1,60 @@
-# 1 怎样部署个人网站
+# 1 怎样在本地或 VPS 启动
 
-首版使用 Python 服务、SQLite、文件目录和 Nginx，生成后端直接调用本机登录的 Codex CLI，生产环境只监听回环地址并由认证代理提供入口
+网站、工作流、Schema、提示词、检查器和阅读器共用本仓库，材料和账号放在仓库外，默认 Sol high 写作、Flash 非推理英译中
 
-## 1.1 怎样准备运行环境
+## 1.1 怎样在本地一键启动
 
-安装 requirements.txt 和 Playwright 浏览器，Linux 缺少浏览器系统库时使用 playwright install --with-deps chromium
+准备 Python 3.11+、Node.js 20+，网页归档还需要可运行的 Docker；已有 Codex CLI 时继续使用，否则安装器在 .tools 中安装官方 CLI
 
-本次运行验证使用官方 Codex CLI 0.163.0-alpha.10.2，旧版 CLI 可能拒绝所选模型或缺少参数，部署时先核对 codex --version，多个版本并存时用 LESSONWEAVE_CODEX 指定经过实际调用验证的执行文件
+```bash
+# 下载源码并安装独立环境、PDF 解析器和浏览器，然后启动网站
+ git clone https://github.com/AIALRA-0/AIALRA-LessonWeave.git
+ cd AIALRA-LessonWeave
+ python deploy/bootstrap.py
+```
 
-默认用 PyMuPDF 保存 PDF 文本、图片、矢量图所在原页与坐标，安装 Docling 后也可使用其解析路径，图片 OCR 句框是可选能力，缺少时保留原图区域与实际定位状态
+首次使用先在官方 CLI 完成 codex login，把 DeepSeek 官方密钥放入环境变量 AIALRA_DEEPSEEK_OFFICIAL_KEY；账号和密钥不写入源码
 
-## 1.2 怎样配置目录与登录
+安装与设备登录方式沿用 [OpenAI 官方 Codex CLI 文档](https://learn.chatgpt.com/docs/codex/cli)和[身份验证说明](https://learn.chatgpt.com/docs/auth)
 
-复制 .env.example 并在仓库外保存生产配置，LESSONWEAVE_DATA 指向持久目录，LESSONWEAVE_CODEX 指向官方 CLI，在执行账户中完成 codex login
+打开 http://127.0.0.1:8960/workspace，选择网页、PDF 或项目 ZIP 并提交，关闭页面后后台继续处理
 
-生产服务设置 LESSONWEAVE_AUTH_REQUIRED=1 和 LESSONWEAVE_OWNER，可信代理覆盖 X-Aialra-User，应用仅接受配置的所有者身份，应用端口保持回环绑定
+安装器读取未跟踪的 .env，已有环境变量优先，默认数据放在用户目录的 .lessonweave 中；--install-only 只安装，--port 修改本地端口，--without-docling 使用保留原页与坐标的 PyMuPDF 路径
 
-deploy/lessonweave.service 和 deploy/nginx.conf.template 提供配置模板，按目标机的真实路径、证书和认证入口替换，再检查 Nginx 配置并启动服务
+## 1.2 怎样在 VPS 一键安装服务
 
-## 1.3 怎样备份与升级
+Ubuntu 或 Debian 主机在克隆后的仓库中执行下面命令，脚本安装依赖和 systemd 服务，保留已经存在的 /etc/lessonweave.env
 
-备份站点数据目录、SQLite 数据库与仓库外配置，数据库使用 SQLite backup 接口取得一致副本，升级前保留当前版本目录与数据备份
+```bash
+# 安装服务，只监听服务器本机
+sudo bash deploy/install-vps.sh
+```
 
-新版本使用新的代码目录，健康检查与阅读验收完成后切换 current 链接，回滚时切回旧代码目录，保留生成数据和笔记
+在执行账户中完成 codex login，并在 /etc/lessonweave.env 设置 LESSONWEAVE_OWNER、LESSONWEAVE_CODEX 和翻译密钥，再执行 systemctl restart lessonweave
 
-## 1.4 怎样检查上线
+服务监听 127.0.0.1:18960，deploy/nginx.conf.template 提供反向代理模板，替换域名、证书和现有认证片段后使用 nginx -t 检查并重载；认证代理必须覆盖 X-Aialra-User，应用端口保持回环绑定
 
-- 未登录访问由认证入口处理，API 不提供私人材料
-- 所有者登录后可提交材料、关闭页面、重新打开并继续查看任务
-- 三类材料的原文、翻译、非文字资源和定位都使用实际文件
-- 独立 ReadWeave 演示使用相同阅读包，正式 ReadWeave 服务保持独立
-- 重启服务后保留笔记与任务记录，处理中断状态供恢复核对
+PDF 解析使用 CPU，公式保留原图，不启用公式增强；首次使用 Docling 会下载模型，HF_HOME 可指向持久缓存目录
 
-## 1.5 怎样选择 Trilium 存储
+## 1.3 哪些并发值已经生效
 
-按 [ReadWeave 交接说明](../integrations/readweave/HANDOFF.md) 配置 ETAPI 地址、令牌、父笔记与回收站，新生成的读本会保存为原生笔记与附件，令牌留在服务端配置中
+正文并发 144，翻译并发 12、每批约 24000 UTF-8 字节，承接每批 16 节、并发 7，修复并发 3，同一进程的 Sol 总额度为 144
 
-Trilium 未配置时，网站使用本地目录和 SQLite，配置后仍保留生成工作区与任务数据库，备份时同时包含 Trilium 数据库和附件
+默认值保存在 framework/05_writing/runtime-profile.json，环境变量和项目已保存的模型设置仍可覆盖默认值，工作台系统信息显示实际生效配置
 
-升级时若旧服务仍有任务正在执行，可以让旧进程继续处理已有任务，新实例临时设置 `LESSONWEAVE_RECOVER_JOBS=0`，两个实例通过 SQLite 原子领取不同任务，旧实例退出后恢复默认值 `1`，下次启动会把遗留的运行状态标记为可继续
+项目按提交顺序执行，项目内部并行，服务模板不设置旧的内存、CPU 和进程数量限制，部署者可根据机器承载能力调整并发
 
-正常单实例部署沿用默认值，进程终止与模型调用通过独立进程组管理，模型运行期间显示已完成的实际任务数，单个调用的剩余时间保持未知
+## 1.4 怎样升级与恢复
+
+升级前使用 SQLite backup 接口备份数据库，并备份材料、笔记与仓库外配置；把新版本安装到独立目录，再切换服务
+
+已有任务正在执行时保留旧进程，新实例设置 LESSONWEAVE_RECOVER_JOBS=0；没有并行旧进程时使用默认恢复设置，已完成的模型调用可复用
+
+回退时切回旧代码目录，生成数据和笔记继续保留
+
+## 1.5 怎样确认网站可以使用
+
+登录后打开 /workspace，系统信息应显示模型、并发、解析器和可用资源；提交小网页和小 PDF，确认阶段列表更新、正文和原文定位可读、阅读包可下载
+
+每次调用保存输入、输出和缓存 token，缺失用量显示未返回，任务实际经过时间与并行调用累计时间分别统计
+

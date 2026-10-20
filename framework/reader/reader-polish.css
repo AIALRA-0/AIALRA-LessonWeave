@@ -1,0 +1,114 @@
+/* 标题跟随用户选择的正文字号，正文内部保留清晰层级 */
+.reader-ui .lesson-content h2{font-size:calc(var(--body-size) + 9px)!important}
+.reader-ui .lesson-content h3,.reader-ui .lesson-content h3.summary-question{font-size:calc(var(--body-size) + 6px)!important}
+.reader-ui .lesson-content h4,.reader-ui .lesson-content .writing-detail-title{font-size:calc(var(--body-size) + 4px);font-weight:650;line-height:1.7;margin:26px 0 13px;background:transparent}
+.reader-ui .lesson-content .lw-media h4{font-size:calc(var(--body-size) + 3px)}
+.reader-ui .demo-masthead h1{font-size:calc(var(--body-size) + 3px)}
+.reader-ui .pane-head h2,.reader-ui #demo-original .pane-head h2{font-size:calc(var(--body-size) + 1px)}
+.reader-ui .demo-outline-section,.reader-ui .demo-outline-label{font-size:13px!important;font-weight:600;line-height:1.6;color:var(--text)}
+.reader-ui .demo-outline-label{margin:2px 0;padding:8px 9px}
+.reader-ui .writing-note h4{font-size:calc(var(--body-size) + 3px);margin:0 0 10px}
+.reader-ui .settings-content fieldset{margin:12px 0;padding:12px;border:1px solid var(--line);border-radius:8px;min-width:0}
+.reader-ui .settings-content legend{padding:0 5px;font-weight:600}
+.agent-choice{display:grid;grid-template-columns:minmax(0,1fr) 130px;gap:10px;align-items:end}
+.agent-choice label{display:grid;gap:6px;min-width:0;font-size:13px}
+.agent-choice select{width:100%;font-size:13px}
+#agent-settings-status{font-size:12px;color:var(--secondary);margin:8px 0}
+#save-agent-settings{font-size:13px}
+
+/* 菜单沿用 Template 的中性色、圆角、选中背景和焦点轮廓 */
+@supports(appearance:base-select){
+ .reader-ui select{overflow:hidden}
+ .reader-ui select>button{display:flex;align-items:center;min-width:0;max-width:100%;width:100%;padding:0;border:0;background:transparent;color:inherit;font:inherit;overflow:hidden;text-align:start}
+ .reader-ui select selectedcontent{display:block;flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .reader-ui select::picker-icon{flex:0 0 auto;margin-inline-start:6px}
+ .reader-ui select,.lw-media-dialog select,.reader-ui select::picker(select),.lw-media-dialog select::picker(select){appearance:base-select}
+ .reader-ui select,.lw-media-dialog select{align-items:center;gap:6px;white-space:nowrap;text-overflow:ellipsis}
+ .reader-ui select::picker(select),.lw-media-dialog select::picker(select){background:var(--raised);color:var(--text);border:1px solid var(--input-line);border-radius:10px;padding:6px;box-shadow:0 12px 30px #0002;max-height:min(330px,55dvh);max-width:calc(100vw - 24px);overflow:auto;min-width:anchor-size(width)}
+ .reader-ui select option,.lw-media-dialog select option{font:13px/1.6 "Segoe UI","Microsoft YaHei",sans-serif;min-height:34px;padding:6px 10px;border-radius:5px;white-space:normal;overflow-wrap:anywhere;max-width:min(600px,calc(100vw - 40px));color:var(--text)}
+ .reader-ui select option:hover,.reader-ui select option:checked,.lw-media-dialog select option:hover,.lw-media-dialog select option:checked{background:var(--selected);color:var(--text)}
+ .reader-ui select::picker-icon,.lw-media-dialog select::picker-icon{font-size:10px;color:var(--secondary);margin-inline-start:auto;flex:none}
+ .reader-ui option::checkmark,.lw-media-dialog option::checkmark{color:var(--text)}
+}
+
+@media(max-width:520px){.agent-choice{grid-template-columns:minmax(0,1fr) 105px}}
+
+/* 每层标题均大于正文，媒体内部标题继续按父子关系递减 */
+.reader-ui .lesson-content h4,.reader-ui .lesson-content .writing-detail-title{font-size:calc(var(--body-size) + 4px)!important}
+.reader-ui .lesson-content .lw-media h5{font-size:calc(var(--body-size) + 2px)!important;font-weight:650;line-height:1.7;margin:24px 0 12px}
+.reader-ui .lesson-content .lw-media h6{font-size:calc(var(--body-size) + 1px)!important;font-weight:650;line-height:1.7;margin:22px 0 10px}
+.reader-ui .lesson-content .lw-media-code-segment>h4{font-size:calc(var(--body-size) + 3px)!important}
+.reader-ui .lesson-content .writing-note h4{font-size:calc(var(--body-size) + 1px)!important}
+.reader-ui .lesson-content .writing-block p+p{margin-top:16px}
+.reader-ui .lw-media-figure figcaption{font-size:calc(var(--body-size) - 2px);font-weight:400;line-height:1.65}
+.reader-ui .lw-media-dialog{width:calc(100vw - 24px);height:calc(100dvh - 24px);max-width:none;max-height:none;padding:0;margin:auto;overflow:hidden}
+.reader-ui .lw-media-dialog .lw-media-figure{height:calc(100% - 36px)!important;max-height:none;min-height:0}
+.reader-ui .lw-media-toolbar{flex-wrap:nowrap;min-width:0;overflow:visible}
+.reader-ui .lw-media-toolbar>select{flex:0 0 76px;width:76px!important;min-width:76px!important;max-width:76px!important}
+.reader-ui .lw-media-toolbar>button,.reader-ui .lw-media-dialog-bar>button{flex:0 0 auto;white-space:nowrap;min-width:44px;line-height:1.5}
+.reader-ui .lw-media-dialog .lw-media-code-row{display:grid;grid-template-columns:25px minmax(0,1.4fr) minmax(160px,1fr);gap:9px}
+.reader-ui .lw-media-dialog .lw-media-code-row code{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.85 ui-monospace,Consolas,monospace;min-width:0}
+.reader-ui .lw-media-dialog .lw-media-line-note{font:12px/1.85 system-ui;min-width:0}
+.reader-ui .lw-media-dialog .lw-media-playback,.reader-ui .lw-media-dialog .lw-media-model{height:100%}
+.reader-ui .lw-media-dialog video{width:100%;height:100%;object-fit:contain}
+.reader-ui .lw-media-dialog iframe{width:100%;height:100%;border:0}
+.reader-ui .lw-media-dialog .lw-media-table{overflow:auto;max-width:100%}
+.reader-ui .reader-math{display:inline-block;max-width:100%;vertical-align:baseline}
+.reader-ui p .katex{font-size:1.05em}
+.reader-ui .reader-code-expression{font-family:Consolas,ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.reader-ui .lw-media-math.reader-code-expression{max-width:100%;font-size:14px;line-height:1.8}
+.reader-ui.show-debug .reader-math-unresolved{outline:1px dashed var(--warning,#775908)}
+.reader-ui .quiz-options label{display:flex;align-items:baseline;gap:9px;border-radius:5px;padding:7px 9px}
+.reader-ui .quiz-options .quiz-option-text{flex:1;min-width:0}
+.reader-ui .quiz-verdict{flex:none;font-size:12px;white-space:nowrap}
+.reader-ui .quiz-options .is-correct{background:color-mix(in srgb,#40835a 12%,transparent);box-shadow:inset 2px 0 #40835a}
+.reader-ui .quiz-options .is-wrong{background:color-mix(in srgb,#b55149 12%,transparent);box-shadow:inset 2px 0 #b55149}
+.reader-ui .demo-outline-detail{display:block;width:100%;border:0;background:none;color:var(--secondary);text-align:left;padding:5px 9px 5px calc(18px + var(--outline-depth,1)*12px);font-family:inherit;font-size:max(12px,calc(14px - var(--outline-depth,1)*.5px));line-height:1.65;overflow-wrap:anywhere}
+.reader-ui .demo-outline-question{font-size:14px;font-weight:550}
+.reader-ui .lesson-content .lw-media h5{font-size:calc(var(--body-size) + 3px)!important}
+.reader-ui .lesson-content .lw-media h6{font-size:calc(var(--body-size) + 2px)!important}
+.reader-ui .lw-media-dialog[open]{display:grid;grid-template-rows:40px minmax(0,1fr)}
+.reader-ui .lw-media-dialog .lw-media-dialog-bar{height:40px;min-height:0;align-items:center;gap:12px;padding:4px 8px}
+.reader-ui .lw-media-dialog .lw-media-dialog-bar .lw-media-toolbar{flex:1;min-width:0;padding:0;height:30px}
+.reader-ui .lw-media-dialog .lw-media-figure{height:100%!important;grid-template-rows:minmax(0,1fr) auto;position:relative;top:0}
+.reader-ui .lw-media-dialog .lw-media-dialog-bar>button{height:30px;min-width:72px;margin:0}
+.reader-ui .lw-media-dialog [hidden]{display:none!important}
+.reader-ui .demo-outline-detail:hover{background:var(--selected);color:var(--text)}
+.reader-ui #ui-tooltip{overflow-wrap:anywhere;max-height:min(300px,50dvh);overflow:auto;white-space:normal;box-sizing:border-box}
+.reader-ui .reader-search{position:relative;display:flex;align-items:center;gap:5px;flex:0 1 330px;min-width:200px;margin:0 12px}
+.reader-ui .reader-search input{min-width:0;width:100%;height:32px;font-size:13px;padding:5px 9px}
+.reader-ui .reader-search>select{flex:0 0 60px;width:60px;min-width:60px;font-size:12px;padding:4px}
+.reader-ui .reader-search>button{flex:none;font-size:12px;padding:4px 8px;white-space:nowrap}
+.reader-ui .reader-search-results{position:fixed;top:58px;right:16px;width:min(560px,calc(100vw - 32px));max-height:65dvh;overflow:auto;padding:6px;background:var(--raised,var(--paper));border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 28px #0002;z-index:60}
+.reader-ui .reader-search-results button{display:block;text-align:left;width:100%;background:transparent;border:0;color:var(--text);padding:9px;font-size:13px}
+.reader-ui .reader-search-results button:hover{background:var(--selected)}
+.reader-ui .reader-search-results button span{display:block;white-space:normal;line-height:1.7;overflow-wrap:anywhere}
+.reader-ui .reader-search-results button span+span{font-size:12px;color:var(--secondary)}
+.reader-search-target{outline:2px solid var(--secondary);outline-offset:5px;border-radius:3px}
+::highlight(reader-search){background:#e9cc73;color:#211c10}
+@supports(appearance:base-select){
+ .reader-ui select::picker(select){min-width:0;max-width:var(--reader-picker-width,calc(100vw - 24px));width:var(--reader-picker-width,auto);box-sizing:border-box;white-space:normal;position:fixed;position-area:none;inset:auto;left:var(--reader-picker-left,anchor(left));top:var(--reader-picker-top,anchor(bottom));margin:0;max-height:var(--reader-picker-height,330px);position-try-fallbacks:none}
+ .reader-ui select option{max-width:100%;overflow-wrap:anywhere}
+}
+@media(max-width:850px){.reader-ui .demo-masthead{flex-wrap:wrap}.reader-ui .reader-search{order:3;flex:1 1 100%;margin:3px 0}.reader-ui .reader-search-results{top:106px}}
+@media(max-width:520px){.reader-ui .lw-media-dialog .lw-media-code-row{grid-template-columns:21px minmax(0,1fr)}.reader-ui .lw-media-dialog .lw-media-line-note{grid-column:2}.reader-ui .quiz-verdict{font-size:11px}}
+
+/* 搜索沿用 Template 的居中命令入口，输入后直接查找全书 */
+.reader-ui .demo-masthead{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,400px) minmax(0,1fr);gap:20px}
+.reader-ui .demo-header-actions{justify-self:end;min-width:0}
+.reader-ui .reader-search{width:100%;min-width:0;height:38px;margin:0;padding:0 12px;gap:10px;border:1px solid var(--line);border-radius:8px;background:var(--raised);box-sizing:border-box;grid-column:2;grid-row:1}
+.reader-ui .reader-search:focus-within{border-color:var(--secondary)}
+.reader-ui .reader-search>svg{stroke:currentColor;fill:none;stroke-width:1.6;flex:none;color:var(--secondary)}
+.reader-ui .reader-search input{height:34px;min-height:0;padding:0;border:0!important;outline:0!important;background:transparent;box-shadow:none!important;color:var(--text);font-size:13px}
+.reader-ui .reader-search kbd{font:11px/20px inherit;white-space:nowrap;color:var(--secondary);border:1px solid var(--line);padding:0 5px;border-radius:4px}
+.reader-ui .reader-search-results{position:absolute;top:calc(100% + 8px);left:50%;right:auto;transform:translateX(-50%);width:min(600px,calc(100vw - 24px));max-height:min(560px,65dvh);box-sizing:border-box;padding:8px;border-radius:10px}
+.reader-ui .reader-search-status{margin:2px 6px 6px;font-size:12px;color:var(--secondary)}
+.reader-ui .reader-search-results button{border-radius:6px;padding:10px 12px}
+.reader-ui .reader-search-results button[aria-selected=true]{background:var(--selected)}
+.reader-ui .reader-search-results mark{background:var(--selected);color:var(--text);font-weight:650}
+.reader-ui .lw-media>.lw-media-part,.reader-ui .lw-media>.lw-media-code-segment{margin-inline-start:12px}
+.reader-ui .lw-media-code-segment>.lw-media-part{margin-inline-start:12px}
+@media(max-width:1450px){.reader-ui .demo-masthead{gap:12px}.reader-ui .demo-header-actions{gap:8px}.reader-ui .demo-header-actions .control-group{gap:0}.reader-ui .demo-header-actions .control-group+.control-group{padding-left:8px}.reader-ui .demo-header-actions .icon-button{width:30px;min-width:30px;padding:5px}.reader-ui .lessonweave-links{gap:6px}.reader-ui .lessonweave-links a{font-size:0;width:32px;min-width:32px;padding:4px;display:inline-grid;place-items:center}.reader-ui .lessonweave-links a:first-child::before{content:'⌂';font-size:19px}.reader-ui .lessonweave-links a.lw-extra::before{content:'RW';font-size:12px}}
+@media(max-width:1100px){.reader-ui .demo-masthead{grid-template-columns:minmax(0,1fr) minmax(220px,320px) minmax(0,1fr)}}
+@media(max-width:1000px){.reader-ui .demo-masthead{height:auto;min-height:96px;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:36px 38px;gap:6px 10px;padding:6px 12px}.reader-ui .reader-search{grid-column:1/-1;grid-row:2;order:initial;width:min(400px,100%);justify-self:center}.reader-ui .reader-search kbd{display:none}.reader-ui .demo-reading-pane.ui-drawer{top:104px}#drawer-backdrop{inset:96px 0 32px}}
+@media(max-width:520px){.reader-ui .demo-masthead>.document-heading{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.reader-ui .demo-header-actions{grid-column:1/-1;justify-self:stretch;justify-content:space-between}}

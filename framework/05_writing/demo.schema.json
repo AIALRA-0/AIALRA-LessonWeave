@@ -1,0 +1,2473 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "怎样检查一个小节的讲解、回答、练习与术语",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile",
+    "scope",
+    "status",
+    "transitions_path",
+    "transition_run",
+    "section_id",
+    "title",
+    "catalog_path",
+    "opening",
+    "core_questions",
+    "units",
+    "summary",
+    "pitfalls",
+    "quiz",
+    "next_section_id",
+    "next_title",
+    "glossary",
+    "validation",
+    "section_number",
+    "opening_title"
+  ],
+  "properties": {
+    "profile": {
+      "const": "writing-demo-v1"
+    },
+    "scope": {
+      "enum": [
+        "selected_section",
+        "book_section"
+      ]
+    },
+    "status": {
+      "enum": [
+        "structure_preview",
+        "first_edition"
+      ]
+    },
+    "transitions_path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "transition_run": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "section_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "catalog_path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "opening": {
+      "$ref": "#/$defs/block"
+    },
+    "core_questions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "question_id",
+          "text"
+        ],
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        }
+      }
+    },
+    "units": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "question_id",
+          "problem",
+          "explanation",
+          "synthesis",
+          "number",
+          "title"
+        ],
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "problem": {
+            "$ref": "#/$defs/block"
+          },
+          "explanation": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/block"
+            }
+          },
+          "synthesis": {
+            "$ref": "#/$defs/block"
+          },
+          "number": {
+            "type": "string",
+            "pattern": "^(?:0|[1-9]\\d*)(\\.[1-9]\\d*){2,}$"
+          },
+          "title": {
+            "type": "string",
+            "pattern": "^[^\\r\\n？]+？$"
+          },
+          "source_nodes": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "note_block_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "problem_heading": {
+            "type": "string"
+          },
+          "summary_heading": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "question_id",
+          "answer"
+        ],
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "answer": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      }
+    },
+    "pitfalls": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "premise",
+          "question",
+          "body"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "premise": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "question": {
+            "type": "string",
+            "pattern": "^[^\\r\\n？?]+？$"
+          },
+          "body": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      }
+    },
+    "quiz": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "question_ids",
+          "prompt",
+          "explanation"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "kind": {
+            "enum": [
+              "single_choice",
+              "short_answer"
+            ]
+          },
+          "question_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "prompt": {
+            "$ref": "#/$defs/block"
+          },
+          "options": {
+            "type": "array",
+            "minItems": 2,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          },
+          "answer": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reference_answer": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "rubric": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "minItems": 1
+          },
+          "explanation": {
+            "$ref": "#/$defs/block"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "single_choice"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "options",
+                "answer"
+              ]
+            },
+            "else": {
+              "required": [
+                "reference_answer",
+                "rubric"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "next_section_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "next_title": {
+      "type": "string"
+    },
+    "local_notations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "symbol",
+          "meaning",
+          "definition_block_id",
+          "definition_quote",
+          "scope_block_ids",
+          "component_ids"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "kind": {
+            "enum": [
+              "symbol",
+              "expression"
+            ]
+          },
+          "symbol": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "meaning": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "definition_block_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "definition_quote": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "scope_block_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "component_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "glossary": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/term"
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "passed",
+        "errors"
+      ],
+      "properties": {
+        "passed": {
+          "type": "boolean"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "writing_run": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "questions",
+        "units",
+        "answered",
+        "quiz",
+        "terms",
+        "covered_terms",
+        "term_percentage",
+        "report"
+      ],
+      "properties": {
+        "questions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "answered": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "quiz": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "terms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "covered_terms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "term_percentage": {
+          "const": 100.0
+        },
+        "report": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      }
+    },
+    "section_number": {
+      "type": "string",
+      "pattern": "^(?:0|[1-9]\\d*)(\\.[1-9]\\d*)+$"
+    },
+    "opening_title": {
+      "type": "string",
+      "pattern": "^(?:[^\\r\\n？]+？)?$"
+    },
+    "book_introduction": {
+      "type": "string",
+      "minLength": 1
+    },
+    "context_goals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "question_id",
+          "text",
+          "answer",
+          "source_nodes"
+        ],
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "answer": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "source_nodes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          }
+        }
+      }
+    },
+    "grounding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_pack_path",
+        "coverage_path"
+      ],
+      "properties": {
+        "source_pack_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inventory_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bindings_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "coverage_path": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "writing_rules_version": {
+      "type": "integer",
+      "const": 2
+    },
+    "opening_forward": {
+      "$ref": "#/$defs/block"
+    },
+    "writing_contract_version": {
+      "type": "string"
+    },
+    "note_storage_prefix": {
+      "type": "string"
+    },
+    "validation_scope": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "block": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "kind": {
+              "enum": [
+                "paragraph",
+                "table",
+                "list",
+                "code",
+                "formula",
+                "image"
+              ]
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "headers": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "minItems": 1
+            },
+            "rows": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "minItems": 1
+              }
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "minItems": 1
+            },
+            "language": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "asset": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "caption": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "lead_in": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S",
+              "description": "引出并列项目时保存引导语，页面添加冒号，再把列表另起一行并缩进，连续解释直接保留在同一自然段"
+            },
+            "source_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source_region": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "paragraph"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "text"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "table"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "headers",
+                  "rows"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "list"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "items"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "code"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "text",
+                  "language"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "formula"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "text",
+                  "caption"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "image"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "asset",
+                  "caption"
+                ]
+              }
+            },
+            {
+              "if": {
+                "required": [
+                  "source_region"
+                ]
+              },
+              "then": {
+                "required": [
+                  "source_id"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "image"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "caption": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "source_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "minItems": 1
+            },
+            "kind": {
+              "const": "image"
+            },
+            "asset": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "alt": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "source_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "source_region": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "guide": {
+              "type": "object",
+              "properties": {
+                "reading_guide": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "components": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "math_label": {
+                        "type": "boolean"
+                      },
+                      "explanation": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "math_label",
+                      "explanation"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "explanation": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "formula": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "formula"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "takeaway": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              },
+              "required": [
+                "reading_guide",
+                "components",
+                "explanation",
+                "takeaway"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "caption",
+            "source_refs",
+            "kind",
+            "asset",
+            "alt",
+            "source_id",
+            "source_region",
+            "guide"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "caption": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "source_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "minItems": 1
+            },
+            "kind": {
+              "const": "table"
+            },
+            "headers": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": [
+                    "string",
+                    "number",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "guide": {
+              "type": "object",
+              "properties": {
+                "reading_guide": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "components": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "math_label": {
+                        "type": "boolean"
+                      },
+                      "explanation": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "math_label",
+                      "explanation"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "explanation": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "formula": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "formula"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "takeaway": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              },
+              "required": [
+                "reading_guide",
+                "components",
+                "explanation",
+                "takeaway"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "caption",
+            "source_refs",
+            "kind",
+            "headers",
+            "rows",
+            "guide"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "caption": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "source_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "minItems": 1
+            },
+            "kind": {
+              "const": "mermaid"
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "guide": {
+              "type": "object",
+              "properties": {
+                "reading_guide": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "components": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "math_label": {
+                        "type": "boolean"
+                      },
+                      "explanation": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "math_label",
+                      "explanation"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "explanation": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "formula": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "formula"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "takeaway": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              },
+              "required": [
+                "reading_guide",
+                "components",
+                "explanation",
+                "takeaway"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "caption",
+            "source_refs",
+            "kind",
+            "text",
+            "guide"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "caption": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "source_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "minItems": 1
+            },
+            "kind": {
+              "const": "formula"
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "guide": {
+              "type": "object",
+              "properties": {
+                "reading_guide": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "components": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "math_label": {
+                        "type": "boolean"
+                      },
+                      "explanation": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "math_label",
+                      "explanation"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "explanation": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "formula": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "formula"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "takeaway": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              },
+              "required": [
+                "reading_guide",
+                "components",
+                "explanation",
+                "takeaway"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "caption",
+            "source_refs",
+            "kind",
+            "text",
+            "guide"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "caption": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "source_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "minItems": 1
+            },
+            "kind": {
+              "const": "code"
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "language": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "filename": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "runs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "inputs": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  },
+                  "outputs": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "required": [
+                  "inputs",
+                  "outputs"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "guide": {
+              "type": "object",
+              "properties": {
+                "line_annotations": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "line_start": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "line_end": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "role": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "sentence": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      }
+                    },
+                    "required": [
+                      "line_start",
+                      "line_end",
+                      "role",
+                      "sentence"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "overview": {
+                  "type": "object",
+                  "properties": {
+                    "premise": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "action": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "result": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    }
+                  },
+                  "required": [
+                    "premise",
+                    "action",
+                    "result"
+                  ],
+                  "additionalProperties": false
+                },
+                "segments": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "line_start": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "line_end": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "title_premise": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "title_question": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "overview": {
+                        "type": "object",
+                        "properties": {
+                          "premise": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "action": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "result": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          }
+                        },
+                        "required": [
+                          "premise",
+                          "action",
+                          "result"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "components": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "line_start": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "line_end": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "owner": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "type": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "default": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "purpose": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "line_start",
+                            "line_end",
+                            "owner",
+                            "name",
+                            "kind",
+                            "type",
+                            "default",
+                            "purpose"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "core_logic": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "line_start": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "line_end": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "explanation": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "example": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "\\S"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "line_start",
+                            "line_end",
+                            "explanation",
+                            "example"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "takeaway": {
+                        "type": "object",
+                        "properties": {
+                          "conclusion": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "relation_to_whole": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          }
+                        },
+                        "required": [
+                          "conclusion",
+                          "relation_to_whole"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "line_start",
+                      "line_end",
+                      "id",
+                      "title_premise",
+                      "title_question",
+                      "overview",
+                      "components",
+                      "core_logic",
+                      "takeaway"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "summary": {
+                  "type": "object",
+                  "properties": {
+                    "answer": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "collaboration": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    }
+                  },
+                  "required": [
+                    "answer",
+                    "collaboration"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "line_annotations",
+                "overview",
+                "segments",
+                "summary"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "caption",
+            "source_refs",
+            "kind",
+            "text",
+            "language",
+            "filename",
+            "runs",
+            "guide"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "caption": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "source_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "minItems": 1
+            },
+            "kind": {
+              "const": "model"
+            },
+            "asset": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "vertices": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "minItems": 1
+            },
+            "faces": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "minItems": 3
+              },
+              "minItems": 1
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "parts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  },
+                  "face_indices": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "required": [
+                  "label",
+                  "face_indices"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "guide": {
+              "type": "object",
+              "properties": {
+                "reading_guide": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "components": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "math_label": {
+                        "type": "boolean"
+                      },
+                      "explanation": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "math_label",
+                      "explanation"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "explanation": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "formula": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "formula"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "takeaway": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              },
+              "required": [
+                "reading_guide",
+                "components",
+                "explanation",
+                "takeaway"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "caption",
+            "source_refs",
+            "kind",
+            "asset",
+            "vertices",
+            "faces",
+            "unit",
+            "parts",
+            "guide"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "caption": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "source_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "minItems": 1
+            },
+            "kind": {
+              "const": "video"
+            },
+            "asset": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "poster": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "cues": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "time": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "required": [
+                  "time",
+                  "label"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "guide": {
+              "type": "object",
+              "properties": {
+                "reading_guide": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "components": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "math_label": {
+                        "type": "boolean"
+                      },
+                      "explanation": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "math_label",
+                      "explanation"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "explanation": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "formula": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "formula"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "takeaway": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              },
+              "required": [
+                "reading_guide",
+                "components",
+                "explanation",
+                "takeaway"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "caption",
+            "source_refs",
+            "kind",
+            "asset",
+            "poster",
+            "cues",
+            "guide"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "caption": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "source_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "minItems": 1
+            },
+            "kind": {
+              "const": "audio"
+            },
+            "asset": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "cues": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "time": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "required": [
+                  "time",
+                  "label"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "guide": {
+              "type": "object",
+              "properties": {
+                "reading_guide": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "components": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "math_label": {
+                        "type": "boolean"
+                      },
+                      "explanation": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "math_label",
+                      "explanation"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "explanation": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "formula": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "formula"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "takeaway": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              },
+              "required": [
+                "reading_guide",
+                "components",
+                "explanation",
+                "takeaway"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "caption",
+            "source_refs",
+            "kind",
+            "asset",
+            "cues",
+            "guide"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "caption": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "source_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "minItems": 1
+            },
+            "kind": {
+              "const": "interactive"
+            },
+            "asset": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "guide": {
+              "type": "object",
+              "properties": {
+                "reading_guide": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "components": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "math_label": {
+                        "type": "boolean"
+                      },
+                      "explanation": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "math_label",
+                      "explanation"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "explanation": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "formula": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "formula"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "takeaway": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              },
+              "required": [
+                "reading_guide",
+                "components",
+                "explanation",
+                "takeaway"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "caption",
+            "source_refs",
+            "kind",
+            "asset",
+            "guide"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "heading"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "text"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "term": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "abbreviation",
+        "chinese",
+        "english",
+        "aliases",
+        "kind",
+        "components",
+        "definition",
+        "display",
+        "explanation"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "abbreviation": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "chinese": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "english": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "kind": {
+          "enum": [
+            "concept",
+            "initialism",
+            "unit",
+            "official_name"
+          ]
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "symbol",
+              "word"
+            ],
+            "properties": {
+              "symbol": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "word": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            }
+          }
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "display": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "official_spelling": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "case_source": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "explanation": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "description": "承接定义，用连贯的自然段解释条件、作用过程、结果和具体判断，例子与容易混淆的边界写进相应段落"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "official_name"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "official_spelling",
+              "case_source"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "grounding"
+        ]
+      },
+      "then": {
+        "properties": {
+          "quiz": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "short_answer"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "minContains": 1,
+            "maxContains": 1
+          }
+        }
+      }
+    }
+  ]
+}

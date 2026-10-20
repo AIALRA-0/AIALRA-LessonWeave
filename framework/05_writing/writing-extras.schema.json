@@ -1,0 +1,277 @@
+{
+  "type": "object",
+  "properties": {
+    "summary": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question_id": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "paragraph"
+              },
+              "text": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "text"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "question_id",
+          "answer"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "pitfalls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "premise": {
+            "type": "string"
+          },
+          "question": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "paragraph"
+              },
+              "text": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "text"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "premise",
+          "question",
+          "body"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "quiz": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "single_choice"
+              },
+              "question_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "prompt": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "const": "paragraph"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "kind",
+                  "text"
+                ],
+                "additionalProperties": false
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "answer": {
+                "type": "integer"
+              },
+              "explanation": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "const": "paragraph"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "kind",
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "question_ids",
+              "prompt",
+              "options",
+              "answer",
+              "explanation"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "short_answer"
+              },
+              "question_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "prompt": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "const": "paragraph"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "kind",
+                  "text"
+                ],
+                "additionalProperties": false
+              },
+              "reference_answer": {
+                "type": "string"
+              },
+              "rubric": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "explanation": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "const": "paragraph"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "kind",
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "question_ids",
+              "prompt",
+              "reference_answer",
+              "rubric",
+              "explanation"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "bridge": {
+      "type": "object",
+      "properties": {
+        "carryover": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "premise": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "question": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "carryover",
+        "premise",
+        "question"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "summary",
+    "pitfalls",
+    "quiz",
+    "bridge"
+  ],
+  "additionalProperties": false
+}

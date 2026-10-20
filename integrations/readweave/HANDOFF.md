@@ -87,7 +87,7 @@ artifact-tree.js 提供 mountArtifactTree，用来展示四个中间阶段的真
 
 ## 1.5 阅读包怎样导入
 
-05_writing/reading-package.zip 中的 manifest.json 使用 lessonweave-reading-package-v1 格式，Schema 位于 04-framework/05_writing/reading-package.schema.json
+05_writing/reading-package.zip 中的 manifest.json 使用 lessonweave-reading-package-v1 格式，Schema 位于 framework/05_writing/reading-package.schema.json
 
 import_package 核对文件清单、路径、数量和解压大小后导入空工作区，再由 sync_project 保存到宿主，这条导入路径会重新建立实际附件与笔记对应，个人笔记不包含在阅读包中
 

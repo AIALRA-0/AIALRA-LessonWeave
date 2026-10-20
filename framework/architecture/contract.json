@@ -1,0 +1,91 @@
+{
+  "version": "0.14",
+  "direction": "TB",
+  "information_points": {
+    "status": "legacy_records_only",
+    "note": "新任务直接从材料树进入问题规划，讲解规划在 C 写作调用内生成"
+  },
+  "semantic_rules": [
+    {
+      "id": "premise-direct-link",
+      "description": "premise 必须直接引出问题，写作时执行这一要求，本轮只做格式与引用脚本检查",
+      "semantic_review": "disabled"
+    }
+  ],
+  "writing_quality": {
+    "subject_clarity": true,
+    "single_proposition": true,
+    "allow_shared_subject": true,
+    "allow_non_transitive_predicates": true,
+    "internal_reference_in_prose": false,
+    "per_sentence_extra_fields": false,
+    "language_review": "disabled",
+    "language_check": "prompt_and_batch_scripts",
+    "repair_scope": "obvious_findings_only",
+    "ambiguous_findings": "record_only",
+    "coverage_review_unchanged": false,
+    "dependency_parser": "disabled",
+    "surface_check_is_grammar_proof": false,
+    "generation_prompt": "写作前先在内部明确每个核心命题的主体、行为或状态、对象和成立条件，再写成自然语言；切换主体时写明新主体，同一主体可共享主语；操作步骤、因果解释与普遍规律分层分句；正文只引用材料内容，内部编号留在映射中；正常输出只保留既定字段和正文"
+  },
+  "status": "正式调度使用轻量 C，正文与阅读组件同次生成，末尾执行独立脚本检查，有问题时只做一轮批量修复，保留实际结果",
+  "stages": [
+    {
+      "id": "00",
+      "name": "保存材料",
+      "artifact": "00_source/source.json"
+    },
+    {
+      "id": "01",
+      "name": "解析材料树",
+      "artifact": "01_tree/tree.json"
+    },
+    {
+      "id": "02",
+      "name": "规划问题",
+      "artifact": "02_questions/questions.json"
+    },
+    {
+      "id": "03",
+      "name": "编排章节",
+      "artifact": "03_chapters/chapters.json"
+    },
+    {
+      "id": "04",
+      "name": "一次生成正文与阅读组件",
+      "artifact": "05_writing/work/sections/<section>/unit-<question>.json"
+    },
+    {
+      "id": "05",
+      "name": "并行翻译去重原句",
+      "artifact": "05_writing/translations.json"
+    },
+    {
+      "id": "06",
+      "name": "集中生成两段承接",
+      "artifact": "05_writing/work/bridges.json"
+    },
+    {
+      "id": "07",
+      "name": "独立脚本检查并批量修复",
+      "artifact": "05_writing/checks/batch-repair.json"
+    },
+    {
+      "id": "08",
+      "name": "装配阅读页面",
+      "artifact": "05_writing/book.json"
+    }
+  ],
+  "workflow": "lean-c-1.0",
+  "independent_check": {
+    "implementation": "05_writing/independent_checks.py",
+    "semantic_quality_review": false,
+    "max_batch_repair_rounds": 1,
+    "skip_repair_when_clean": true,
+    "reports": [
+      "05_writing/checks/independent-before.json",
+      "05_writing/checks/independent-after.json",
+      "05_writing/checks/batch-repair.json"
+    ]
+  }
+}

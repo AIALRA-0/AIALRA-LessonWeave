@@ -13,7 +13,7 @@ import uuid
 from .storage import Store, read, save
 
 REPO = Path(__file__).resolve().parents[1]
-READER = REPO / '04-framework/reader'
+READER = REPO / 'framework/reader'
 
 
 def public_project(project):
@@ -64,11 +64,43 @@ class Handler(SimpleHTTPRequestHandler):
 
     def body(self):
         length = int(self.headers.get('Content-Length', '0'))
-        if length > 110_000_000:
-            raise ValueError('本次上传超过 100 MB，请缩小文件后继续')
         return self.rfile.read(length)
 
+    @staticmethod
+    def media_byte_range(header, length):
+        # 浏览器按字节读取音视频，定位到实际时间时可以继续请求对应片段
+        if not header or not header.startswith('bytes=') or ',' in header:
+            return None
+        try:
+            first, last = header[6:].split('-', 1)
+            if not first:
+                amount = int(last)
+                if amount <= 0:
+                    return None
+                start, end = max(0, length - amount), length - 1
+            else:
+                start, end = int(first), min(int(last), length - 1) if last else length - 1
+            return (start, end) if 0 <= start <= end < length else None
+        except ValueError:
+            return None
+
     def file(self, path, content=None, kind=None):
+        media_mime = kind or mimetypes.guess_type(str(path))[0] or ''
+        if content is None and path.is_file() and (media_mime.startswith(('audio/', 'video/')) or path.suffix=='.wacz'):
+            length = path.stat().st_size
+            selected = self.media_byte_range(self.headers.get('Range'), length)
+            if selected:
+                start, end = selected
+                self.send_response(206)
+                self.send_header('Content-Type', media_mime)
+                self.send_header('Accept-Ranges', 'bytes')
+                self.send_header('Content-Range', f'bytes {start}-{end}/{length}')
+                self.send_header('Content-Length', str(end - start + 1))
+                self.end_headers()
+                with path.open('rb') as stream:
+                    stream.seek(start)
+                    self.wfile.write(stream.read(end - start + 1))
+                return
         if content is None:
             if not path.is_file():
                 self.send_error(404)
@@ -92,6 +124,13 @@ class Handler(SimpleHTTPRequestHandler):
         try:
             if route == '/api/health':
                 self.json({'service': 'LessonWeave', 'version': '0.1.0', 'backend': os.environ.get('LESSONWEAVE_BACKEND', 'codex'), 'model': os.environ.get('LESSONWEAVE_MODEL', 'gpt-6.1-sol')})
+            elif route == '/api/system':
+                from .system_info import snapshot
+                self.json(snapshot(self.store.root))
+            elif route.startswith('/api/projects/') and route.endswith('/generation-settings'):
+                from .generation_settings import load, MODELS
+                root = Path(self.store.project(route.split('/')[3])['path'])
+                self.json({'settings': load(root), 'models': MODELS})
             elif route == '/api/architecture':
                 from .architecture import snapshot
                 project = parse_qs(urlsplit(self.path).query).get('project', [None])[0]
@@ -119,6 +158,19 @@ class Handler(SimpleHTTPRequestHandler):
                     book = read(root/'05_writing/preview-book.json', read(root/'05_writing/book.json', {}))
                     result.append(dict(public_project(project), state=public_state(read(root/'runtime/state.json', {'status':'existing'})), title=book.get('title'), ready=bool(book) and (root/'05_writing/source-location/index.json').is_file(),readweave_available=bool(os.environ.get('LESSONWEAVE_TRILIUM_PUBLIC_URL') and project.get('native_note_id'))))
                 self.json(result)
+            elif route.startswith('/framework-example/'):
+                from .architecture import EXAMPLE
+                name = route[len('/framework-example/'):]
+                if name == 'book.html':
+                    config = {'project_id':'framework-example','base':'/framework-example','legacy':True}
+                    html = (READER/'book.html').read_text('utf-8').replace('<head>', '<head><script>window.LESSONWEAVE='+json.dumps(config)+';</script><script src="/reader-mount.js"></script>')
+                    self.file(Path(name), html.encode('utf-8'), 'text/html')
+                else:
+                    path = (EXAMPLE/name).resolve()
+                    if not path.is_relative_to(EXAMPLE.resolve()) or path.suffix in {'.py','.toml','.env'} or any(part.startswith('.') for part in Path(name).parts):
+                        self.send_error(404)
+                    else:
+                        self.file(path)
             elif route == '/api/library':
                 from .trilium import configured
                 self.json({'folders':self.store.folders(),'projects':[public_project(p) for p in self.store.projects(include_deleted=True)],'storage':'trilium' if configured() else 'local','native_root':os.environ.get('LESSONWEAVE_TRILIUM_ROOT')})
@@ -155,6 +207,17 @@ class Handler(SimpleHTTPRequestHandler):
                     self.send_header('Location',target)
                     self.send_header('Cache-Control','no-store')
                     self.end_headers()
+                elif name=='archive.html':
+                    args=parse_qs(urlsplit(self.path).query)
+                    source=args.get('source',[''])[0]
+                    archive=(root/source).resolve()
+                    if not source or not archive.is_relative_to(root) or archive.suffix!='.wacz' or not archive.is_file():
+                        self.send_error(404)
+                        return
+                    config={'source':'/p/'+parts[2]+'/'+archive.relative_to(root).as_posix(),
+                            'url':args.get('url',[''])[0], 'collection':'project-'+parts[2]+'-'+archive.parent.name}
+                    html=(READER/'archive/index.html').read_text('utf-8').replace('<head>','<head><script>window.LESSONWEAVE_ARCHIVE='+json.dumps(config).replace('<','\\u003c')+';</script>')
+                    self.file(Path('archive.html'),html.encode('utf-8'),'text/html')
                 elif name in {'book.html', 'readweave.html'}:
                     html = (REPO/'integrations/readweave/demo.html' if name=='readweave.html' else READER/'book.html').read_text('utf-8')
                     config = {'project_id': parts[2], 'base': '/p/'+parts[2], 'readweave_demo': name=='readweave.html', 'legacy': bool(project['legacy'])}
@@ -172,7 +235,7 @@ class Handler(SimpleHTTPRequestHandler):
                         self.file(path, html.encode(), 'text/html')
                     else:
                         self.file(path)
-            elif route in {'/', '/index.html', '/app.js', '/app.css', '/reader-mount.js', '/reader-integration.js', '/inspect.html', '/inspect.js','/workspace','/workspace.html','/workspace.js','/metrics.js','/workspace.css','/theme.css'}:
+            elif route in {'/', '/index.html', '/app.js', '/app.css', '/reader-mount.js', '/reader-integration.js', '/inspect.html', '/inspect.js','/workspace','/workspace.html','/workspace.js','/metrics.js','/workspace.css','/theme.css','/generation-progress.js'}:
                 self.file(REPO/'web'/('index.html' if route=='/' else 'workspace.html' if route=='/workspace' else route.lstrip('/')))
             elif route.startswith('/docs/assets/'):
                 path = (REPO/route.lstrip('/')).resolve()
@@ -183,6 +246,18 @@ class Handler(SimpleHTTPRequestHandler):
             elif route.startswith('/integrations/readweave/'):
                 path=(REPO/route.lstrip('/')).resolve()
                 if path.is_relative_to(REPO/'integrations/readweave') and path.suffix in {'.js','.css'}:
+                    self.file(path)
+                else:
+                    self.send_error(404)
+            elif route.startswith('/archive/'):
+                path=(READER/route.lstrip('/')).resolve()
+                if path.is_relative_to((READER/'archive').resolve()) and path.is_file():
+                    self.file(path)
+                else:
+                    self.send_error(404)
+            elif route.startswith('/media-vendor/'):
+                path = (READER/route.lstrip('/')).resolve()
+                if path.is_relative_to((READER/'media-vendor').resolve()) and path.is_file():
                     self.file(path)
                 else:
                     self.send_error(404)
@@ -217,6 +292,10 @@ class Handler(SimpleHTTPRequestHandler):
             if route == '/api/folders':
                 from .trilium import create_folder
                 self.json(create_folder(self.store,self.store.clean_name(payload.get('name')),payload.get('parent_id','root')),201)
+            elif route.startswith('/api/projects/') and route.endswith('/generation-settings'):
+                from .generation_settings import update
+                root = Path(self.store.project(route.split('/')[3])['path'])
+                self.json({'settings': update(root, payload)})
             elif route.startswith('/api/library/'):
                 from .trilium import change
                 parts=route.split('/')

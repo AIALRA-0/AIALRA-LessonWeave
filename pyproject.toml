@@ -3,7 +3,14 @@ name = "lessonweave"
 version = "0.1.0"
 description = "Build source-grounded learning books with independent agent tasks"
 requires-python = ">=3.11"
-dependencies = ["jsonschema>=4.23", "requests>=2.32", "beautifulsoup4>=4.13", "PyMuPDF>=1.26", "playwright>=1.54", "tree-sitter-language-pack>=1.22", "markdown-it-py>=3", "Pillow>=11"]
+dependencies = ["jsonschema>=4.23", "requests>=2.32", "beautifulsoup4>=4.13", "PyMuPDF>=1.26", "playwright>=1.54", "tree-sitter-language-pack>=1.22", "markdown-it-py>=3", "Pillow>=11", "warcio==1.7.5", "packaging>=24", "Pygments>=2.19", "json-repair>=0.64.1,<1", "tiktoken>=0.12"]
+
+[project.optional-dependencies]
+pdf = ["docling==2.139.0", "transformers==4.57.6", "numpy==1.26.4", "pandas==2.2.3", "onnxruntime==1.26.0", "scipy==1.15.3", "opencv-python-headless==4.11.0.86"]
+test = ["pytest>=8.4"]
+
+[tool.setuptools.packages.find]
+include = ["lessonweave*"]
 
 [project.scripts]
 lessonweave = "lessonweave.__main__:main"

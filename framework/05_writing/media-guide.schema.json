@@ -1,0 +1,81 @@
+{
+  "type": "object",
+  "properties": {
+    "reading_guide": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "components": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "math_label": {
+            "type": "boolean"
+          },
+          "explanation": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "required": [
+          "label",
+          "math_label",
+          "explanation"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "explanation": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "formula": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "text",
+          "formula"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "takeaway": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    }
+  },
+  "required": [
+    "reading_guide",
+    "components",
+    "explanation",
+    "takeaway"
+  ],
+  "additionalProperties": false
+}

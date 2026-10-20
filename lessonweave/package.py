@@ -75,7 +75,7 @@ def export_package(root, output=None):
                 'files': sorted(p.relative_to(root).as_posix() for p in paths),
                 'user_data_included': False}
     save(output / 'reading-package.json', manifest)
-    schema=read(Path(__file__).resolve().parents[1]/'04-framework/05_writing/reading-package.schema.json')
+    schema=read(Path(__file__).resolve().parents[1]/'framework/05_writing/reading-package.schema.json')
     jsonschema.validate(manifest,schema)
     destination = output / 'reading-package.zip'
     def portable(value):
@@ -107,7 +107,7 @@ def import_package(archive_path, destination):
         manifest = json.loads(archive.read('manifest.json'))
         if manifest.get('profile') != 'lessonweave-reading-package-v1':
             raise ValueError('阅读包版本尚未支持')
-        schema=read(Path(__file__).resolve().parents[1]/'04-framework/05_writing/reading-package.schema.json')
+        schema=read(Path(__file__).resolve().parents[1]/'framework/05_writing/reading-package.schema.json')
         jsonschema.validate(manifest,schema)
         allowed = set(manifest['files']) | {'manifest.json'}
         if len(archive.infolist())>25000 or sum(item.file_size for item in archive.infolist())>1_500_000_000:

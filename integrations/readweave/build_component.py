@@ -4,7 +4,7 @@ import json
 import re
 
 ROOT=Path(__file__).resolve().parents[2]
-READER=ROOT/'04-framework/reader'
+READER=ROOT/'framework/reader'
 HERE=Path(__file__).parent
 
 

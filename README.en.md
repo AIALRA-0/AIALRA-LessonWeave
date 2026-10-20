@@ -1,135 +1,89 @@
 <div align="center">
-<h1>LessonWeave</h1>
-<p><strong>Turn web pages, papers and code into progressive learning books that stay connected to their sources</strong></p>
-<p>0.1.0 preview · Personal self-hosting · Native Codex CLI · AGPL-3.0</p>
-<p><a href="README.md">简体中文</a> · <a href="#2-get-started">Get started</a> · <a href="docs/architecture.md">Architecture</a> · <a href="integrations/readweave/HANDOFF.md">ReadWeave integration</a> · <a href="docs/deployment.md">Deployment</a></p>
+<h1 align="center">LessonWeave</h1>
+<p><strong>Turn webpages, PDFs and repositories into source-grounded Chinese learning books</strong></p>
+<p>Personal self-hosting · Lightweight C workflow · AGPL-3.0</p>
+<p><a href="README.md">简体中文</a> · <a href="#2-how-to-start">Quick start</a> · <a href="framework/05_writing/lean-flow.md">Core workflow</a> · <a href="docs/deployment.md">VPS deployment</a></p>
 </div>
 
 <div align="center">
-<img src="docs/assets/lessonweave.svg" width="1200" alt="Three source threads weaving into a LessonWeave learning path">
-<p><sub>Figure 1.1　Brand illustration showing different materials entering one learning workflow</sub></p>
+<img src="docs/assets/workbench.png" width="1200" alt="A real workbench using a self-authored bird survey example, with projects, source material and explanations">
+<p><sub>Figure 1.1　The reading workbench uses self-authored demonstration material</sub></p>
 </div>
 
-## 1 Follow the material toward understanding
+## 1 What the workflow does
 
-Provide a web page, PDF or project ZIP, LessonWeave preserves the material and local resources, builds a question tree and chapters, then writes each learning unit with direct links to the original sentences, figures and code
+Submit a webpage, PDF or project ZIP. LessonWeave preserves the originals, builds a material tree, plans questions and chapters, then writes explanations, independent media guides, exercises and terminology. Readers can return to original sentences, pages or source-code ranges and keep their notes
 
-Writing and review use independent Sol contexts, each information point links to actual explanation blocks, coverage is recalculated by code, and unsuccessful versions retain their real review status and complete previews
+The C workflow plans multiple explanation items and writes multiple explanation groups within the same call for each question. Scripts then check fields, format and source references. Concrete findings trigger one batch repair round; AI semantic quality review stays disabled
 
-<div align="center">
-<img src="docs/assets/workbench.png" width="1200" alt="Actual LessonWeave workspace with a folder tree and source comparison using a self-authored bird-count example">
-<p><sub>Figure 1.2　The running workspace brings folders, source pages, translations, explanations and terms together</sub></p>
-</div>
+## 2 How to start
 
-<div align="center">
-<p>Table 1.1　Ways to continue understanding while reading</p>
-
-| Task | Support |
-|---|---|
-| Follow a learning sequence | Questions are assigned exactly once to chapters |
-| Compare with the source | Original pages, translations, figures and code ranges stay beside explanations |
-| Look up a term | Hovering a registered term opens its glossary entry |
-| Trace an explanation | Source markers locate original sentences, regions or lines |
-| Reflect and practice | One note field per complete unit, with exercises and feedback |
-| Manage learning projects | Choose a folder, rename or move projects, and restore items from trash |
-| Control generation | Follow actual stage progress, stop processes and resume completed work |
-| Read in ReadWeave | Store native Trilium notes and attachments, and compare sources through renderNote |
-
-</div>
-
-The views use actual generated data, source code and runtime materials are stored separately, the public repository contains implementation and self-authored examples
-
-## 2 Get started
-
-Use Python 3.11 or newer and a signed-in Codex CLI with access to the selected model
-
-- First, create an isolated environment and install dependencies from the repository root
+Prepare Python 3.11+, Node.js 20+ and a usable Codex CLI login. Web archival also needs Docker. English-to-Chinese translation reads the official DeepSeek key from AIALRA_DEEPSEEK_OFFICIAL_KEY
 
 ```bash
-# Linux or macOS: install project-local dependencies
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-.venv/bin/python -m playwright install chromium
+# Download the source and run the cross-platform installer
+ git clone https://github.com/AIALRA-0/AIALRA-LessonWeave.git
+ cd AIALRA-LessonWeave
+ python deploy/bootstrap.py
 ```
 
-```powershell
-# Windows: use the project's Python environment
-python -m venv .venv
-.venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe -m playwright install chromium
-```
+Windows, Linux and macOS use this Python entry point. It creates an isolated environment, installs the PDF parser and browser, then starts http://127.0.0.1:8960/workspace. Use codex login for first-time authentication. Data defaults to .lessonweave under the user's home directory
 
-- Next, sign in with the official CLI, the default model is `gpt-6.1-sol` with `high` reasoning
+On an Ubuntu or Debian VPS, run this inside the checkout
 
 ```bash
-# The official CLI keeps login credentials outside this repository
-codex login
+# Install the system service, then configure the authenticated reverse proxy
+sudo bash deploy/install-vps.sh
 ```
 
-- Finally, start the workspace with the Python environment containing the dependencies
+Generation consumes the execution account's model allowance. Keep credentials outside source control. Login, translation credentials, owner and domain configuration are described in the [deployment guide](docs/deployment.md)
 
-```bash
-# Run from the activated project environment
-.venv/bin/python -m lessonweave serve --port 8960
-```
-
-On Windows, start with `.venv\Scripts\python.exe -m lessonweave serve --port 8960`
-
-Open `http://localhost:8960/workspace`, choose or create a folder, select Generate Book, then submit a web page, PDF or project ZIP, task cards show actual progress and processing continues after closing the page
-
-The tree supports search, folding, renaming, moving, trash and restoration, stopping a task terminates its model and parsing processes while keeping completed stages, usage receipts and notes
-
-Production deployments require personal authentication and an owner restriction, model calls consume your Codex allowance, see [deployment](docs/deployment.md) for permissions and backups
-
-## 3 Follow one complete generation
+## 3 How generation progresses
 
 <div align="center">
 
 ```mermaid
 flowchart TD
-    Source[Web page, PDF or project ZIP] --> Acquire[00 Preserve materials and assets]
-    Acquire --> Tree[01 Build the material tree]
-    Tree --> Questions[02 Plan learning questions]
-    Questions --> Chapters[03 Arrange chapters by prerequisites]
-    Chapters --> Bridges[04 Plan transitions]
-    Bridges --> Writing[05 Independent writing and centralized review]
-    Writing --> Check{Checks passed}
-    Check -->|Yes| Reading[Save the reading version]
-    Check -->|Revision needed| Batch[Batch repair within the round limit]
-    Batch --> Writing
-    Reading --> Preview[Website reader and ReadWeave component]
+    A[Preserve originals and assets] --> B[Parse the full material tree]
+    B --> C[Plan chapter zero and content questions]
+    C --> D[Plan chapters independently]
+    D --> E[Plan and write each question in one call]
+    D --> T[Deduplicate and translate in parallel]
+    E --> F[Generate bridges from actual answers]
+    T --> F
+    F --> G[Check fields, format and references with scripts]
+    G --> H[Run one batch repair only for concrete findings]
+    H --> I[Assemble reader, source locations and reading package]
 ```
 
-<p><sub>Figure 3.1　Scripts schedule the stages, agents handle semantic work, revisions target affected units after centralized checks</sub></p>
+<p><sub>Figure 3.1　Writing and translation run concurrently, terminology is generated with writing, and scripts assemble the reader</sub></p>
 </div>
 
-Drafting is round 0, repairs default to three rounds and are capped at four, durable task identifiers prevent duplicate submissions and completed requests with identical inputs are reused
+A vertical stage list and its detail panel show completed units, active calls, waiting work, elapsed time and saved records on one page. Refreshing or reopening the page reads the same persistent background job
 
-See [usage](docs/usage.md) for direct input-file execution and [04-framework](04-framework) for stage implementations and contracts
+Defaults are Sol high for planning and writing with 144 writing slots; Flash without reasoning with 12 translation slots; bridges in batches of 16 sections with 7 slots; repair with 3 slots. Existing senses reuse the full definition, everyday analogy and short generic example; special senses remain separate. See the [C workflow](framework/05_writing/lean-flow.md)
 
-## 4 Hand results to ReadWeave
+## 4 Where the core harness lives
 
-<div align="center">
-<img src="docs/assets/reader.png" width="1200" alt="Native Trilium tree and LessonWeave reader inside an isolated ReadWeave instance using a self-authored bird-count example">
-<p><sub>Figure 4.1　The reader runs in a real Trilium host, chapters and resources use native notes and attachments</sub></p>
-</div>
+- lessonweave/planning.py schedules question and independent chapter planning, includes chapter zero in the first pass, and supplements only actual missing assignments
+- lessonweave/lean.py schedules writing, translation, bridges and assembly
+- framework/00_source through framework/05_writing contain parsers, schemas, prompts and checks
+- framework/reader and web contain the reader, progress display and system information
+- deploy contains local and VPS installation entry points; tests contains regression checks that do not consume model allowance
 
-The Trilium adapter uses ETAPI for projects, chapters and version attachments, renderNote mounts the reader, personal notes use authenticated host APIs, native text chapters reuse ReadWeave's existing question-answer interface
+Private materials, model logs, credentials, notes, experimental archives and machine configuration are excluded from the public repository
 
-Mounting, attachments, native chapters and note round trips were verified in an isolated TriliumNext 0.104.0 ReadWeave instance, the production maintainer owns deployment, see the [handoff guide](integrations/readweave/HANDOFF.md) for configuration and verification boundaries
+## 5 How to verify and maintain
 
-## 5 Validate results and protect data
+```bash
+# Install test dependencies and verify core behavior
+python -m pip install -e '.[test]'
+python -m pytest
+```
 
-- `python -m pytest` checks input validation, deduplication, recovery, notes, independent requests, repair limits and package import
-- `tests/check_pages.py` checks the running workspace and readers in an isolated browser and saves screenshots
-- `tests/check_workspace.py` exercises folder operations, themes, narrow screens and character-level source highlighting through actual APIs without model calls
-- Stage checks, independent reviews, source snapshots and usage receipts remain in each project's runtime directory
-- Debug is off during normal reading, preview versions retain their actual status and stage inspection exposes detailed records
+Coverage counts actual material dispositions and explanation source references. Source locations separately record exact, ambiguous and unavailable results. PDF equations retain original images, and third-party video offline playback can still have gaps
 
-Code is public, accounts, original materials, model logs and personal notes remain private, keep API keys and CLI login directories outside the repository, see [SECURITY.md](SECURITY.md) for reporting
+Export a reading package or connect through the [ReadWeave adapter](integrations/readweave/HANDOFF.md) to Trilium. Back up persistent data and the database before deployment
 
-## 6 Contribute and check the license
+Use self-authored reproductions in this repository's Issues and remove private text and model logs. See [SECURITY.md](SECURITY.md), [LICENSE](LICENSE) and [NOTICE](NOTICE)
 
-Use repository Issues for problems and suggestions, reproduce with self-authored materials and remove credentials, private sources and raw call logs
-
-Licensed under [GNU AGPL v3](LICENSE), dependencies and provenance are listed in [NOTICE](NOTICE), this repository owns the shared reader and generation framework, the ReadWeave maintainer owns its deployment and application changes

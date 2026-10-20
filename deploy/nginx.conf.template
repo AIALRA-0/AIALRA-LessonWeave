@@ -11,7 +11,7 @@ server {
     server_name __DOMAIN__;
     ssl_certificate /etc/letsencrypt/live/__DOMAIN__/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/__DOMAIN__/privkey.pem;
-    client_max_body_size 105m;
+    client_max_body_size 0;
     include __AUTH_ENDPOINTS__;
     location / {
         include __AUTH_PROTECT__;

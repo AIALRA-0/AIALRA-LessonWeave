@@ -1,0 +1,8 @@
+{
+  "writing_calls": 144,
+  "translation_calls": 12,
+  "translation_bytes": 24000,
+  "bridge_calls": 7,
+  "bridge_batch_sections": 16,
+  "repair_calls": 3
+}

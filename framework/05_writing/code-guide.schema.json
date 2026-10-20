@@ -1,0 +1,295 @@
+{
+  "type": "object",
+  "properties": {
+    "line_annotations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "line_start": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "line_end": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "sentence": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "required": [
+          "line_start",
+          "line_end",
+          "role",
+          "sentence"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "overview": {
+      "type": "object",
+      "properties": {
+        "premise": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "action": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "result": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "premise",
+        "action",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "line_start": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "line_end": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "title_premise": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "title_question": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "overview": {
+            "type": "object",
+            "properties": {
+              "premise": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "action": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "result": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            },
+            "required": [
+              "premise",
+              "action",
+              "result"
+            ],
+            "additionalProperties": false
+          },
+          "components": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "line_start": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "line_end": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "owner": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "kind": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "type": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "default": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "purpose": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              },
+              "required": [
+                "line_start",
+                "line_end",
+                "owner",
+                "name",
+                "kind",
+                "type",
+                "default",
+                "purpose"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "core_logic": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "line_start": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "line_end": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "explanation": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "example": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "line_start",
+                "line_end",
+                "explanation",
+                "example"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "takeaway": {
+            "type": "object",
+            "properties": {
+              "conclusion": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "relation_to_whole": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            },
+            "required": [
+              "conclusion",
+              "relation_to_whole"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "line_start",
+          "line_end",
+          "id",
+          "title_premise",
+          "title_question",
+          "overview",
+          "components",
+          "core_logic",
+          "takeaway"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "answer": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "collaboration": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "answer",
+        "collaboration"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "line_annotations",
+    "overview",
+    "segments",
+    "summary"
+  ],
+  "additionalProperties": false
+}

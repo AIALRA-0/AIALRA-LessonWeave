@@ -1,0 +1,145 @@
+{
+  "type": "object",
+  "properties": {
+    "new_titles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "parent_title_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "after_title_id": {
+            "type": "string"
+          },
+          "title": {
+            "$ref": "#/$defs/title"
+          }
+        },
+        "required": [
+          "parent_title_id",
+          "after_title_id",
+          "title"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "title_updates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/title"
+      }
+    },
+    "question_assignments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "question_id",
+          "title_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "child_orders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "parent_title_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "child_title_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "parent_title_id",
+          "child_title_ids"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "new_titles",
+    "title_updates",
+    "question_assignments",
+    "child_orders"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "title": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "premise",
+        "question",
+        "focus",
+        "question_ids",
+        "children"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "kind": {
+          "enum": [
+            "book",
+            "chapter",
+            "section"
+          ]
+        },
+        "premise": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^\\r\\n？?]+$"
+        },
+        "question": {
+          "type": "string",
+          "pattern": "^[^\\r\\n？?]+？$"
+        },
+        "focus": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "question_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "uniqueItems": true
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/title"
+          }
+        }
+      }
+    }
+  }
+}

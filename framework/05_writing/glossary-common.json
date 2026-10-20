@@ -1,0 +1,1554 @@
+{
+  "version": 1,
+  "source": "Sol high 共通定义、生活类比与简短通用实例，现有三段完整保留",
+  "entries": [
+    {
+      "key": "generic-v1-1",
+      "term": {
+        "chinese": "缓存",
+        "english": "Cache",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "缓存是一种通过保存并复用数据或计算结果来降低访问或计算开销的机制",
+          "differentia": "它把后续可能使用的内容保存在获取成本较低的位置，并按照一定规则决定何时读取、更新或移除这些内容，既可由硬件实现，也可由软件实现",
+          "boundary": "缓存中的数据不一定比后备存储旧：采用写回方式时，修改可以先保存在缓存中，稍后才写入后备存储，因此同步前缓存可能保存较新的值；能否读到符合要求的数据，取决于具体的更新与协调规则",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解这种就近保存和复用的机制，可以想象你把经常查阅的资料从文件柜取出，放在手边的桌面上",
+          "mapping": "桌面对应缓存，文件柜对应后备存储；直接翻看桌上的资料可以省去反复开柜查找的时间，而桌面空间有限，也需要整理和替换资料",
+          "intuition": "如果你先修改桌上的资料，过一会儿才把修改后的版本放回柜中，那么这段时间桌上的内容反而更新，这就对应写回时缓存与后备存储的数据新旧关系",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "某存储系统采用写回缓存，同一位置在缓存和后备存储中起初都保存数值5",
+          "mechanism": "系统把缓存中的数值改成6，暂时没有更新后备存储；接下来读取该缓存位置时得到6，等到这项内容需要移出缓存时，再把6写入后备存储",
+          "outcome": "最终两处都保存6，而在写回发生之前，缓存保存的是新值，后备存储保存的是旧值",
+          "extension": null
+        },
+        "id": "generic-1",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-2",
+      "term": {
+        "chinese": "数字对象标识符",
+        "english": "Digital Object Identifier",
+        "abbreviation": "DOI",
+        "professional_definition": {
+          "genus": "数字对象标识符是按照DOI体系分配和管理、用于持久识别对象的标识符",
+          "differentia": "它通过受管理的登记信息关联对象及其访问位置，使对象的位置发生变化时，可以更新关联信息而继续使用原来的标识符；被标识的对象可以是论文、数据集或其他实体与资源",
+          "boundary": "DOI标识对象，解析服务则依据登记信息引导用户访问相关位置；持久可用需要相关机构持续维护，拥有DOI本身不保证对象始终可访问、任何人都有读取权限，也不证明内容质量可靠",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解这种把对象身份和访问位置分开的做法，可以想象图书馆给一本书分配了长期使用的馆藏编号",
+          "mapping": "编号对应DOI，书对应被标识的对象，查询系统记录的书架位置对应DOI关联的访问位置；书换了书架，管理员更新位置记录，读者仍能用原编号查询",
+          "intuition": "编号帮助读者认出并寻找这本书，但不能保证它此刻可以借阅，也不能证明书中的内容正确；同样，DOI的识别作用需要与访问权限和内容质量分别判断",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "一篇论文已经获得DOI，读者通过该DOI进入出版社的论文页面",
+          "mechanism": "出版社更换网站后，把DOI登记信息中的目标地址更新为新页面，论文继续使用原来的DOI",
+          "outcome": "读者再次使用同一个DOI时会被引导到新位置，但能否阅读全文仍取决于页面是否提供访问以及读者是否具备相应权限",
+          "extension": null
+        },
+        "id": "generic-2",
+        "aliases": [],
+        "kind": "initialism",
+        "components": [
+          {
+            "symbol": "D",
+            "word": "Digital"
+          },
+          {
+            "symbol": "O",
+            "word": "Object"
+          },
+          {
+            "symbol": "I",
+            "word": "Identifier"
+          }
+        ],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-3",
+      "term": {
+        "chinese": "递归",
+        "english": "Recursion",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "递归是一种通过同类对象之间的依赖来定义对象或解决问题的方法",
+          "differentia": "在递归求解中，当前问题的处理会依赖对同类子问题应用同一套规则，程序中通常表现为一个过程直接或间接调用自身",
+          "boundary": "要让一次递归求解在有限步骤内结束，必须设置能够直接处理的终止情形，并让每条继续展开的求解路径最终到达它；仅仅写出终止条件并不能保证终止，普通的反复执行也不一定构成递归",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解这种把同一套规则继续用在子问题上的方法，可以想象你打开一个盒子，发现里面还装着较小的盒子",
+          "mapping": "规则是：如果盒子里还有盒子，就继续用同样的方法打开里面的盒子；如果已经没有内盒，就停下来处理眼前的物品；每个内盒对应同类子问题，没有内盒的情况对应终止情形",
+          "intuition": "当盒子的层数有限，而且每次都向内走一层时，操作就会结束；如果一直重新打开同一个盒子，即使规则写了何时停止，也可能永远走不到那一步",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "一个程序要数出某个文件夹及其所有下级文件夹中的文件数，文件夹层级有限，也没有指回上级的链接",
+          "mechanism": "程序先数当前文件夹里的文件，再对每个下级文件夹调用同样的计数过程，并把返回的数量相加；遇到没有下级文件夹的地方，就直接返回其中的文件数",
+          "outcome": "计算沿文件夹层级逐层深入，再逐层返回，最终得到全部文件数，因为每次深入都更接近没有下级文件夹的终止情形，所以这次求解能够结束",
+          "extension": null
+        },
+        "id": "generic-3",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-4",
+      "term": {
+        "chinese": "置信区间",
+        "english": "Confidence Interval",
+        "abbreviation": "CI",
+        "professional_definition": {
+          "genus": "置信区间是频率学派统计推断中，根据样本并按照指定规则构造的、用于估计总体固定参数的区间",
+          "differentia": "在模型和抽样条件成立时，如果反复抽样并用同一规则构造区间，那么这些随机区间覆盖真实参数的长期比例等于或至少达到所声明的置信水平；对于近似方法，覆盖率则近似达到该水平",
+          "boundary": "这里固定的是待估计参数，随抽样变化的是区间；样本一旦确定，算出的区间是否包含真实参数也已经确定，95%置信水平不能直接解释为这个固定参数有95%的概率落在此次区间内",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解这种固定目标与随机范围的关系，可以想象你反复测量同一根木条，并在每次测量后画出一个估计其真实长度的范围",
+          "mapping": "木条的真实长度对应固定参数，测量结果受误差影响，每次画出的范围便可能不同；如果画范围的方法经过适当校准，长期来看就能让规定比例的范围罩住真实长度",
+          "intuition": "95%描述的是这种方法反复使用时罩住目标的比例；当某一次的范围已经画好时，它要么罩住真实长度，要么没有罩住，木条的真实长度不会因此变成随机移动的目标",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "一家工厂想估计某批电池的平均续航时间，随机抽取一部分电池测试，并采用适用条件已经满足的95%置信区间方法",
+          "mechanism": "工作人员根据这次样本算出9.7小时到10.3小时的区间；如果重新随机抽样并重复计算，得到的区间端点通常会变化，而这批电池的真实平均续航时间保持不变",
+          "outcome": "这次结果提供了一个估计范围，其95%的含义来自所用方法在重复抽样中的覆盖表现，不能据此断言真实平均续航时间有95%的概率处在9.7小时到10.3小时之间",
+          "extension": null
+        },
+        "id": "generic-4",
+        "aliases": [],
+        "kind": "initialism",
+        "components": [
+          {
+            "symbol": "C",
+            "word": "Confidence"
+          },
+          {
+            "symbol": "I",
+            "word": "Interval"
+          }
+        ],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-6",
+      "term": {
+        "chinese": "隐喻",
+        "english": "Metaphor",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "隐喻是一种借助一个事物或经验领域来理解、组织或表达另一个事物或经验领域的方式",
+          "differentia": "它把前者的某些特征、关系或结构映射到后者，使人能够据此理解目标对象，既可形成日常思维中的概念关系，也可出现在文学表达中",
+          "boundary": "隐喻不要求两个对象在所有方面相同；与明确把两者作为比较对象的明喻相比，隐喻通常直接借一方来表述或组织另一方，但具体判断仍需结合语义和语境，不能只机械地检查是否出现“像”字",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解这种借熟悉事物看待另一事物的方式，可以想象你戴着有色眼镜观察一间房",
+          "mapping": "房间对应正在理解的对象，镜片对应借来的概念或形象；镜片让某些颜色更明显，就像隐喻让目标对象的某些特征和关系更突出",
+          "intuition": "房间并没有变成镜片，目标对象也没有真的变成被借用的事物；这种观察方式帮助人抓住特定方面，同时也可能使其他方面不那么显眼",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "讨论新方案时，一位成员认为某个想法还很初步，但值得继续发展",
+          "mechanism": "他说“这个想法还是一颗种子”，借种子需要适当条件才能生长的关系，表达想法需要时间、资源和照料才能成熟",
+          "outcome": "听者据此理解了想法的潜力和当前状态，而不会认为想法真的具有植物的身体；这句话直接借种子表达想法，构成隐喻",
+          "extension": null
+        },
+        "id": "generic-6",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-7",
+      "term": {
+        "chinese": "机会成本",
+        "english": "Opportunity Cost",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "机会成本是在资源有限、必须作出选择时，选择某个方案所放弃的最佳可行替代方案的价值",
+          "differentia": "确定它需要找出因当前选择而无法实施的其他可行方案，并以其中价值最高的一个作为比较对象；这种价值可以包括金钱，也可以包括时间用途、体验或其他收益",
+          "boundary": "机会成本不是所有被放弃方案的价值之和，也不等同于已经支付的费用；比较时需要保持资源约束和价值衡量口径一致，无法实际选择的方案不应作为最佳替代方案",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解这种因选择而放弃的价值，可以想象你只有一个空闲晚上，可以看电影、见朋友或参加一堂课，三件事无法兼顾",
+          "mapping": "这个晚上对应有限资源，三种安排对应可行方案；如果你选择看电影，就要在另外两种安排中找出你更看重的一种",
+          "intuition": "假如见朋友比上课更有价值，那么看电影的机会成本就是放弃见朋友的价值，无须把见朋友和上课的价值相加，因为你原本也只能选其中一项",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "一家小作坊当天只能接一笔订单，订单甲、乙、丙在扣除各自直接支出后，分别能带来500元、400元和250元，其他条件相同",
+          "mechanism": "作坊选择订单甲，因此无法再接乙或丙；在两个被放弃的可行订单中，乙能带来的净收益最高",
+          "outcome": "按净收益衡量，选择订单甲的机会成本为400元，而不是把乙和丙相加得到650元",
+          "extension": null
+        },
+        "id": "generic-7",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-8",
+      "term": {
+        "chinese": "边际成本",
+        "english": "Marginal Cost",
+        "abbreviation": "MC",
+        "professional_definition": {
+          "genus": "边际成本是产出增加时，相关总成本随之增加的程度",
+          "differentia": "在按件计量的情形中，它通常指额外生产一个单位所引起的总成本增量；在把产量视为连续变化的模型中，它指总成本相对于产量的瞬时变化率",
+          "boundary": "边际成本取决于当前产量及相应的生产条件，不等于总成本除以总产量得到的平均成本，也不等于新增产品的售价；如果增产需要额外设备或人手，这些变化也会影响相应的成本增量",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解这种只考察增产所带来变化的做法，可以想象你已经准备好一篮野餐食物，现在决定再做一份三明治",
+          "mapping": "篮中原有食物对应已经达到的产量，再做一份对应增加一个单位；因此需要多用的面包、馅料和制作时间，便对应这一步增加的成本",
+          "intuition": "判断这份新增食物的成本时，要看它使原有安排多付出了什么；如果现有材料刚好用完，还需要专门出门采购，那么这一步的额外成本也会随之变化",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "一家面包店生产100个面包的总成本为500元，现有设备和人手足以再生产一个",
+          "mechanism": "店员算出生产第101个面包需要额外花费3元，因此生产101个面包的总成本变为503元",
+          "outcome": "从100个增加到101个时，这一个面包的边际成本是3元，也就是503元与500元之间的差额",
+          "extension": null
+        },
+        "id": "generic-8",
+        "aliases": [],
+        "kind": "initialism",
+        "components": [
+          {
+            "symbol": "M",
+            "word": "Marginal"
+          },
+          {
+            "symbol": "C",
+            "word": "Cost"
+          }
+        ],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-9",
+      "term": {
+        "chinese": "通货膨胀",
+        "english": "Inflation",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "通货膨胀是一种总体价格水平持续上升的经济现象",
+          "differentia": "它表现为一个经济体中具有代表性的商品和服务在一段时间内总体变贵，因此同样数量的货币平均能够买到的东西减少",
+          "boundary": "判断时要看一组商品和服务的价格及其持续变化，不能把某一种商品涨价、所有商品必须同时涨价，或价格已经很高但不再上涨，都当作通货膨胀的必要表现",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解这种总体变化，可以想象你每个月都去同一家商店，买内容和数量相同的一篮子日用品",
+          "mapping": "如果这一篮子东西在较长一段时间里总体越来越贵，就像通货膨胀使一笔固定的钱能买到的东西越来越少；其中某件东西偶尔降价，也不妨碍整篮子的价格上升",
+          "intuition": "关键是购买一组日常所需物品的花费持续增加，而判断整个经济体时，还需要观察比这一篮子更广泛的商品和服务",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "沿着比较同一组东西的思路，假设一个地区持续记录当地家庭常买的食品、衣物、交通和其他服务的价格，并保持比较的内容与数量一致",
+          "mechanism": "一年中，这组商品和服务的总花费从每月一千元逐步升到一千零五十元，虽然其中个别项目有所降价",
+          "outcome": "如果这组项目能够代表当地的日常购买情况，这种总体花费的持续上升就体现了当地的通货膨胀",
+          "extension": null
+        },
+        "id": "generic-9",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-10",
+      "term": {
+        "chinese": "供求均衡",
+        "english": "Market Equilibrium",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "供求均衡是一种市场状态",
+          "differentia": "在消费者偏好、收入、生产条件等给定的情况下，买方愿意且能够购买的数量，恰好等于卖方愿意且能够出售的数量，两者对应同一个价格",
+          "boundary": "这种相等针对特定市场和条件下的计划购买量与计划出售量，不只是已经成交的买卖数量相等，也不表示价格永远不变或交易结果对每个人都最有利",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解这种状态，可以想象早餐摊在某个价格下准备卖包子，顾客也按这个价格决定各买多少",
+          "mapping": "摊主愿意卖出的总数对应供给量，顾客愿意且买得起的总数对应需求量；当两边的数量正好对上，就像供求均衡时，卖方的出售计划与买方的购买计划能够相互配合",
+          "intuition": "在这些条件保持不变时，市场不会因为计划买得比卖得多或卖得比买得多，而产生进一步调整价格的压力",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "把两边的计划具体列出来，假设一个小市场出售同一种苹果，在每斤五元时，卖方当天愿意出售一百斤，买方当天愿意且能够购买的总量也是一百斤",
+          "mechanism": "双方按这个价格进行交易，卖方计划出售的苹果正好满足买方计划购买的数量",
+          "outcome": "每斤五元和一百斤就构成这些给定条件下的一组供求均衡价格与数量",
+          "extension": null
+        },
+        "id": "generic-10",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-11",
+      "term": {
+        "chinese": "生态系统",
+        "english": "Ecosystem",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "生态系统是生物群落与其所处的非生物环境共同构成的相互作用系统",
+          "differentia": "其中，不同生物彼此影响，也与水、空气、土壤、光照等环境条件相互影响，使能量在系统中传递，物质在生物与环境之间转移和循环",
+          "boundary": "生态系统不能仅指一群生物或一处环境，其范围可以根据研究问题划定，而且通常与外界交换能量和物质，并非必须封闭或始终保持稳定",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解这些相互联系，可以想象一座有人照料的院落：住户、供水、排水、房屋和日照共同影响院子里的生活",
+          "mapping": "住户之间的活动对应生物之间的联系，供水和日照等条件对应非生物环境；住户会受这些条件影响，也会通过用水和改造院子反过来改变环境",
+          "intuition": "观察生态系统时，同样需要把成员、环境以及双方的影响一起看，才能理解这个整体如何运作",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "以一个具体的整体来看，一处小池塘里有水草、小鱼和能分解落叶的微小生物，也有池水、泥沙和照到水面的阳光",
+          "mechanism": "水草利用阳光生长并释放氧气，小鱼的活动消耗氧气，落叶被分解后，其中的物质又进入池水和泥沙，供水草继续利用",
+          "outcome": "这些生物与池塘环境通过相互影响形成了一个生态系统，理解池塘的变化需要同时考虑它们之间的联系",
+          "extension": null
+        },
+        "id": "generic-11",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-12",
+      "term": {
+        "chinese": "光合作用",
+        "english": "Photosynthesis",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "光合作用是生物利用光能合成有机物的过程，这里主要讨论植物进行的光合作用",
+          "differentia": "植物通过能够吸收光的结构获取光能，以二氧化碳和水为原料合成糖等有机物，并释放氧气，使吸收的部分光能转变为储存在有机物中的能量",
+          "boundary": "这一过程既需要适合的光照，也受原料供应等条件限制；它不等于根吸收水和矿物质，也不意味着植物只有在白天才会消耗自身储存的有机物",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解这种制造和储能过程，可以把叶片想成一间由太阳提供动力的小作坊",
+          "mapping": "光为作坊提供能量，二氧化碳和水是进入作坊的原料，糖等有机物是制成并储存能量的产品，氧气则随过程释放出来",
+          "intuition": "因此，光的作用是提供制造所需的能量，植物身体增加的物质还需要来自实际进入植物的原料",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "把这间小作坊放回植物身上，一株水分充足的豆苗在晴天展开绿叶，叶片能够接触空气中的二氧化碳",
+          "mechanism": "叶片吸收光能，利用二氧化碳和根部送来的水合成糖，同时释放氧气",
+          "outcome": "豆苗获得了可以用于生长或储存的有机物，部分光能也随之储存在这些有机物中",
+          "extension": null
+        },
+        "id": "generic-12",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-13",
+      "term": {
+        "chinese": "食物链",
+        "english": "Food Chain",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "食物链是按照生物之间的摄食关系排列成的一条传递路径",
+          "differentia": "沿着这条路径，前一个生物被后一个生物摄食，其中的物质和所含的部分能量随之传递；用箭头表示时，箭头通常从被吃的生物指向吃它的生物",
+          "boundary": "一条食物链只呈现一条摄食路径，不能完整表示现实中交错的取食关系；能量在传递中不断有部分以热等形式散出，不能像物质那样在生态系统中循环利用",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解这条路径，可以想象一条传送线上依次接手物品的几个站点，每个站点都从上一站取得材料和其中储存的能量",
+          "mapping": "各站点对应链上的生物，接手对应摄食；每一站都会把取得的一部分用于自身活动，因此能够继续交给下一站的能量会减少",
+          "intuition": "食物链帮助我们沿着一条路线追踪谁吃了谁，以及物质和能量怎样随着这次取食进入下一个生物",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "沿着一条具体路线观察，草地上的草已经通过光合作用积累了有机物，一只兔子在这里吃草，一只狐狸随后捕食了这只兔子",
+          "mechanism": "草中的部分物质和能量先进入兔子，其中一部分又随着狐狸吃兔子而进入狐狸，过程中也有能量被生物活动消耗并最终以热的形式散出",
+          "outcome": "这件事呈现了“草→兔子→狐狸”这条食物链中的传递过程，狐狸获得的只是最初进入草中的能量的一部分",
+          "extension": null
+        },
+        "id": "generic-13",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-14",
+      "term": {
+        "chinese": "自然选择",
+        "english": "Natural Selection",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "自然选择是一种使生物群体的可遗传特征随世代发生变化的机制",
+          "differentia": "当个体之间存在能够传给后代的差异，而且这些差异在特定环境中使个体留下后代的机会或数量有所不同，相关特征就可能在后续世代中变得更常见或更少见",
+          "boundary": "这种变化以已有的可遗传差异和繁殖结果差异为基础，不要求个体主动改变自己，也没有预先设定的进步方向；仅有生存差异而没有影响后代贡献，还不足以形成相应的自然选择",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解这种跨世代的变化，可以借用反复翻印使用说明书的情景：几种版本起初同时存在，能让使用者顺利完成任务的版本通常会被翻印得更多",
+          "mapping": "不同版本对应可遗传差异，翻印份数对应留下的后代数量，使用场景对应环境；多轮之后，留下副本更多的版本便占据更大比例",
+          "intuition": "这个类比中人与人的选择只帮助说明份数如何改变，自然界实际没有挑选版本的人，个体在环境中的生存和繁殖结果直接造成后代比例的变化",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "把版本比例的变化换成生物的后代比例，假设绿叶上生活着绿色和褐色甲虫，体色能够遗传，其他条件相近",
+          "mechanism": "鸟更容易发现并吃掉褐色甲虫，因此绿色甲虫平均有更多机会活到繁殖，并留下携带相应体色特征的后代",
+          "outcome": "经过多代，在这些条件持续存在时，绿色甲虫通常会占更大比例，这就是体色差异通过自然选择改变群体组成的一个例子",
+          "extension": null
+        },
+        "id": "generic-14",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-15",
+      "term": {
+        "chinese": "月相",
+        "english": "Lunar Phase",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "月相是观察者看到的月球受太阳照亮部分所呈现的形状",
+          "differentia": "月球绕地球运动时，太阳、地球和月球的相对位置发生变化，地球上的观察者因而看到月球受光半球的不同比例和轮廓，形成新月、半月、满月等周期变化",
+          "boundary": "通常的月相变化来自观看受光部分的角度改变，并非地球影子遮住月球；月球进入地球影子而变暗属于月食",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解观看角度的作用，可以在暗房里用一盏固定台灯照着一个球，再让球绕着你移动",
+          "mapping": "台灯对应太阳，球对应月球，你的位置对应地球上的观察者；球始终有朝灯的一侧被照亮，但你看到的亮面会随着球的位置改变而变宽或变窄",
+          "intuition": "月相变化也发生在这样的观看关系中，亮面形状改变，并不需要有东西挡在光源与球之间",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "在天空中观察同样的变化，一个人在农历初三的晴朗傍晚看见西边的月亮呈细弯形，随后几天继续观察",
+          "mechanism": "随着月球绕地球运动，观察者能够看到的受光部分逐渐增多，亮面的轮廓也逐渐展开",
+          "outcome": "几天后，他看到的月亮接近半圆；这一变化体现了月相从较细的亮面向半月推进的过程",
+          "extension": null
+        },
+        "id": "generic-15",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-16",
+      "term": {
+        "chinese": "引力",
+        "english": "Gravitation",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "引力是具有质量的物体之间相互吸引的作用",
+          "differentia": "在普通弱场情形下，两个物体都会受到朝向对方的引力，作用大小随双方质量增加而增大，并随距离增加而减小；当物体大小相对距离可以忽略时，引力与双方质量的乘积成正比，与距离的平方成反比",
+          "boundary": "这里讨论日常速度和普通弱场下的描述，它不要求物体接触，也不只存在于地球附近；涉及极强引力或很高精度时，需要使用更完整的理论",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解这种相互吸引，可以想象两个人分别站在容易滑动的小车上，通过绷紧的绳子互相拉近",
+          "mapping": "两个人都会受到朝向对方的拉力，对应两个物体都受到引力；较重的一方在相同拉力下运动变化较小，对应地球吸引小物体时，自身的运动变化通常难以察觉",
+          "intuition": "绳子只帮助呈现双方互相吸引和一起运动的关系，真实的引力能够隔着空间起作用，并且强弱还取决于质量和距离",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "把这种相互吸引放到日常场景中，一个人在室内将小球举到离地面一米高的位置，然后松手，小球周围的空气阻力可以忽略",
+          "mechanism": "地球对小球的引力使它向地面加速运动，小球也同时吸引地球，但地球质量极大，运动变化极小",
+          "outcome": "小球很快落到地面，而人察觉不到地球朝小球移动，这件小事体现了普通弱场中的引力作用",
+          "extension": null
+        },
+        "id": "generic-16",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-17",
+      "term": {
+        "chinese": "动量",
+        "english": "Momentum",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "动量是描述物体运动状态的向量物理量",
+          "differentia": "在经典力学中，物体的动量等于质量与速度的乘积，方向与速度相同；多个物体组成的系统，其总动量等于各物体动量按方向相加的结果",
+          "boundary": "比较动量时必须使用同一参考系；系统总动量只有在所受外力的合力为零时才保持不变，外力影响可以忽略时则可近似保持不变，系统内部的相互作用本身不改变总动量",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解质量、速度与方向的共同作用，可以想象接住一辆迎面滑来的小推车",
+          "mapping": "小推车越重，或滑得越快，要让它停下就越需要积累足够的推力作用时间；它从相反方向滑来时，你施力的方向也要反过来，这对应动量既有大小又有方向",
+          "intuition": "因此，动量记录的是物体带着多少有方向的运动状态；计算多个物体的总动量时，相反方向的贡献能够相互抵消",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "按照这种按方向计算总量的方式，设一辆质量为1千克的小车以每秒2米向右运动，撞上一辆质量同为1千克的静止小车，碰撞期间可以忽略外力的影响",
+          "mechanism": "两车碰撞后粘在一起，碰撞前的总动量为向右2千克·米每秒，碰撞后仍须保持这个总量",
+          "outcome": "两车的总质量为2千克，因此它们一起以每秒1米向右运动，系统总动量保持不变",
+          "extension": null
+        },
+        "id": "generic-17",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-18",
+      "term": {
+        "chinese": "共振",
+        "english": "Resonance",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "共振是振动系统受到持续周期性驱动时，在某些驱动频率附近出现较强响应的现象",
+          "differentia": "系统具有由自身性质决定的固有频率；在常见的弱阻尼系统中，当驱动频率接近某个固有频率时，驱动能够持续有效地向振动传递能量，使振幅明显增大",
+          "boundary": "振幅还取决于驱动强度和阻尼，存在阻尼时通常会达到有限值；响应最大的频率可能偏离固有频率，并且会随所观察的量而变化，阻尼足够大时也可能没有明显的振幅峰值",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种持续驱动与自身振动节奏之间的关系，可以用推秋千来理解",
+          "mapping": "秋千有自己往返摆动的节奏，推的人如果配合这一节奏，在合适的时刻沿运动方向推，就能让连续几次推动积累起更大的摆幅；摩擦和空气阻力则不断消耗这些推动带来的能量",
+          "intuition": "因此，共振的关键在于驱动节奏让能量持续积累，最终摆得多高还要看每次推动有多强，以及运动过程中损失多少能量",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "为了观察驱动频率的作用，把一个小重物挂在弹簧下端，用装置施加大小幅度固定、频率可以调节的周期性拉力，系统中存在少量阻尼",
+          "mechanism": "缓慢改变拉力的频率，并在每个频率下等待振动稳定，可以发现频率接近系统固有频率时，重物的振幅明显增大",
+          "outcome": "继续把频率调离这一范围，振幅又会减小；在响应最强的频率附近，阻尼使振幅稳定在有限大小",
+          "extension": null
+        },
+        "id": "generic-18",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-19",
+      "term": {
+        "chinese": "导数",
+        "english": "Derivative",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "导数是描述函数在某一点局部变化率的数学量",
+          "differentia": "从该点出发，用函数值的改变量除以输入的改变量；当输入的改变量趋于零时，如果这个比值趋于同一个有限数，这个数就是函数在该点的导数，也给出了该点附近用直线近似函数变化时的斜率",
+          "boundary": "普通的双侧导数要求从左右两侧得到相同结果，端点处可另行讨论单侧导数；函数在一点连续并不足以保证那里存在导数，一段有限区间上的平均变化率也不等于该点的导数",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解这种把观察范围缩到一点的过程，可以想象查看一辆车在某个时刻的速度",
+          "mapping": "用一段行驶距离除以经过的时间，得到的是这一段的平均速度；把计时区间不断缩短并靠近指定时刻，如果算出的速度趋于一个确定值，就得到了那个时刻的瞬时速度",
+          "intuition": "导数把同样的想法用于一般函数：它说明在某一点附近，输入发生很小变化时，输出会以怎样的速率增加或减少",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "按照这种缩短区间的办法，设一辆车从起点出发，经过的秒数取平方后，恰好等于它离起点的米数，要计算第3秒时的速度",
+          "mechanism": "第3秒到第3.1秒之间，距离从9米增加到9.61米，平均速度为每秒6.1米；把区间继续缩短并靠近第3秒，从前后两侧计算出的平均速度都趋于每秒6米",
+          "outcome": "因此，距离函数在第3秒的导数为每秒6米，表示车辆在那个时刻的瞬时速度",
+          "extension": null
+        },
+        "id": "generic-19",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-20",
+      "term": {
+        "chinese": "向量",
+        "english": "Vector",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "向量是线性空间中的元素，能够按照该空间规定的规则相加，并与数相乘",
+          "differentia": "这些运算满足相加的交换、结合以及数乘的分配等线性运算规则；在通常的平面或三维几何中，向量表现为同时具有大小和方向的量，可以用有方向的箭头表示",
+          "boundary": "几何向量的起点位置不影响向量本身，而它在某套坐标下的分量取决于坐标的选取；对于一般线性空间，向量未必天然具有可测的长度或空间中的方向，需要另外规定相应结构",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "对几何向量，可以先把它想成地图上表示一次移动的箭头",
+          "mapping": "箭头指向哪里，就表示往哪里移动，箭头多长，就表示移动多远；把第二支箭头的起点接到第一支箭头的终点，从最初起点到最终终点的箭头便表示两次移动相加的结果",
+          "intuition": "这让向量的大小、方向和加法都有了直接含义；把箭头平移到别处不会改变它代表的移动，把它乘以负数则会反转方向并按倍数改变长度",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "沿用移动箭头的理解，一个人从原地向东走3米，再向北走4米",
+          "mechanism": "把向东3米和向北4米分别画成首尾相接的箭头，再从出发点画一支箭头指向最后的位置",
+          "outcome": "这支合成箭头的长度为5米，方向偏东北，表示此人最终相对起点的位移；实际走过的路程则为7米",
+          "extension": null
+        },
+        "id": "generic-20",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-21",
+      "term": {
+        "chinese": "矩阵",
+        "english": "Matrix",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "矩阵是把数或其他允许进行相应运算的元素，按照确定的行数和列数排成的矩形数组",
+          "differentia": "每个元素由所在的行和列确定位置；当元素表示各输入对各输出的贡献系数时，矩阵可以通过逐项相乘再求和，把一组输入转换为一组输出，从而表示线性关系",
+          "boundary": "矩阵的行列顺序属于其含义的一部分，交换顺序通常会改变结果；把矩阵解释成具体的线性关系时，还须说明每一行、每一列代表什么，矩阵乘法也只有在相关行列数量匹配时才有定义",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解矩阵如何表示输入与输出，可以想象一张记录礼盒配料的表格",
+          "mapping": "每一列对应一种礼盒，每一行对应一种水果，格子中的数记录一盒需要几个该水果；知道每种礼盒要做多少盒后，就能把每格的数量乘以对应盒数，再沿每一行相加",
+          "intuition": "这张表因此既保存了各项关系，也规定了如何从礼盒数量算出水果总数；矩阵表示线性关系时，承担的正是这种有顺序的计算作用",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "按照这张配料表的读法，甲礼盒每盒装2个苹果和1根香蕉，乙礼盒每盒装1个苹果和3根香蕉，现要制作4盒甲礼盒和2盒乙礼盒",
+          "mechanism": "把苹果和香蕉依次作为两行，把甲、乙礼盒依次作为两列，得到矩阵[[2,1],[1,3]]，再用各列的配料数乘以对应的礼盒数量并按行相加",
+          "outcome": "苹果需要2乘4再加1乘2，共10个；香蕉需要1乘4再加3乘2，共10根，矩阵把礼盒数量转换成了配料总量",
+          "extension": null
+        },
+        "id": "generic-21",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-22",
+      "term": {
+        "chinese": "条件概率",
+        "english": "Conditional Probability",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "条件概率是在给定某个事件已经发生的前提下，另一个事件发生的概率",
+          "differentia": "当给定事件的概率大于零时，条件概率等于两个事件同时发生的概率，除以给定事件的概率；这相当于把给定事件包含的结果作为新的计算范围，并重新计算其中各部分所占的比例",
+          "boundary": "给定事件与所求事件的角色不能随意互换，两个方向的条件概率通常不同；若给定事件的概率为零，就不能直接用上述比值计算，条件关系本身也不表示因果关系",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种缩小计算范围再重新比较比例的做法，可以用从袋子里摸球来理解",
+          "mapping": "原本要考虑袋中所有球，后来得知摸出的球一定是红球，就只在红球中比较哪些球还带有星形标记；红球的总数成为新的比较基准，同时是红色且带星的球则构成所求部分",
+          "intuition": "条件概率回答的就是获得这条信息后，所求事件在剩余可能结果中占多大比例，而不是仍用全部结果作为基准",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "按照这个重新确定范围的办法，掷一次公平的六面骰子，已经知道点数为偶数，要计算点数大于3的概率",
+          "mechanism": "给定信息把可能点数缩小为2、4、6，这三个结果仍然等可能，其中4和6满足大于3",
+          "outcome": "因此，已知点数为偶数时，点数大于3的条件概率为三分之二",
+          "extension": null
+        },
+        "id": "generic-22",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-23",
+      "term": {
+        "chinese": "随机变量",
+        "english": "Random Variable",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "随机变量是把随机试验的每个可能结果映射为一个数值的函数",
+          "differentia": "它事先规定每种结果对应哪个数，并且这种对应关系须保证，数值落入任意给定区间所对应的结果集合都能在原有概率模型中计算概率，由此才能讨论随机变量取值的概率",
+          "boundary": "随机性来自试验结果尚未确定，同一个结果经过同一个随机变量映射时会得到确定的数值；随机变量本身是整套映射规则，一次观察到的数只是它的一次取值，其取值可以是分散的，也可以覆盖连续范围",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解这套从结果到数值的规则，可以想象一张事先印好的计分表",
+          "mapping": "每种可能结果在表上都有对应分数，试验结束后只需按结果查表，就能读出一个数；试验开始前不知道会查到哪一项，但表上的对应关系已经固定",
+          "intuition": "随机变量就像这套完整的计分办法，它让复杂或非数字的结果能够用数值研究，而每次查出的分数只是该随机变量的一次实际取值",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "按照事先规定数值的办法，同时抛两枚公平硬币，把出现正面的硬币枚数记作一个随机变量",
+          "mechanism": "两枚都反面时记0，一正一反时记1，两枚都正面时记2；在硬币相互独立的条件下，四种正反组合等可能",
+          "outcome": "这个随机变量取0、1、2的概率分别为四分之一、二分之一、四分之一，一次抛掷只会产生其中一个实际取值",
+          "extension": null
+        },
+        "id": "generic-23",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-24",
+      "term": {
+        "chinese": "抽样偏差",
+        "english": "Sampling Bias",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "抽样偏差是由于样本选择方式，使样本对目标总体的描述出现系统性偏离的问题",
+          "differentia": "当某些成员被纳入样本的机会过高、过低或完全缺失，而且这种差异与所研究的特征有关时，直接使用样本结果通常会持续高估或低估总体的相应情况",
+          "boundary": "它不同于随机抽样中偶然出现的样本波动，也不同于样本已经选定后因提问或记录方式造成的误差；单纯扩大同样选择方式下的样本，通常不能消除这种偏差，修正需要改善选择方式或依据充分信息调整各类样本的贡献",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "理解选择方式为什么会改变结论，可以想象只站在健身房门口询问全城居民每周运动多少次",
+          "mapping": "经常运动的人更容易出现在这个访问地点，较少运动的人则不容易被问到，访问地点因此像一道筛子，按与调查问题有关的特征筛选了受访者",
+          "intuition": "即使访问人数很多，筛选方向仍然存在，调查结果也可能稳定地偏向运动较多的人；人数增加并不会自动补回那些难以被选中的居民",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "沿用检查谁更容易被选中的思路，一所学校想了解全校学生的平均睡眠时长，却只在清晨跑步社团的活动现场发放问卷",
+          "mechanism": "假设社团成员通常比其他学生睡得更早且更久，那么只调查他们，就会让睡眠较长的学生在样本中占据过高比例",
+          "outcome": "直接把这份样本的平均睡眠时长当作全校平均值，就会倾向于高估；继续增加同一社团中的受访人数，仍然无法代表没有被调查到的其他学生",
+          "extension": null
+        },
+        "id": "generic-24",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-25",
+      "term": {
+        "chinese": "相关性",
+        "english": "Correlation",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "相关性是变量之间共同变化的统计关联，",
+          "differentia": "表现为在一组观测中，一个变量的取值变化与另一个变量的取值变化呈现一定规律，例如一个偏高时，另一个也往往偏高或往往偏低",
+          "boundary": "这种规律本身不能证明一个变量导致另一个变量变化；具体采用什么衡量方法，也会影响能够识别哪些形式的相关",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种共同变化可以借助同一房间里的两支温度计来理解：",
+          "mapping": "房间变暖时，两支温度计的读数通常一起上升；两组读数对应两个变量，一起升降对应它们的相关性",
+          "intuition": "读数彼此配合变化，并不意味着一支温度计让另一支升温，它们可能只是共同受到房间温度的影响",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "沿着这种观察共同变化的思路，一家商店记录了多天的气温和当天售出的冰饮数量",
+          "mechanism": "店员把每天的两项记录配在一起比较，发现气温较高的日子通常也卖出更多冰饮",
+          "outcome": "这些记录显示气温与冰饮销量存在同向的相关性，但仅凭这份记录，还不能确定气温变化造成了多少销量变化",
+          "extension": null
+        },
+        "id": "generic-25",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-26",
+      "term": {
+        "chinese": "因果关系",
+        "english": "Causation",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "因果关系是某个因素在特定条件下通过一定作用过程影响某个结果的关系，",
+          "differentia": "其关键特征是在其他相关条件适当保持可比时，主动改变这个因素，会改变结果的取值或发生的可能性",
+          "boundary": "仅凭两个现象同时出现、先后出现或共同变化，不能确认因果关系；这种关系也不要求某个因素在所有条件下都必然产生同一结果",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种通过作用过程影响结果的关系，可以想成推倒一排摆好的多米诺骨牌",
+          "mapping": "推第一张骨牌对应主动改变原因，骨牌之间的碰撞对应作用过程，后面的骨牌倒下对应结果",
+          "intuition": "只有骨牌间距、摆放方向等条件合适，推动才会沿着这条路径传下去，因此解释原因时，也要说清它依靠什么条件起作用",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "把这种作用过程放到一个简单场景中，一盏灯的电源和灯泡都正常，控制线路的开关最初处于断开状态",
+          "mechanism": "有人闭合开关，使线路接通，电流通过灯泡",
+          "outcome": "灯泡随之发光；在这些条件下，闭合开关通过接通线路影响了灯是否发光，构成一条明确的因果关系",
+          "extension": null
+        },
+        "id": "generic-26",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-27",
+      "term": {
+        "chinese": "哈希函数",
+        "english": "Hash Function",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "哈希函数是把输入映射到预先规定的有限取值范围内的计算函数，",
+          "differentia": "它按照确定的规则为输入产生散列值，因此在函数规则不变时，相同输入总会得到相同结果",
+          "boundary": "不同输入允许得到相同散列值，这种情况称为碰撞，所以散列值相同不能证明输入相同；哈希函数本身也不保证结果可以唯一还原成原始输入",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种把输入归到有限范围内的做法，可以想成按固定规则给包裹分配柜号",
+          "mapping": "包裹上的信息对应输入，分配规则对应哈希函数，柜号对应散列值；柜号的数量预先固定，同一份信息始终会分到同一个柜号",
+          "intuition": "不同包裹可能分到同一个柜号，因此柜号可以帮助确定去哪里找，却不能单独证明找到的就是某一个包裹",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "沿用这种固定分配规则的思路，一个程序需要把非负整数映射到0至9，并规定用整数除以10所得的余数作为散列值",
+          "mechanism": "程序分别处理27和37，计算得到的余数都是7",
+          "outcome": "这两个不同输入得到了同一个散列值，说明该函数允许碰撞，程序不能只凭结果为7就区分原始输入是27还是37",
+          "extension": null
+        },
+        "id": "generic-27",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-28",
+      "term": {
+        "chinese": "队列",
+        "english": "Queue",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "队列是一种按照先入先出规则组织元素的抽象数据类型，",
+          "differentia": "其标准插入操作把新元素加入队尾，标准移除操作则从队头取出当前最早进入且尚未移除的元素",
+          "boundary": "这种定义规定的是操作顺序，不限定底层如何存放数据；如果元素可以因为优先程度而越过更早进入的元素，就不再遵守普通队列的先入先出规则",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种先入先出的规则，可以想成大家在一个服务窗口前依次排队",
+          "mapping": "新来的人站到队尾，对应加入元素；窗口每次服务队首的人并让他离开，对应取出队头元素",
+          "intuition": "只要每个人都遵守排队规则，先来的人就先得到服务，后到的人不会因为刚加入就被提前取出",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "按照这种排队顺序，一台打印机最初没有等待任务，随后先收到一份合同，再收到一份表格",
+          "mechanism": "系统依次把两个任务加入队列，并在打印机空闲时取出队头任务进行打印",
+          "outcome": "合同先被取出，表格随后被取出，两个任务保持了进入队列时的先后顺序",
+          "extension": null
+        },
+        "id": "generic-28",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-29",
+      "term": {
+        "chinese": "栈",
+        "english": "Stack",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "栈是一种按照后入先出规则组织元素的抽象数据类型，",
+          "differentia": "其标准插入和移除操作都发生在同一端，这一端称为栈顶，因此最近加入且尚未移除的元素会最先被取出",
+          "boundary": "这种定义约束的是访问顺序，不限定底层存储方式；通过标准移除操作，不能越过栈顶直接取出更早放入的元素",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种后入先出的规则，可以想成一摞只允许从上方放入和拿走的盘子",
+          "mapping": "把新盘子放在最上面对应加入元素，拿走最上面的盘子对应移除元素，整摞盘子的顶部对应栈顶",
+          "intuition": "最后放上的盘子挡在较早放入的盘子上方，所以必须先把它拿走，才能继续取出下面的盘子",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "按照这种从顶部取放的规则，一个程序准备了一个空栈，先放入红色卡片，再放入蓝色卡片",
+          "mechanism": "程序连续执行两次从栈顶取出元素的操作",
+          "outcome": "第一次取出蓝色卡片，第二次取出红色卡片，取出顺序与放入顺序相反",
+          "extension": null
+        },
+        "id": "generic-29",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-30",
+      "term": {
+        "chinese": "二叉树",
+        "english": "Binary Tree",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "二叉树是一种由节点及其父子连接构成的树形数据结构，",
+          "differentia": "非空时具有一个根节点，其他节点各有一个父节点，沿父子方向不会形成回路，并且每个节点最多具有两个子节点，分别占据左、右位置",
+          "boundary": "二叉树可以为空，节点也可以只有一个或没有子节点；左右位置有区别，但节点中的值不必满足左侧较小、右侧较大这样的排序要求",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种每处最多分出两条支路的结构，可以想成一张从单一入口向前展开的岔路图",
+          "mapping": "图中的路口和终点对应节点，入口所在的节点对应根节点，每处向前延伸的左、右支路对应通往左、右子节点的连接；支路既不汇合，也不绕回前面的路口",
+          "intuition": "有的路口可以分两路，有的只延伸一路，有的直接结束，限制在于每个节点最多连接两个子节点，而不是每一层只能有两个节点",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "沿用这种逐层分支的结构，一个程序先建立名为“入口”的根节点",
+          "mechanism": "程序给“入口”添加“照片”和“文档”两个子节点，再给“文档”添加“工作”和“生活”两个子节点",
+          "outcome": "整个结构共有五个节点，每个节点都没有超过两个子节点，因此构成一棵二叉树；其中“照片”“工作”和“生活”都没有子节点",
+          "extension": null
+        },
+        "id": "generic-30",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-31",
+      "term": {
+        "chinese": "事务",
+        "english": "Transaction",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "事务在数据库语境中是由数据库统一管理、包含一组操作的逻辑工作单元，",
+          "differentia": "其中的操作作为整体提交或撤销，执行前后应满足规定的数据约束；同时执行的事务如何相互影响，由采用的隔离规则限定，成功提交的结果则按数据库提供的保证持久保存",
+          "boundary": "仅把多条操作写在一起并不会自动获得这些保证，需要使用数据库支持的事务机制；发送邮件等数据库之外的动作通常也不会随着数据库事务撤销而自动撤回",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种把多步操作作为一个整体处理的方式，可以想成办理一份必须整套通过的申请",
+          "mapping": "申请中的各项填写和核对对应事务里的操作，正式受理整份申请对应提交，发现关键问题后取消整份申请对应撤销；受理前的草稿不算已经完成的结果",
+          "intuition": "办理人员需要把整套手续作为一次完成来处理，不能把只办好一半的申请当成完整结果，这对应事务要求一组操作共同生效或共同撤销",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "按照这种整组处理的要求，一家商店的数据库记录某件商品还剩1件，现在需要登记一笔购买订单",
+          "mechanism": "程序在同一个事务中把库存减为0，再写入订单；由于订单写入失败，程序撤销了这个事务",
+          "outcome": "库存恢复为1，订单也没有写入，数据库没有留下只扣库存却没有订单的半成品结果",
+          "extension": null
+        },
+        "id": "generic-31",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-32",
+      "term": {
+        "chinese": "幂等性",
+        "english": "Idempotence",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "幂等性是一种操作在重复执行时所具有的性质，",
+          "differentia": "指在相同适用条件下，对同一对象执行一次操作后，再继续执行相同操作，其约定效果与只执行一次相同，不会因为重复次数增加而继续累积变化",
+          "boundary": "判断时必须明确比较哪些状态或效果，以及重复期间是否有其他操作改变对象；具有幂等性并不要求每次返回内容相同，也不要求第一次执行时完全不改变状态",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种重复后效果保持不变的性质，可以想成向一盏灯反复发出“关闭”指令",
+          "mapping": "灯的开关状态对应被操作的状态，“关闭”对应每次执行的相同操作；第一次指令让亮着的灯熄灭，后续指令仍让它保持熄灭",
+          "intuition": "在没有其他人重新开灯的情况下，重复关闭不会让灯继续发生额外变化，因此只看灯的最终状态，关闭一次和关闭多次效果相同",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "把这种固定目标状态的做法用于程序，一个播放器的音量最初是70，随后收到一条“将音量设为20”的指令",
+          "mechanism": "播放器执行该指令后，又在没有其他音量调整的情况下执行了两次相同指令",
+          "outcome": "音量始终停留在20，与只执行一次时相同，因此就音量设置这一效果而言，该操作具有幂等性",
+          "extension": null
+        },
+        "id": "generic-32",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-33",
+      "term": {
+        "chinese": "带宽",
+        "english": "Bandwidth",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "带宽是给定链路或系统在规定条件下能够提供的传输能力",
+          "differentia": "它通常用单位时间内最多能够传送的数据量表示，说明这条链路或这个系统能以多快的速率传输数据",
+          "boundary": "带宽描述的是能力，吞吐量描述的是实际完成量；即使带宽保持不变，实际传输也可能因为数据供应不足、等待或其他环节的限制而变慢",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种传输能力可以类比为一条运货通道每小时最多能通过多少箱货物",
+          "mapping": "通道对应链路，货物对应数据，通道每小时能够通过的最大箱数对应带宽，而当天实际通过的箱数取决于有没有足够的货物以及运输是否顺畅",
+          "intuition": "因此，带宽越大，链路能够承接的传输越多，但只有实际有数据可传、其他条件也允许时，这种能力才会被充分用上",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "例如，一条链路的带宽为每秒100兆比特，但发送方每秒只提供20兆比特的数据",
+          "mechanism": "在传输顺畅且没有其他限制的情况下，链路把这些数据全部送出，其余传输能力暂时没有被使用",
+          "outcome": "这时链路的带宽仍是每秒100兆比特，实际吞吐量则是每秒20兆比特",
+          "extension": null
+        },
+        "id": "generic-33",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-34",
+      "term": {
+        "chinese": "吞吐量",
+        "english": "Throughput",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "吞吐量是系统在单位时间内实际完成的工作量",
+          "differentia": "它通过统计某个观察时段内完成的数据传输、任务处理或其他工作，再除以该时段的长度来表示，具体单位取决于把什么算作一份完成的工作",
+          "boundary": "比较吞吐量时，需要使用一致的完成标准和统计范围；吞吐量反映实际完成速率，不能直接当作系统的最大能力，也不能据此确定单个操作的延迟",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种实际完成速率可以类比为一家面包店每小时真正烤好多少个面包",
+          "mapping": "烤好的面包对应已完成的工作，统计的小时数对应观察时段，每小时实际出炉的面包数对应吞吐量",
+          "intuition": "烤箱再大，如果原料没有备齐，实际出炉数量仍可能很少；同样，吞吐量取决于系统在这段时间里究竟完成了多少工作",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "例如，一个图片处理程序在连续两秒的观察时段内完成了40张图片的处理",
+          "mechanism": "统计时只计入已经处理完成的图片，并用40张除以两秒",
+          "outcome": "程序在这段时间内的平均吞吐量就是每秒20张图片，但这个结果本身不能说明每张图片分别处理了多久",
+          "extension": null
+        },
+        "id": "generic-34",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-35",
+      "term": {
+        "chinese": "延迟",
+        "english": "Latency",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "延迟是一个操作从规定的开始时刻到规定的完成时刻所经历的时间",
+          "differentia": "它以单次操作的起点和终点为测量边界，统计这两个时刻之间经过的全部时间，其中可以包含等待、传输和实际处理所花的时间",
+          "boundary": "延迟的含义取决于起点和终点如何规定；只测其中一个阶段得到的是该阶段的延迟，而多次操作的平均延迟也不代表每次操作都耗时相同",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种从开始到完成的耗时，可以类比为你在餐厅点餐后，等到菜端上桌所经历的时间",
+          "mapping": "提交订单对应操作开始，上菜对应操作完成，中间等待厨师空闲、做菜和端菜的时间都落在这次测量之内",
+          "intuition": "即使餐厅每小时能做很多份菜，你这一单仍可能等待很久，因此完成工作多与单次等待短是两件需要分别观察的事",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "例如，一次查询把发出请求作为开始，把收到完整结果作为完成",
+          "mechanism": "系统记录这两个时刻，发现请求发出后经过120毫秒才收到完整结果",
+          "outcome": "这次查询的延迟就是120毫秒，其中已经包含测量边界内发生的等待、传输和处理时间",
+          "extension": null
+        },
+        "id": "generic-35",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-36",
+      "term": {
+        "chinese": "并发",
+        "english": "Concurrency",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "并发是多个任务在相互重叠的时间段内推进的执行方式",
+          "differentia": "在一个任务开始后尚未完成的期间，其他任务也可以开始或继续执行，系统可以通过交替安排任务，也可以通过同时执行任务来实现这种推进",
+          "boundary": "并发不要求多个任务在同一时刻都获得物理执行；如果一个任务彻底结束后另一个任务才开始，两者就没有形成并发",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种重叠推进可以类比为一位厨师交替准备两道菜",
+          "mapping": "两道菜对应两个任务，厨师先让第一道菜进入炖煮阶段，再去切第二道菜所需的配料，随后返回查看第一道菜",
+          "intuition": "两道菜都在同一段时间内逐步接近完成，虽然厨师的双手每一刻可能只在处理其中一道菜，这仍然体现了并发",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "例如，一个程序需要获取一份远处的数据，同时还需要计算本地已有的一组数字",
+          "mechanism": "程序先发出获取数据的请求，在等待回复期间执行本地计算，回复到达后再继续处理收到的数据",
+          "outcome": "两个任务的推进时间发生了重叠，即使程序一次只能执行一个任务的指令，也实现了并发",
+          "extension": null
+        },
+        "id": "generic-36",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-37",
+      "term": {
+        "chinese": "死锁",
+        "english": "Deadlock",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "死锁是一组任务因相互等待资源而无法继续推进的状态",
+          "differentia": "这些任务各自持有其他任务需要的资源，又在等待取得更多资源后才肯继续或释放已有资源，从而形成闭合的等待关系",
+          "boundary": "如果资源不会被外部强制收回、等待不会被取消，而且没有其他解除条件，这组任务就无法自行脱离该状态；仅仅等待一个稍后会正常释放的资源，并不足以构成死锁",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种相互等待可以类比为两个人合做手工时各拿着一件工具",
+          "mapping": "一个人拿着剪刀等尺子，另一个人拿着尺子等剪刀，而两人都坚持拿齐两件工具、完成自己的步骤后才交还手中的工具",
+          "intuition": "只要双方都按这个规则等待，也没有人介入，谁都无法先完成并释放工具，等待就会一直持续",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "例如，两个任务都需要取得两个文件的独占使用权，才能完成修改并释放文件",
+          "mechanism": "任务甲先占用第一个文件，任务乙先占用第二个文件，随后甲等待乙占用的文件，乙也等待甲占用的文件",
+          "outcome": "在没有取消等待或强制释放的安排下，两个任务都无法继续修改，也都不会释放已占用的文件，于是发生死锁",
+          "extension": null
+        },
+        "id": "generic-37",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-38",
+      "term": {
+        "chinese": "断言",
+        "english": "Assertion",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "断言是在程序或形式验证中明确提出、并要求在指定位置或条件下成立的性质陈述",
+          "differentia": "程序可以在执行到相应位置时检查该性质是否成立，形式验证也可以把它作为需要证明或检查的命题；性质不成立就意味着相应要求没有得到满足",
+          "boundary": "写出断言本身不会使性质自动成立，实际是否执行检查取决于检查方式和运行设置；断言通过也只支持它所表达、所覆盖的要求，不能证明整个程序都正确",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种明确提出并检查的要求，可以类比为装箱工人在封箱前核对“箱里恰好有六个杯子”",
+          "mapping": "这句话对应断言，封箱前对应检查位置，清点杯子对应检查过程，数量不符则说明这项要求没有满足",
+          "intuition": "核对能在指定位置发现问题，但它不会自动把杯子补齐，也不能保证杯子的颜色、外观等其他方面都符合要求",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "例如，一个程序要向原有三个元素的列表添加一个元素，并启用了失败时停止当前操作的断言检查",
+          "mechanism": "添加步骤因为错误没有生效，程序随后检查“列表现在有四个元素”，发现这句话不成立",
+          "outcome": "程序报告断言失败并停止当前操作，使这个数量异常在检查位置暴露出来，但仍需要进一步查明添加失败的原因",
+          "extension": null
+        },
+        "id": "generic-38",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-39",
+      "term": {
+        "chinese": "有限状态机",
+        "english": "Finite State Machine",
+        "abbreviation": "FSM",
+        "professional_definition": {
+          "genus": "有限状态机是一种用有限个状态描述系统行为的计算模型",
+          "differentia": "模型规定可接收的输入、当前状态在输入作用下如何转移，以及相应输出如何由状态或状态与输入共同确定；当前状态概括了决定后续行为所需的历史信息",
+          "boundary": "无论系统接收了多长的输入序列，模型都只能处于预先规定的有限状态之一；如果还需要保存任意增长的计数或完整历史，就不能只靠这些有限状态准确表示",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种依靠当前状态响应输入的方式，可以类比为一盏只有亮、灭两种状态的按键灯",
+          "mapping": "亮和灭对应两个状态，按下按钮对应输入，从亮变灭或从灭变亮对应状态转移，灯呈现的亮灭情况对应输出",
+          "intuition": "只要知道灯现在亮不亮，就能判断下一次按按钮会发生什么，无须记住此前按过多少次",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "例如，一个简化的投币闸机只有“锁定”和“已解锁”两个状态，开始时处于锁定状态",
+          "mechanism": "闸机收到投币输入后转为已解锁；随后收到推动输入时允许通行，并转回锁定状态",
+          "outcome": "一次投币通行就被表示为有限状态之间的一组转移，是否允许通行则由当前状态和收到的输入决定",
+          "extension": null
+        },
+        "id": "generic-39",
+        "aliases": [],
+        "kind": "initialism",
+        "components": [
+          {
+            "symbol": "F",
+            "word": "Finite"
+          },
+          {
+            "symbol": "S",
+            "word": "State"
+          },
+          {
+            "symbol": "M",
+            "word": "Machine"
+          }
+        ],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-40",
+      "term": {
+        "chinese": "不变量",
+        "english": "Invariant",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "不变量是在指定过程或变换下保持成立的性质",
+          "differentia": "在约定的初始条件满足时，这个性质起初成立，而且每次允许的步骤或变换都会保持它，因此它在规定的各个观察位置持续成立",
+          "boundary": "不变量必须说明针对什么过程、允许哪些变化，以及在哪些位置成立；相关数值可以变化，只要所要求的关系保持不变，而某一次检查通过并不足以证明后续步骤都会保持该性质",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种变化中保持成立的性质，可以类比为把一盘糖逐颗分到两个碗里",
+          "mapping": "每次把一颗糖从盘子移到某个碗里对应一个允许的步骤，盘子与两个碗中的糖的总数始终等于开始时的数量，就是这个过程的不变量",
+          "intuition": "盘子和各个碗里的数量都在变化，但只要没有糖被吃掉、丢失或额外加入，总数不变这一关系就会一直成立",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "例如，一个程序把十个小球从左盒逐个移到右盒，开始时左盒有十个，右盒为空",
+          "mechanism": "每一步都从左盒取出一个小球并放入右盒，且只在一次完整移动结束后统计两个盒中的数量",
+          "outcome": "在每个规定的观察位置，两盒中的小球总数都为十；这一性质就是该移动过程的不变量，尽管两个盒子各自的小球数量不断变化",
+          "extension": null
+        },
+        "id": "generic-40",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-41",
+      "term": {
+        "chinese": "版本控制",
+        "english": "Version Control",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "版本控制是一种记录并管理文件随时间变化的方法或机制",
+          "differentia": "它把文件在不同时间的状态及其变化关系组织成可追溯的历史，使使用者能够查看改动、比较版本，并恢复先前的内容",
+          "boundary": "它管理的是内容如何演变；仅保留一份会被不断覆盖的副本，不能提供这样的变化历史，而使用版本控制也不保证改动本身正确",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种保留变化历史的做法，可以想成给一本反复修改的笔记保留带日期的留底",
+          "mapping": "每次修改后留下的记录对应一个可查阅的版本，按顺序保存的留底让人看出哪些内容发生了变化，也能找回修改前的写法",
+          "intuition": "因此，人们既能继续修改当前内容，又有依据回看和恢复过去的内容",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "例如，一名学生修改报告前，已经用版本控制保存了当时的内容",
+          "mechanism": "他删去一段说明并记录这次修改，后来发现那段说明仍然需要，便查看修改历史，从先前版本取回该段",
+          "outcome": "报告恢复了需要的说明，这次删除及其前后的内容也仍然可以查到",
+          "extension": null
+        },
+        "id": "generic-41",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-42",
+      "term": {
+        "chinese": "抽象",
+        "english": "Abstraction",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "抽象是一种根据目标选择事物性质并形成表示或概念的认知与建模过程",
+          "differentia": "它保留与当前目标有关的性质、结构或关系，省略对该目标不必要的细节，使人能够在较少信息下理解、讨论或处理对象",
+          "boundary": "哪些细节可以省略取决于目标；如果省略了完成目标所必需的区别，得到的表示就不再是适合该目标的抽象",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种有目的的取舍，就像一张为乘客设计的地铁线路图",
+          "mapping": "线路图保留车站、先后顺序和换乘关系，省略沿途建筑以及许多真实距离，因为乘客主要需要判断怎样乘车",
+          "intuition": "图上信息虽然少于真实城市，却仍能支持路线选择；它是否好用，要看留下的信息能否满足这个目标",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "例如，老师需要制作一张供班级活动联系使用的学生名单，原始资料还包含身高、兴趣和其他信息",
+          "mechanism": "老师只取出姓名及相应的联系方式，按照每名学生一行的方式整理，省略与联系任务无关的内容",
+          "outcome": "这张名单成为面向联系任务的抽象，使用者不必阅读全部资料，就能找到需要联系的人及其联系方式",
+          "extension": null
+        },
+        "id": "generic-42",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-43",
+      "term": {
+        "chinese": "封装",
+        "english": "Encapsulation",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "封装是一种组织对象状态与相关操作，并规定访问边界的软件设计机制",
+          "differentia": "它把对象内部如何保存和处理状态的细节放在边界以内，让外部通过约定的接口读取信息或请求操作，从而使对象能够管理自身状态的变化",
+          "boundary": "封装不要求所有状态都无法读取，也不只是把内容放在一起；关键在于外部访问受到明确约定，而内部实现细节不必成为外部使用它的前提",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种通过接口使用内部功能的安排，就像顾客操作一台自动售货机",
+          "mapping": "顾客通过选货、付款和取货的位置与机器交互，机器内部则负责核对金额、管理库存和控制出货，顾客不能通过正常操作随意改写库存数量",
+          "intuition": "机器把可供顾客使用的操作与内部处理方式分开，因而可以按照自己的规则维护状态",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "例如，程序中的一个游戏角色对象把当前生命值保存在内部，并提供查看生命值和承受伤害的操作",
+          "mechanism": "外部程序请求角色承受十点伤害，角色自行检查数值、扣减生命值，并在计算后保证生命值不低于零",
+          "outcome": "外部程序完成了伤害操作，却不需要直接改写生命值或了解其保存方式，角色也能统一维护生命值的有效范围",
+          "extension": null
+        },
+        "id": "generic-43",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-44",
+      "term": {
+        "chinese": "多态",
+        "english": "Polymorphism",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "多态是一种让统一接口或操作适用于不同对象或类型的软件机制",
+          "differentia": "在共同的操作约定下，不同对象或类型可以提供各自的实现，使用者以统一方式发出操作请求，具体行为则由相应对象或类型的实现决定",
+          "boundary": "这些实现需要满足共同约定；仅有相同名称，或者同一种计算因输入数值不同而给出不同结果，并不足以构成这里所说的多态",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种统一接入而产生不同具体行为的关系，可以用同一标准插座连接不同电器来理解",
+          "mapping": "台灯和风扇都能通过符合相同标准的插头接入电源，但接通后，台灯发光，风扇转动；共同的连接方式对应统一接口，各自的工作方式对应不同实现",
+          "intuition": "使用者可以遵循同一接入约定，而实际发生什么，由接入的具体电器决定",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "例如，绘图程序中的圆形对象和矩形对象都提供符合共同约定的绘制操作",
+          "mechanism": "程序依次向两个对象发出相同形式的绘制请求，圆形对象按照圆的规则生成图形，矩形对象按照矩形的规则生成图形",
+          "outcome": "同一段发出绘制请求的程序便能画出两种形状，而不必在每次请求时自行安排两种形状各自的绘制步骤",
+          "extension": null
+        },
+        "id": "generic-44",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-45",
+      "term": {
+        "chinese": "比喻",
+        "english": "Simile and Metaphor",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "比喻是一种借助事物之间的相似关系来表达和理解事物的修辞方式",
+          "differentia": "它用另一类较熟悉或更鲜明的事物来说明所谈对象，使读者把两者在特定方面的相似性联系起来；明喻明确说出这种相似，暗喻则直接用另一事物来称说或呈现对象",
+          "boundary": "比喻只在选定方面建立联系，不表示两者在所有性质上相同，也不能单凭这种相似关系证明关于对象的事实判断",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种借熟悉事物理解另一事物的方式，就像拿一件熟悉的衣服作参照，向别人描述另一件衣服的柔软程度",
+          "mapping": "参照物帮助听者想起一种触感，比喻中的熟悉事物也帮助读者把握所谈对象的某种性质；但比喻通常还会跨越事物类别，例如用羽毛来表现轻柔",
+          "intuition": "读者需要沿着被选中的相似之处理解表达，而不把参照物的其他性质全部搬过去",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "例如，一个孩子刚听到一阵细而密的雨声，想把这种声音告诉没在窗边的家人",
+          "mechanism": "他说“雨声像蚕吃桑叶的声音”，把雨声与蚕吃叶子的声音在细碎、连续这一方面联系起来",
+          "outcome": "家人因此更容易想象雨声的特点，其中的“像”明确标出了相似关系，所以这句话使用了明喻",
+          "extension": null
+        },
+        "id": "generic-45",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-46",
+      "term": {
+        "chinese": "叙事视角",
+        "english": "Narrative Perspective",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "叙事视角是叙述者观察、选择并呈现故事信息的方式及其范围",
+          "differentia": "它决定叙述从什么观察位置展开，能够进入哪些人物的感受和思想，以及哪些事件与信息可以呈现给读者",
+          "boundary": "叙事视角可以在作品中保持稳定，也可以发生变化；它不能只凭人称判断，因为第三人称叙述也可能只呈现一个人物能够感知的信息",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种对观察位置和信息范围的安排，可以想成有人站在房间的一处，把自己看见和听见的事情讲给门外的人",
+          "mapping": "他站在哪里、能接触哪些信息，会影响门外的人知道什么；如果他只说自己所见所闻，听者就无法直接知道另一个房间发生了什么",
+          "intuition": "故事中的读者同样通过叙述获得信息，而叙事视角规定了这条信息通道能覆盖多大的范围",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "例如，一篇故事用第三人称写小林回家，叙述始终限于小林当时能够感知和想到的事情",
+          "mechanism": "小林看见桌上有一封未署名的信，猜测是朋友留下的；叙述写出他的猜测，却没有直接交代写信人的身份或想法",
+          "outcome": "读者与小林一样暂时不知道答案，这段故事便通过限制信息范围形成了贴近小林的叙事视角",
+          "extension": null
+        },
+        "id": "generic-46",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-47",
+      "term": {
+        "chinese": "韵律",
+        "english": "Prosody",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "韵律是语言在连续表达中对重音、节奏、音高、时长和停顿等声音特征的有规律组织",
+          "differentia": "这些特征作用于音节、词语或更长的表达单位，使语言形成轻重、快慢、起伏与分组，并参与呈现重点、语气和表达结构",
+          "boundary": "这里的规律包括可辨认的组织模式，不要求每次都严格重复；韵律也不限于诗歌或押韵，日常说话同样具有韵律",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种声音的组织，可以借一段脚步声来体会",
+          "mapping": "同样走过一段路，脚步可以轻重交替、时快时慢，也可以在某处停下；语言中的重音、节奏和停顿同样把连续过程组织成可感知的模式，音高变化则再添上声音的起伏",
+          "intuition": "因此，听者接收到的不只有说了哪些词，还包括这些词怎样被连成一段有重点和层次的话",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "例如，一个人想告诉同伴，今天由自己去取快递，说的话是“我今天去取快递”",
+          "mechanism": "他说话时把“我”读得更重，后面的词保持较自然的轻重和速度，使这句话的声音重点落在执行者身上",
+          "outcome": "同伴更容易听出“由我去”的意思；词语没有改变，重音的安排却改变了信息重点，这就是韵律发挥作用的一次表现",
+          "extension": null
+        },
+        "id": "generic-47",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    },
+    {
+      "key": "generic-v1-48",
+      "term": {
+        "chinese": "史料",
+        "english": "Historical Sources",
+        "abbreviation": null,
+        "professional_definition": {
+          "genus": "史料是人们研究历史时用于了解、解释和检验过去情况的记录、遗存及其他证据材料",
+          "differentia": "它与所研究的历史问题具有可说明的联系，研究者需要结合其形成时间、来源、制作或记录目的以及保存和流传情况，判断它能够支持哪些认识",
+          "boundary": "材料成为史料不等于其中每句话都真实，也不要求它原本就是为记录历史而制作的；它的证明力受到内容、立场、完整程度及其他条件的限制",
+          "extension": null
+        },
+        "intuitive_explanation": {
+          "anchor": "这种借材料认识过去的过程，就像根据旧照片、账单和当事人的回忆，了解一次多年前的家庭搬家",
+          "mapping": "照片可能显示当时的房屋，账单可能留下付款日期，回忆可能解释搬家的原因，但每种材料只能提供一部分信息，也可能存在遗漏或记错",
+          "intuition": "研究者需要保留材料从哪里来、能够说明什么和不能说明什么，才能据此形成有依据的认识",
+          "extension": null
+        },
+        "typical_example": {
+          "initial_conditions": "例如，研究者想了解某所学校旧校舍何时开始使用，找到一张档案中保存的开学典礼照片，背面写有日期和地点",
+          "mechanism": "研究者核对照片的来源，并把背面记载与当年的校务记录比较，确认两份材料是否指向同一地点和同一次典礼",
+          "outcome": "相互吻合的信息可以支持学校在该日期已经使用这处校舍的判断，但仅凭这张照片，还不能断定校舍具体在哪一天建成",
+          "extension": null
+        },
+        "id": "generic-48",
+        "aliases": [],
+        "kind": "concept",
+        "components": [],
+        "official_spelling": null,
+        "case_source": null
+      }
+    }
+  ]
+}

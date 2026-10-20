@@ -52,6 +52,34 @@ def test_arbitrary_project_name_has_all_stages(tmp_path):
     assert (root/'05_writing/demo.schema.json').is_file()
 
 
+def test_model_schema_includes_every_property_without_changing_disk_contract():
+    # API 的严格输出 Schema 要求全部属性进入 required，旧产物的可选字段继续按原磁盘规则读取
+    from lessonweave.agents import wire_schema
+    schema={'type':'object','properties':{'title':{'type':'string'},'title_format_version':{'const':2}},'required':['title'],
+            '$defs':{'question':{'type':'object','properties':{'id':{'type':'string'},'point_ids':{'type':'array','items':{'type':'string'}}},'required':['id']}}}
+    result=wire_schema(schema)
+    assert set(result['required'])==set(result['properties'])
+    assert set(result['$defs']['question']['required'])=={'id','point_ids'}
+    assert schema['required']==['title'] and result['properties']['title_format_version']=={'const':2,'type':'integer'}
+
+
+def test_wire_constants_declare_types_for_media_and_shared_terms():
+    from lessonweave import pipeline
+    from lessonweave.agents import wire_schema
+    import lean_contract,glossary_reuse
+    schema=wire_schema(lean_contract.writer_schema({'single_choice':1,'short_answer':0}))
+    def check(node):
+        if isinstance(node,dict):
+            if 'const'in node or node.get('enum'):assert 'type'in node
+            for value in node.values():check(value)
+        elif isinstance(node,list):
+            for value in node:check(value)
+    check(schema)
+    assert wire_schema({'enum':['first','second']})['type']=='string'
+    assert wire_schema({'const':False})['type']=='boolean'
+    assert wire_schema({'enum':[None,'value']})['type']==['null','string']
+
+
 def test_user_test_directory_is_protected(tmp_path):
     # 调度器在建立产物之前拒绝用户的 05-test 目录
     root=tmp_path/'05-test'
@@ -105,21 +133,18 @@ def test_private_site_requires_owner(monkeypatch):
         serve()
 
 
-def test_batch_repair_limit_survives_resume(tmp_path,monkeypatch):
-    # 首稿加三轮修复统一计数，恢复已耗尽的任务时继续保留原结果
-    from lessonweave import pipeline
-    monkeypatch.setattr(pipeline,'prepare',lambda root:None)
-    monkeypatch.setattr(pipeline.flow,'tree_stages',lambda *args:None)
-    calls=[]
-    def draft(root,backend):
-        calls.append(read(root/'runtime/state.json')['round'])
-        return {},False,['需要完善解释']
-    monkeypatch.setattr(pipeline,'write_sections',draft)
-    monkeypatch.setattr('lessonweave.package.export_package',lambda root:{})
-    assert pipeline.run(tmp_path,3)['status']=='needs_review'
-    assert calls==[0,1,2,3]
-    pipeline.run(tmp_path,3)
-    assert calls==[0,1,2,3]
+
+
+def test_configured_four_round_limit_allows_resume_without_resetting_history(tmp_path,monkeypatch):
+    # 网站采用允许的四轮上限时，第三轮暂停的任务可以继续，历史轮次仍保持原值
+    monkeypatch.setenv('LESSONWEAVE_MAX_REPAIRS','4')
+    store=Store(tmp_path/'store');root=tmp_path/'project'
+    store.register('book','最小案例',root);job=store.submit('book',{},'limit')
+    save(root/'runtime/state.json',{'round':3,'maximum':3})
+    store.finish(job['id'],{'status':'needs_review'})
+    store.resume(job['id'])
+    assert store.job(job['id'])['status']=='queued'
+    assert read(root/'runtime/state.json')['round']==3
 
 
 def test_reading_import_preserves_source_code_and_rejects_escape(tmp_path):

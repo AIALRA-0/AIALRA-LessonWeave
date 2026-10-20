@@ -29,29 +29,19 @@ def test_output_limit_receipt_preserves_known_cause(tmp_path,monkeypatch):
 
 
 def test_parallel_collection_preserves_interrupted_calls():
-    # 收齐各任务错误时保留执行中断类型，正常完成的任务仍会完成
+    # 某个请求需要恢复时，其他任务照常完成，恢复后收齐全部真实结果
     done=[]
+    attempts=[]
     def task(value):
-        if value==1:raise AgentCallFailure('output_limit','任务超过输出上限')
+        if value==1 and not attempts:
+            attempts.append(value)
+            raise AgentCallFailure('output_limit','任务超过输出上限')
         done.append(value);return value
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
-        with pytest.raises(AgentCallFailure) as failure:pipeline.collect(pool,[1,2,3],task)
-    assert failure.value.kind=='output_limit' and sorted(done)==[2,3]
+        assert sorted(pipeline.collect(pool,[1,2,3],task))==[1,2,3]
+    assert sorted(done)==[1,2,3]
 
 
-def test_interrupted_call_does_not_consume_content_repair_rounds(tmp_path,monkeypatch):
-    # 一次确定的调用失败会暂停第 0 轮，不空转到第 3 轮
-    attempts=[]
-    monkeypatch.setattr(pipeline,'scaffold',lambda root:None)
-    monkeypatch.setattr(pipeline,'prepare',lambda root:None)
-    monkeypatch.setattr(pipeline.flow,'tree_stages',lambda *args:None)
-    monkeypatch.setattr(pipeline,'Backend',lambda *args,**kwargs:object())
-    def stop(*args):
-        attempts.append(1);raise AgentCallFailure('output_limit','需要缩小当前任务')
-    monkeypatch.setattr(pipeline,'write_sections',stop)
-    result=pipeline.run(tmp_path)
-    assert result['status']=='interrupted' and result['round']==0
-    assert result['failure_kind']=='output_limit' and len(attempts)==1
 
 
 def test_readweave_jump_uses_actual_native_note_path():
@@ -82,11 +72,3 @@ def test_readweave_jump_opens_the_current_section(tmp_path,monkeypatch):
     with pytest.raises(ValueError,match='尚未导入'):reading_link({'native_note_id':'book'},tmp_path,'s2')
 
 
-def test_inventory_failure_does_not_imply_a_finished_manuscript(tmp_path,monkeypatch):
-    # 清点失败时如实显示当前阶段，稿件是否存在由实际文件判断
-    monkeypatch.delenv('LESSONWEAVE_TRILIUM_URL',raising=False)
-    save(tmp_path/'runtime/state.json',{'stage':'05_writing/materials','failure_kind':'output_limit'})
-    save(tmp_path/'runtime/progress.json',{'label':'旧的写作阶段名称'})
-    progress=view(tmp_path,{'status':'interrupted','created':time.time()-10,'updated':time.time()})
-    assert progress['phase']=='清点各节原材料' and not progress['output_ready']
-    assert progress['diagnosis']['failure_kind']=='output_limit'

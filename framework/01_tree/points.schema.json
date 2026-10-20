@@ -1,0 +1,192 @@
+{
+  "type": "object",
+  "properties": {
+    "profile": {
+      "const": "material-points-v1"
+    },
+    "material_run": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "material_tree": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "minItems": 1
+          },
+          "source_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "source_refs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "source_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "quote": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "region": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              },
+              "required": [
+                "source_id",
+                "quote",
+                "region"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "id",
+          "description",
+          "checks",
+          "source_ids",
+          "source_refs"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "coverage": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "profile",
+    "material_run",
+    "material_tree",
+    "points",
+    "coverage"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "response": {
+      "type": "object",
+      "properties": {
+        "points": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "checks": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "minItems": 1
+              },
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "source_refs": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "source_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "quote": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "region": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    }
+                  },
+                  "required": [
+                    "source_id",
+                    "quote",
+                    "region"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1
+              }
+            },
+            "required": [
+              "id",
+              "description",
+              "checks",
+              "source_ids",
+              "source_refs"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "points"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

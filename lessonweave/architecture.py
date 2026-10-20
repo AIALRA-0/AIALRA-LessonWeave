@@ -7,8 +7,9 @@ import re
 import time
 
 REPO = Path(__file__).resolve().parents[1]
-FRAME = REPO / '04-framework'
+FRAME = REPO / 'framework'
 VIEW = FRAME / 'architecture'
+EXAMPLE = FRAME / 'examples/minimal-web'
 FILES = {
     'input': ('00_source/input.json', '00_source/input.schema.json'),
     'source': ('00_source/source.json', '00_source/source.schema.json'),
@@ -63,6 +64,17 @@ def lookup(value, path):
     return value
 
 
+def has_path(value, path):
+    for part in re.findall(r'[^.\[\]]+', path):
+        if isinstance(value, dict) and part in value:
+            value = value[part]
+        elif isinstance(value, list) and part.isdigit() and int(part) < len(value):
+            value = value[int(part)]
+        else:
+            return False
+    return True
+
+
 def schema_type(relative, path):
     schema = load(FRAME / relative) if relative else None
     node = schema
@@ -91,6 +103,7 @@ def contexts(root):
     for key, (relative, schema) in FILES.items():
         docs[key] = {'value': load(root / relative), 'file': relative, 'schema': schema, 'prefix': ''}
     selections = [
+        ('material_group', 'material', lambda n: bool(n.get('children')) and n.get('type') in {'section', 'document', 'webpage', 'repository'}),
         ('material_node', 'material', lambda n: n.get('type') in {'paragraph', 'code', 'file'} and bool(n.get('content'))),
         ('question_node', 'questions', lambda n: not n.get('children') and bool(n.get('question'))),
         ('chapter_node', 'chapters', lambda n: n.get('kind') == 'section'),
@@ -135,6 +148,29 @@ def contexts(root):
         inventory_path = next(iter(sorted(work.glob('sections/*/coverage-inventory.json'))), None)
     for key, path, schema in [('inventory', inventory_path, '05_writing/coverage-inventory.schema.json'), ('coverage', coverage_path, None)]:
         docs[key] = {'value': load(path) if path else None, 'file': str(path.relative_to(root)).replace('\\', '/') if path else '05_writing/work/sections/尚未生成/' + key + '.json', 'schema': schema, 'prefix': ''}
+    registry_path = root / '01_tree/points.json'
+    docs['registry'] = {'value': load(registry_path), 'file': '01_tree/points.json', 'schema': '01_tree/points.schema.json', 'prefix': ''}
+    points = (docs['registry']['value'] or {}).get('points', [])
+    docs['point'] = dict(docs['registry'], value=points[0] if points else {}, prefix='points[0]')
+    folder = inventory_path.parent if inventory_path else None
+    qid = units[0].get('question_id') if units else None
+    safe_qid = qid if isinstance(qid, str) and '/' not in qid and '\\' not in qid else None
+    authored_path = folder / ('unit-' + safe_qid + '.json') if folder and safe_qid else None
+    # 新结构只读取当前小节明确采用的写作版本，旧段落不会被切成四段伪装成新稿
+    authored = load(authored_path) if authored_path and (section or {}).get('writing_contract_version') else None
+    for key, name, schema in [('bridge', 'bridge.json', '05_writing/bridge.schema.json'), ('glossary', 'glossary.json', '05_writing/glossary.schema.json')]:
+        path = folder / name if folder else None
+        docs[key] = {'value': load(path) if path and (section or {}).get('writing_contract_version') else None,
+                     'file': str(path.relative_to(root)).replace('\\', '/') if path else '05_writing/work/sections/<section>/' + name,
+                     'schema': schema, 'prefix': ''}
+    docs['authored'] = {'value': authored, 'file': str(authored_path.relative_to(root)).replace('\\', '/') if authored_path else '05_writing/work/sections/<section>/unit-<question>.json', 'schema': '05_writing/writing-unit.schema.json', 'prefix': ''}
+    docs['previous_authored'] = dict(docs['authored'], value=None, file='05_writing/work/sections/<previous>/unit-<question>.json')
+    terms = (docs['glossary']['value'] or {}).get('terms', [])
+    docs['term'] = dict(docs['glossary'], value=terms[0] if terms else {}, prefix='terms[0]')
+    source_pack_path = within(root, grounding.get('source_pack_path', '')) if grounding.get('source_pack_path') else folder / 'source-pack.json' if folder else None
+    source_pack = load(source_pack_path) if source_pack_path else None
+    sentence = next((r for s in (source_pack or {}).get('sources', []) for r in s.get('sentences', [])), None)
+    docs['sentence'] = {'value': sentence, 'file': str(source_pack_path.relative_to(root)).replace('\\', '/') if source_pack_path else '05_writing/work/sections/<section>/source-pack.json', 'schema': None, 'prefix': 'sources[0].sentences[0]'}
     points = (docs['inventory']['value'] or {}).get('points', [])
     docs['inventory_point'] = dict(docs['inventory'], value=points[0] if points else {}, prefix='points[0]')
     coverage = docs['coverage']['value'] or {}
@@ -145,12 +181,23 @@ def contexts(root):
 
 def framework_contexts():
     docs = {key: {'value': None, 'file': relative, 'schema': schema, 'prefix': ''} for key, (relative, schema) in FILES.items()}
-    for key, parent in [('material_node', 'material'), ('question_node', 'questions'), ('chapter_node', 'chapters'), ('transition_node', 'transitions')]:
+    for key, parent in [('material_node', 'material'), ('material_group', 'material'), ('question_node', 'questions'), ('chapter_node', 'chapters'), ('transition_node', 'transitions')]:
         docs[key] = dict(docs[parent], prefix='tree')
     for key, relative, schema in [('book', '05_writing/book.json', '05_writing/book.schema.json'), ('section', '05_writing/sections/section.json', '05_writing/demo.schema.json'), ('inventory', '05_writing/work/sections/section/inventory.json', '05_writing/coverage-inventory.schema.json'), ('coverage', '05_writing/work/sections/section/coverage.json', None)]:
         docs[key] = {'value': None, 'file': relative, 'schema': schema, 'prefix': ''}
     for key, parent, prefix in [('unit', 'section', 'units[0]'), ('inventory_point', 'inventory', 'points[0]'), ('coverage_point', 'coverage', 'items[0].points[0]')]:
         docs[key] = dict(docs[parent], prefix=prefix)
+    for key, file, schema, prefix in [
+        ('registry', '01_tree/points.json', '01_tree/points.schema.json', ''),
+        ('authored', '05_writing/work/sections/<section>/unit-<question>.json', '05_writing/writing-unit.schema.json', ''),
+        ('bridge', '05_writing/work/sections/<section>/bridge.json', '05_writing/bridge.schema.json', ''),
+        ('glossary', '05_writing/work/sections/<section>/glossary.json', '05_writing/glossary.schema.json', ''),
+        ('sentence', '05_writing/work/sections/<section>/source-pack.json', None, 'sources[0].sentences[0]'),
+    ]:
+        docs[key] = {'value': None, 'file': file, 'schema': schema, 'prefix': prefix}
+    docs['point'] = dict(docs['registry'], prefix='points[0]')
+    docs['previous_authored'] = dict(docs['authored'], file='05_writing/work/sections/<previous>/unit-<question>.json')
+    docs['term'] = dict(docs['glossary'], prefix='terms[0]')
     return docs
 
 
@@ -171,21 +218,22 @@ def coverage_rows(sid, docs):
     value = lambda key: docs.get(key, {}).get('value') or {}
     if sid == '00':
         return [ratio('材料已保存', int(value('source').get('status') == 'acquired') if value('input') else None, 1 if value('input') else None)]
-    if sid == '01':
+    if sid == '01.1':
         cov = value('material').get('coverage', {})
         content, objects = cov.get('content', {}), cov.get('objects', {})
         return [ratio('本地材料内容已提取', content.get('covered'), content.get('expected')), ratio('引用对象可读取', objects.get('available'), objects.get('expected'))]
     if sid == '02':
         cov = value('questions').get('coverage', {})
-        return [ratio('材料已有问题承接', cov.get('covered'), cov.get('total')), ratio('问题与材料引用次数', cov.get('links'), cov.get('total'), '至少 100%，允许重复引用')]
+        if 'teaching_nodes' in cov:
+            return [ratio('材料去向明确', cov.get('covered'), cov.get('total')), ratio('应讲解内容已有具体问题负责', cov.get('teaching_assigned'), cov.get('teaching_nodes'))]
+        return [ratio('历史材料已有问题承接', cov.get('covered'), cov.get('total'))]
     if sid == '03':
         cov = value('chapters').get('coverage', {})
         return [ratio('问题已有章节归属', cov.get('assigned_questions'), cov.get('question_nodes')), ratio('问题分配次数', cov.get('assignments'), cov.get('question_nodes'), '恰好 100%')]
-    if sid == '04':
-        cov = value('transitions').get('coverage', {})
-        return [ratio('标题已有承接', cov.get('covered_titles'), cov.get('titles'))]
-    if sid == '06':
+    if sid == '07':
         cov = value('coverage')
+        if cov.get('semantic_review') == 'not_run':
+            return [ratio('材料引用覆盖', cov.get('covered'), cov.get('expected'))]
         return [ratio('当前小节已讲清信息点', cov.get('explained_points'), cov.get('total_points'))]
     return []
 
@@ -194,44 +242,62 @@ def snapshot(store, project_id=None):
     definition = load(VIEW / 'stages.json')
     project = store.project(project_id) if project_id else None
     root = Path(project['path']).resolve() if project else None
+    using_example = not project and any((EXAMPLE / ('05_writing/' + name)).is_file() for name in ['book.json','preview-book.json'])
+    if using_example:
+        root = EXAMPLE
     docs = contexts(root) if root else framework_contexts()
     jobs = [j for j in store.jobs() if project and j['project_id'] == project_id and json.loads(j['payload']).get('_type') != 'qa']
     job = jobs[0] if jobs else None
-    metrics = None
+    metrics = load(root / 'runtime/metrics-final.json') if using_example else None
     if job:
         from .metrics import report
         metrics = report(root, job)
     state = load(root / 'runtime/state.json') if root else None
-    base = '/p/' + quote(project_id, safe='') + '/' if project else ''
+    base = '/p/' + quote(project_id, safe='') + '/' if project else '/framework-example/' if using_example else ''
     stages = []
     for spec in definition['stages']:
         rows = []
-        for doc_key, field, explanation, rule in spec['fields']:
+        for field_spec in spec['fields']:
+            doc_key, field = field_spec['doc'], field_spec['field']
+            explanation, rule = field_spec['description'], field_spec['rule']
             context = docs.get(doc_key, {})
             prefix = context.get('prefix', '')
             path = (prefix + '.' if prefix else '') + field
             raw = lookup(context.get('value'), field)
+            present = has_path(context.get('value'), field)
+            if field_spec.get('combine'):
+                components = [lookup(context.get('value'), key) for key in field_spec['combine']]
+                raw = ''.join(components) if all(isinstance(item, str) for item in components) else None
+                present = all(has_path(context.get('value'), key) for key in field_spec['combine'])
+                path = ' + '.join((prefix + '.' if prefix else '') + key for key in field_spec['combine'])
             # 上传文件显示文件名，磁盘绝对路径留在私人运行目录中
             if doc_key == 'input' and field == 'material' and isinstance(raw, str) and not raw.startswith(('https://', 'http://')):
                 raw = PureWindowsPath(raw).name
-            rows.append({'key': spec['id'] + ':' + doc_key + ':' + field, 'path': path, 'description': explanation, 'rule': rule,
-                         'type': schema_type(context.get('schema'), path), 'value': display(raw),
-                         'file': context.get('file'), 'schema': context.get('schema'),
-                         'url': base + context['file'] if project and context.get('file') and context.get('value') is not None else None})
+            rows.append({'key': field_spec['key'], 'path': path, 'description': explanation, 'rule': rule,
+                         'side': field_spec['side'], 'label': field_spec['label'],
+                         'type': schema_type(context.get('schema'), path) if schema_type(context.get('schema'), path) != '按实际产物记录' else field_spec['type'], 'value': 'null' if raw is None and present else display(raw),
+                         'file': ('framework/examples/minimal-web/' + context['file']) if using_example and context.get('file') else context.get('file'), 'schema': context.get('schema'),
+                         'url': base + context['file'] if root and context.get('file') and context.get('value') is not None else None})
         cov = coverage_rows(spec['id'], docs)
-        artifact_key = {'00': 'source', '01': 'material', '02': 'questions', '03': 'chapters', '04': 'transitions', '05': 'section', '06': 'coverage', '07': 'book'}[spec['id']]
+        artifact_key = spec['artifact']
         artifact = docs.get(artifact_key, {}).get('value')
         validation = (artifact or {}).get('validation', {})
-        status = '未选择项目' if not project else '尚未生成' if not artifact else '已有结果'
+        status = '未选择项目' if not root else '尚未生成' if not artifact else '已有结果'
         if artifact and validation.get('passed') is False:
             status = '预览待审' if (artifact.get('preview') or validation.get('status') == 'preview_not_published') else '检查未通过'
         elif artifact and validation.get('passed') is True:
             status = '检查通过'
-        if spec['id'] == '06' and artifact:
+        if spec['id'] == '07' and artifact:
             status = '检查通过' if artifact.get('passed') is True else '检查未通过' if artifact.get('passed') is False else '已有覆盖记录，待审'
         if spec['id'] == '00' and artifact:
             status = {'acquired': '材料已保存', 'unavailable': '获取失败'}.get(artifact.get('status'), '已有结果')
         related = [m for m in (metrics or {}).get('stages', []) if m['stage'] in spec['metrics']]
+        if project and not artifact and spec['id'] in {'04', '05', '06'} and docs['section'].get('value'):
+            status = '保留旧稿，本阶段新版产物尚未生成'
+        if artifact and spec['id'] == '03' and not artifact.get('title_format_version'):
+            status = '旧版检查通过，新版标题格式尚未生成' if validation.get('passed') else status
+        if using_example:
+            status = '框架真实案例 · ' + status
         stages.append(dict(spec, fields=rows, coverage=cov, status=status, metrics=related))
     image = None
     if root:
@@ -249,6 +315,8 @@ def snapshot(store, project_id=None):
             'active': bool(job and job['status'] in {'running', 'queued', 'cancelling'}),
             'job': {'id': job['id'], 'status': job['status']} if job else None,
             'version': book.get('writing_run') or (docs.get('material', {}).get('value') or {}).get('run'),
-            'preview': bool(book.get('preview')), 'stages': stages, 'material_image': image,
+            'preview': bool(book.get('preview')), 'stages': stages, 'material_image': image, 'using_example': using_example,
+            'writing_contract_version': (docs['section']['value'] or {}).get('writing_contract_version', 'legacy'),
+            'legacy_unit': docs['unit'].get('value') if not (docs['section']['value'] or {}).get('writing_contract_version') else None,
             'reader_url': base + 'book.html' + ('?preview=true' if book.get('preview') else '') if book else None,
             'metrics_url': '/api/jobs/' + job['id'] + '/metrics' if job else None}

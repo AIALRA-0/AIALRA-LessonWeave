@@ -1,0 +1,2250 @@
+{
+  "type": "object",
+  "properties": {
+    "question_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "plan": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              },
+              "resource_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "id",
+              "statement",
+              "resource_ids"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "premise": {
+      "type": "string",
+      "minLength": 1
+    },
+    "explanation": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title_premise": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title_question": {
+            "type": "string",
+            "minLength": 1
+          },
+          "claim": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reasoning": {
+            "type": "string",
+            "minLength": 1
+          },
+          "grounding": {
+            "type": "string",
+            "minLength": 1
+          },
+          "supplement": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resource_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "plan_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "caption": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "source_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "minItems": 1
+                    },
+                    "kind": {
+                      "const": "image"
+                    },
+                    "asset": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "alt": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "source_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "source_region": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "guide": {
+                      "type": "object",
+                      "properties": {
+                        "reading_guide": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        },
+                        "components": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "math_label": {
+                                "type": "boolean"
+                              },
+                              "explanation": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              }
+                            },
+                            "required": [
+                              "label",
+                              "math_label",
+                              "explanation"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "explanation": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "formula": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "pattern": "\\S"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "formula"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "takeaway": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        }
+                      },
+                      "required": [
+                        "reading_guide",
+                        "components",
+                        "explanation",
+                        "takeaway"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "caption",
+                    "source_refs",
+                    "kind",
+                    "asset",
+                    "alt",
+                    "source_id",
+                    "source_region",
+                    "guide"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "caption": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "source_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "minItems": 1
+                    },
+                    "kind": {
+                      "const": "table"
+                    },
+                    "headers": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      }
+                    },
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": [
+                            "string",
+                            "number",
+                            "null"
+                          ]
+                        }
+                      }
+                    },
+                    "guide": {
+                      "type": "object",
+                      "properties": {
+                        "reading_guide": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        },
+                        "components": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "math_label": {
+                                "type": "boolean"
+                              },
+                              "explanation": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              }
+                            },
+                            "required": [
+                              "label",
+                              "math_label",
+                              "explanation"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "explanation": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "formula": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "pattern": "\\S"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "formula"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "takeaway": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        }
+                      },
+                      "required": [
+                        "reading_guide",
+                        "components",
+                        "explanation",
+                        "takeaway"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "caption",
+                    "source_refs",
+                    "kind",
+                    "headers",
+                    "rows",
+                    "guide"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "caption": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "source_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "minItems": 1
+                    },
+                    "kind": {
+                      "const": "mermaid"
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "guide": {
+                      "type": "object",
+                      "properties": {
+                        "reading_guide": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        },
+                        "components": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "math_label": {
+                                "type": "boolean"
+                              },
+                              "explanation": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              }
+                            },
+                            "required": [
+                              "label",
+                              "math_label",
+                              "explanation"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "explanation": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "formula": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "pattern": "\\S"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "formula"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "takeaway": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        }
+                      },
+                      "required": [
+                        "reading_guide",
+                        "components",
+                        "explanation",
+                        "takeaway"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "caption",
+                    "source_refs",
+                    "kind",
+                    "text",
+                    "guide"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "caption": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "source_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "minItems": 1
+                    },
+                    "kind": {
+                      "const": "formula"
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "guide": {
+                      "type": "object",
+                      "properties": {
+                        "reading_guide": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        },
+                        "components": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "math_label": {
+                                "type": "boolean"
+                              },
+                              "explanation": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              }
+                            },
+                            "required": [
+                              "label",
+                              "math_label",
+                              "explanation"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "explanation": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "formula": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "pattern": "\\S"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "formula"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "takeaway": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        }
+                      },
+                      "required": [
+                        "reading_guide",
+                        "components",
+                        "explanation",
+                        "takeaway"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "caption",
+                    "source_refs",
+                    "kind",
+                    "text",
+                    "guide"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "caption": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "source_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "minItems": 1
+                    },
+                    "kind": {
+                      "const": "code"
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "language": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "filename": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "runs": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "inputs": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "outputs": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          }
+                        },
+                        "required": [
+                          "inputs",
+                          "outputs"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "guide": {
+                      "type": "object",
+                      "properties": {
+                        "line_annotations": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "line_start": {
+                                "type": "integer",
+                                "minimum": 1
+                              },
+                              "line_end": {
+                                "type": "integer",
+                                "minimum": 1
+                              },
+                              "role": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "sentence": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              }
+                            },
+                            "required": [
+                              "line_start",
+                              "line_end",
+                              "role",
+                              "sentence"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "overview": {
+                          "type": "object",
+                          "properties": {
+                            "premise": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "action": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "result": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "premise",
+                            "action",
+                            "result"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "segments": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "line_start": {
+                                "type": "integer",
+                                "minimum": 1
+                              },
+                              "line_end": {
+                                "type": "integer",
+                                "minimum": 1
+                              },
+                              "id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "title_premise": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "title_question": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "overview": {
+                                "type": "object",
+                                "properties": {
+                                  "premise": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "pattern": "\\S"
+                                  },
+                                  "action": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "pattern": "\\S"
+                                  },
+                                  "result": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "pattern": "\\S"
+                                  }
+                                },
+                                "required": [
+                                  "premise",
+                                  "action",
+                                  "result"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "components": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "line_start": {
+                                      "type": "integer",
+                                      "minimum": 1
+                                    },
+                                    "line_end": {
+                                      "type": "integer",
+                                      "minimum": 1
+                                    },
+                                    "owner": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "pattern": "\\S"
+                                    },
+                                    "name": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "pattern": "\\S"
+                                    },
+                                    "kind": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "pattern": "\\S"
+                                    },
+                                    "type": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "pattern": "\\S"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "default": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "pattern": "\\S"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "purpose": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "pattern": "\\S"
+                                    }
+                                  },
+                                  "required": [
+                                    "line_start",
+                                    "line_end",
+                                    "owner",
+                                    "name",
+                                    "kind",
+                                    "type",
+                                    "default",
+                                    "purpose"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "core_logic": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "line_start": {
+                                      "type": "integer",
+                                      "minimum": 1
+                                    },
+                                    "line_end": {
+                                      "type": "integer",
+                                      "minimum": 1
+                                    },
+                                    "explanation": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "pattern": "\\S"
+                                    },
+                                    "example": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "pattern": "\\S"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "line_start",
+                                    "line_end",
+                                    "explanation",
+                                    "example"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "takeaway": {
+                                "type": "object",
+                                "properties": {
+                                  "conclusion": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "pattern": "\\S"
+                                  },
+                                  "relation_to_whole": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "pattern": "\\S"
+                                  }
+                                },
+                                "required": [
+                                  "conclusion",
+                                  "relation_to_whole"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "line_start",
+                              "line_end",
+                              "id",
+                              "title_premise",
+                              "title_question",
+                              "overview",
+                              "components",
+                              "core_logic",
+                              "takeaway"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "summary": {
+                          "type": "object",
+                          "properties": {
+                            "answer": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "collaboration": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "answer",
+                            "collaboration"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "line_annotations",
+                        "overview",
+                        "segments",
+                        "summary"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "caption",
+                    "source_refs",
+                    "kind",
+                    "text",
+                    "language",
+                    "filename",
+                    "runs",
+                    "guide"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "caption": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "source_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "minItems": 1
+                    },
+                    "kind": {
+                      "const": "model"
+                    },
+                    "asset": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "vertices": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 3,
+                        "maxItems": 3
+                      },
+                      "minItems": 1
+                    },
+                    "faces": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "minItems": 3
+                      },
+                      "minItems": 1
+                    },
+                    "unit": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "parts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "label": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          },
+                          "face_indices": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "face_indices"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "guide": {
+                      "type": "object",
+                      "properties": {
+                        "reading_guide": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        },
+                        "components": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "math_label": {
+                                "type": "boolean"
+                              },
+                              "explanation": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              }
+                            },
+                            "required": [
+                              "label",
+                              "math_label",
+                              "explanation"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "explanation": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "formula": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "pattern": "\\S"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "formula"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "takeaway": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        }
+                      },
+                      "required": [
+                        "reading_guide",
+                        "components",
+                        "explanation",
+                        "takeaway"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "caption",
+                    "source_refs",
+                    "kind",
+                    "asset",
+                    "vertices",
+                    "faces",
+                    "unit",
+                    "parts",
+                    "guide"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "caption": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "source_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "minItems": 1
+                    },
+                    "kind": {
+                      "const": "video"
+                    },
+                    "asset": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "poster": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "cues": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "time": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          }
+                        },
+                        "required": [
+                          "time",
+                          "label"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "guide": {
+                      "type": "object",
+                      "properties": {
+                        "reading_guide": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        },
+                        "components": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "math_label": {
+                                "type": "boolean"
+                              },
+                              "explanation": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              }
+                            },
+                            "required": [
+                              "label",
+                              "math_label",
+                              "explanation"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "explanation": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "formula": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "pattern": "\\S"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "formula"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "takeaway": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        }
+                      },
+                      "required": [
+                        "reading_guide",
+                        "components",
+                        "explanation",
+                        "takeaway"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "caption",
+                    "source_refs",
+                    "kind",
+                    "asset",
+                    "poster",
+                    "cues",
+                    "guide"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "caption": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "source_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "minItems": 1
+                    },
+                    "kind": {
+                      "const": "audio"
+                    },
+                    "asset": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "cues": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "time": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "\\S"
+                          }
+                        },
+                        "required": [
+                          "time",
+                          "label"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "guide": {
+                      "type": "object",
+                      "properties": {
+                        "reading_guide": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        },
+                        "components": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "math_label": {
+                                "type": "boolean"
+                              },
+                              "explanation": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              }
+                            },
+                            "required": [
+                              "label",
+                              "math_label",
+                              "explanation"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "explanation": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "formula": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "pattern": "\\S"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "formula"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "takeaway": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        }
+                      },
+                      "required": [
+                        "reading_guide",
+                        "components",
+                        "explanation",
+                        "takeaway"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "caption",
+                    "source_refs",
+                    "kind",
+                    "asset",
+                    "cues",
+                    "guide"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "caption": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "source_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "minItems": 1
+                    },
+                    "kind": {
+                      "const": "interactive"
+                    },
+                    "asset": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "guide": {
+                      "type": "object",
+                      "properties": {
+                        "reading_guide": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        },
+                        "components": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "math_label": {
+                                "type": "boolean"
+                              },
+                              "explanation": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              }
+                            },
+                            "required": [
+                              "label",
+                              "math_label",
+                              "explanation"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "explanation": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": "\\S"
+                              },
+                              "formula": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "pattern": "\\S"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "formula"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "takeaway": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        }
+                      },
+                      "required": [
+                        "reading_guide",
+                        "components",
+                        "explanation",
+                        "takeaway"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "caption",
+                    "source_refs",
+                    "kind",
+                    "asset",
+                    "guide"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "title_premise",
+          "title_question",
+          "claim",
+          "reasoning",
+          "grounding",
+          "supplement",
+          "resource_ids",
+          "plan_ids",
+          "resources"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "answer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "generalization": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "answer",
+        "generalization"
+      ],
+      "additionalProperties": false
+    },
+    "appendix": {
+      "type": "object",
+      "properties": {
+        "pitfalls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "premise": {
+                "type": "string"
+              },
+              "question": {
+                "type": "string"
+              },
+              "body": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "const": "paragraph"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "kind",
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "premise",
+              "question",
+              "body"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "quiz": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "const": "single_choice"
+                  },
+                  "question_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "prompt": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "const": "paragraph"
+                      },
+                      "text": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "kind",
+                      "text"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "answer": {
+                    "type": "integer"
+                  },
+                  "explanation": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "const": "paragraph"
+                      },
+                      "text": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "kind",
+                      "text"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "id",
+                  "kind",
+                  "question_ids",
+                  "prompt",
+                  "options",
+                  "answer",
+                  "explanation"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "const": "short_answer"
+                  },
+                  "question_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "prompt": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "const": "paragraph"
+                      },
+                      "text": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "kind",
+                      "text"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "reference_answer": {
+                    "type": "string"
+                  },
+                  "rubric": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "explanation": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "const": "paragraph"
+                      },
+                      "text": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "kind",
+                      "text"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "id",
+                  "kind",
+                  "question_ids",
+                  "prompt",
+                  "reference_answer",
+                  "rubric",
+                  "explanation"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "terms": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "abbreviation": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "string",
+                    "not": {
+                      "pattern": "[\\r\\n\\u2028\\u2029]"
+                    }
+                  }
+                ]
+              },
+              "chinese": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S",
+                "allOf": [
+                  {
+                    "not": {
+                      "pattern": "[\\r\\n\\u2028\\u2029]"
+                    }
+                  }
+                ]
+              },
+              "english": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S",
+                "allOf": [
+                  {
+                    "not": {
+                      "pattern": "[\\r\\n\\u2028\\u2029]"
+                    }
+                  }
+                ]
+              },
+              "professional_definition": {
+                "type": "object",
+                "properties": {
+                  "genus": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "allOf": [
+                      {
+                        "not": {
+                          "pattern": "[\\r\\n\\u2028\\u2029]"
+                        }
+                      }
+                    ]
+                  },
+                  "differentia": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "allOf": [
+                      {
+                        "not": {
+                          "pattern": "[\\r\\n\\u2028\\u2029]"
+                        }
+                      }
+                    ]
+                  },
+                  "boundary": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "allOf": [
+                      {
+                        "not": {
+                          "pattern": "[\\r\\n\\u2028\\u2029]"
+                        }
+                      }
+                    ]
+                  },
+                  "extension": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "not": {
+                          "pattern": "[\\r\\n\\u2028\\u2029]"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "genus",
+                  "differentia",
+                  "boundary",
+                  "extension"
+                ],
+                "additionalProperties": false
+              },
+              "intuitive_explanation": {
+                "type": "object",
+                "properties": {
+                  "anchor": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "allOf": [
+                      {
+                        "not": {
+                          "pattern": "[\\r\\n\\u2028\\u2029]"
+                        }
+                      }
+                    ]
+                  },
+                  "mapping": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "allOf": [
+                      {
+                        "not": {
+                          "pattern": "[\\r\\n\\u2028\\u2029]"
+                        }
+                      }
+                    ]
+                  },
+                  "intuition": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "allOf": [
+                      {
+                        "not": {
+                          "pattern": "[\\r\\n\\u2028\\u2029]"
+                        }
+                      }
+                    ]
+                  },
+                  "extension": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "not": {
+                          "pattern": "[\\r\\n\\u2028\\u2029]"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "anchor",
+                  "mapping",
+                  "intuition",
+                  "extension"
+                ],
+                "additionalProperties": false
+              },
+              "typical_example": {
+                "type": "object",
+                "properties": {
+                  "initial_conditions": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "allOf": [
+                      {
+                        "not": {
+                          "pattern": "[\\r\\n\\u2028\\u2029]"
+                        }
+                      }
+                    ]
+                  },
+                  "mechanism": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "allOf": [
+                      {
+                        "not": {
+                          "pattern": "[\\r\\n\\u2028\\u2029]"
+                        }
+                      }
+                    ]
+                  },
+                  "outcome": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "allOf": [
+                      {
+                        "not": {
+                          "pattern": "[\\r\\n\\u2028\\u2029]"
+                        }
+                      }
+                    ]
+                  },
+                  "extension": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "not": {
+                          "pattern": "[\\r\\n\\u2028\\u2029]"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "initial_conditions",
+                  "mechanism",
+                  "outcome",
+                  "extension"
+                ],
+                "additionalProperties": false
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S",
+                "allOf": [
+                  {
+                    "not": {
+                      "pattern": "[\\r\\n\\u2028\\u2029]"
+                    }
+                  }
+                ]
+              },
+              "aliases": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "allOf": [
+                    {
+                      "not": {
+                        "pattern": "[\\r\\n\\u2028\\u2029]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "kind": {
+                "enum": [
+                  "concept",
+                  "initialism",
+                  "unit",
+                  "official_name"
+                ]
+              },
+              "components": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "word": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "symbol",
+                    "word"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "official_spelling": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "case_source": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "abbreviation",
+              "chinese",
+              "english",
+              "professional_definition",
+              "intuitive_explanation",
+              "typical_example",
+              "id",
+              "aliases",
+              "kind",
+              "components",
+              "official_spelling",
+              "case_source"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "local_notations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "symbol",
+                  "expression"
+                ]
+              },
+              "symbol": {
+                "type": "string"
+              },
+              "meaning": {
+                "type": "string"
+              },
+              "definition_block_id": {
+                "type": "string"
+              },
+              "definition_quote": {
+                "type": "string"
+              },
+              "scope_block_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "component_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "symbol",
+              "meaning",
+              "definition_block_id",
+              "definition_quote",
+              "scope_block_ids",
+              "component_ids"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "pitfalls",
+        "quiz",
+        "terms",
+        "local_notations"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "question_id",
+    "plan",
+    "premise",
+    "explanation",
+    "result",
+    "appendix"
+  ],
+  "additionalProperties": false
+}

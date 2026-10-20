@@ -15,7 +15,10 @@ def main():
     run.add_argument('--input', type=Path, required=True)
     run.add_argument('--name', default='新的学习项目')
     run.add_argument('--project', default=None)
-    run.add_argument('--repairs', type=int, default=3)
+    run.add_argument('--repairs', type=int, default=1, help='兼容旧命令；当前流程有问题时只执行一轮批量修复')
+    planning = sub.add_parser('plan')
+    planning.add_argument('path', type=Path)
+    planning.add_argument('--stage', choices=['questions', 'chapters'], required=True)
     add = sub.add_parser('register')
     add.add_argument('path', type=Path)
     add.add_argument('--id', required=True)
@@ -28,6 +31,10 @@ def main():
     if args.command == 'serve':
         from .server import serve as start
         start(args.host, args.port)
+    elif args.command == 'plan':
+        from .planning import run_questions, run_chapters
+        result = (run_questions if args.stage == 'questions' else run_chapters)(args.path)
+        print(json.dumps({'stage': args.stage, 'coverage': result.get('coverage'), 'validation': result.get('validation')}, ensure_ascii=False))
     elif args.command == 'register':
         print(json.dumps(Store().register(args.id, args.name, args.path, legacy=True), ensure_ascii=False))
     elif args.command == 'export':

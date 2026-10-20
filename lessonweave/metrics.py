@@ -10,14 +10,23 @@ from .storage import read,save,WRITE_LOCK
 LABELS={'acquire':'获取材料','parse':'解析材料','input_check':'检查输入','questions':'生成问题',
         'chapters':'规划章节','transitions':'规划承接','inventory':'清点材料','translation':'翻译材料',
         'writing':'生成讲解','extras':'生成练习与术语','overview':'汇总章节与全书',
-        'review':'独立审查','locations':'准备原文定位','package':'导出阅读包','library':'导入笔记库','qa':'阅读追问','other':'其他处理'}
+        'glossary':'整理术语表','review':'独立审查','locations':'准备原文定位','package':'导出阅读包','library':'导入笔记库','qa':'阅读追问','other':'其他处理'}
+LABELS['repair']='批量修复'
 
 
 def stage(name):
+    if name.startswith('02_questions-'):return 'questions'
+    if name.startswith('03_chapters-'):return 'chapters'
     if name in {'02_questions','03_chapters','04_transitions'}:
         return {'02_questions':'questions','03_chapters':'chapters','04_transitions':'transitions'}[name]
+    if name.startswith('c_repair-'):return 'repair'
+    if name.startswith('c_translation'):return 'translation'
+    if name.startswith('c_bridges'):return 'transitions'
+    if name.startswith('c_terms'):return 'glossary'
+    if '-c-' in name:return 'writing'
     if 'review' in name:return 'review'
     if 'inventory' in name:return 'inventory'
+    if '06_glossary' in name:return 'glossary'
     if 'english' in name:return 'translation'
     if '05_unit' in name:return 'writing'
     if '05_extras' in name:return 'extras'
@@ -106,7 +115,7 @@ def meter(value):
             found=next((receipt[name] for name in names if name in receipt),None)
             values.append(found)
         return sum(values) if all(v is not None for v in values) else None
-    cached=[r.get('cached_input_tokens',r.get('prompt_tokens_details',{}).get('cached_tokens')) for r in receipts]
+    cached=[r.get('cached_input_tokens',r.get('prompt_cache_hit_tokens',r.get('prompt_tokens_details',{}).get('cached_tokens'))) for r in receipts]
     return {'input_tokens':summed('input_tokens','prompt_tokens'),'output_tokens':summed('output_tokens','completion_tokens'),
             'cached_input_tokens':sum(cached) if all(v is not None for v in cached) else None}
 
@@ -145,6 +154,12 @@ def report(root,job):
                            queue_seconds=None,measurement='historical_file_times')
                 if stopped is not None:row['ended_at']=stopped
             calls.append(row)
+    # 全局修复轮次可能由前一步触发，后续任务的第一次实际调用仍属于初稿
+    seen_tasks=set()
+    for row in sorted(calls,key=lambda item:item.get('started_at') or float('inf')):
+        if row['classification_source']=='historical_round' and row['kind']=='repair' and row['task'] not in seen_tasks and row.get('started_at') is not None:
+            row['recorded_kind']=row['kind'];row['kind']='initial';row['classification_source']='first_task_call'
+        seen_tasks.add(row['task'])
     # 完整记录只统计本次任务，历史调用按时间范围归属并明确标为推算
     groups=[]
     for sid,label in LABELS.items():

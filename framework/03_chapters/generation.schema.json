@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "模型怎样只安排标题与问题归属",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["tree"],
+  "properties": {
+    "tree": {"$ref": "#/$defs/title"}
+  },
+  "$defs": {
+    "title": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "premise", "question", "focus", "question_ids", "children"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "kind": {"enum": ["book", "chapter", "section"]},
+        "premise": {"type": "string", "minLength": 1, "pattern": "^[^\\r\\n？?]+$"},
+        "question": {"type": "string", "pattern": "^[^\\r\\n？?]+？$"},
+        "focus": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "question_ids": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "uniqueItems": true
+        },
+        "children": {"type": "array", "items": {"$ref": "#/$defs/title"}}
+      }
+    }
+  }
+}

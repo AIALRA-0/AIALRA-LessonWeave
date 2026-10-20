@@ -10,7 +10,15 @@ and tree-sitter-language-pack. Docling is an optional parser integration.
 The Codex CLI is installed separately from the official OpenAI distribution.
 
 The architecture viewer bundles Mermaid 10.9.3 under the MIT license.
-Its license is preserved in 04-framework/architecture/vendor/LICENSE-mermaid.txt.
+Its license is preserved in framework/architecture/vendor/LICENSE-mermaid.txt.
+The reader also bundles Mermaid and KaTeX 0.16.22 under their retained MIT licenses
+in framework/reader/media-vendor.
 
 The repository's examples are self-authored synthetic materials.
 User-supplied materials and generated private books are not distributed here.
+
+ReplayWeb.page 2.5.3 is redistributed without modification under AGPL-3.0-or-later.
+Its license is preserved in framework/reader/archive/LICENSE-ReplayWeb.page.txt.
+Source: https://github.com/webrecorder/replayweb.page/tree/v2.5.3
+Browsertrix Crawler 1.15.0 runs as a separately installed container.
+warcio 1.7.5 retains its Apache-2.0 license.

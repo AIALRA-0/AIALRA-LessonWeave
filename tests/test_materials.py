@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 import fitz
 
-FRAME=Path(__file__).resolve().parents[1]/'04-framework'
+FRAME=Path(__file__).resolve().parents[1]/'framework'
 sys.path.insert(0,str(FRAME/'01_tree'))
 sys.path.insert(0,str(FRAME/'05_writing'))
 from tree_document import parse_native_pdf

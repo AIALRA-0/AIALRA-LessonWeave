@@ -81,3 +81,28 @@ def test_new_job_report_excludes_other_jobs_and_reports_rounds(tmp_path,monkeypa
     with metrics.span(tmp_path,'other','repair_round',round=1):pass
     value=metrics.report(tmp_path,{'id':'current','status':'completed','created':now,'updated':time.time()})
     assert len(value['steps'])==1 and value['summary']['repair_rounds_entered']==1
+
+
+def test_first_task_call_is_initial_even_after_an_earlier_stage_repair(tmp_path,monkeypatch):
+    # 材料清点触发全局修复后，正文任务的首次实际调用仍按初稿计量
+    class Fixture:
+        capabilities={'images':False}
+        def execute(self,task,folder):return {'text':'完整讲解'},{'usage':[{'input_tokens':10,'output_tokens':3,'cached_input_tokens':0}]}
+    monkeypatch.setitem(agents.ADAPTERS,'fixture',Fixture)
+    monkeypatch.setenv('LESSONWEAVE_BACKEND','fixture');monkeypatch.setenv('LESSONWEAVE_JOB_ID','job')
+    save(tmp_path/'runtime/state.json',{'round':2})
+    began=time.time();schema={'type':'object','properties':{'text':{'type':'string'}},'required':['text']}
+    agents.Backend(tmp_path,role='writing').call('s-05_unit-q1','正文任务',schema)
+    value=metrics.report(tmp_path,{'id':'job','status':'completed','created':began,'updated':time.time()})
+    assert value['calls'][0]['kind']=='initial' and value['summary']['repair_calls']==0
+
+
+def test_first_batch_repair_keeps_its_explicit_recorded_kind(tmp_path):
+    # 批量修复有独立任务名，首次调用仍是修复，不能误记为初稿
+    now=time.time();folder=tmp_path/'runtime/calls/c_repair-batch/request'
+    save(folder/'usage.json',{'task':'c_repair-batch','job_id':'job','status':'completed',
+        'attempt_kind':'repair','round':0,'started_at':now-2,
+        'usage':[{'input_tokens':10,'output_tokens':3,'cached_input_tokens':0}]})
+    value=metrics.report(tmp_path,{'id':'job','status':'completed','created':now-10,'updated':now})
+    assert value['calls'][0]['kind']=='repair'
+    assert value['summary']['repair_calls']==1 and value['summary']['initial_generation_seconds']==0

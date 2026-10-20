@@ -108,11 +108,13 @@ def main():
             if published.get('validation',{}).get('passed'):
                 result=dict(read(root/'runtime/state.json',{}),status='completed',issues=[])
             else:
-                result=run(root)
+                result=run(root,maximum=1)
             from .trilium import sync_project,configured
             if configured() and (root/'05_writing/preview-book.json').is_file():
                 try:
                     from .metrics import span
+                    from .pipeline import update_state
+                    update_state(root,stage='library/sync')
                     with span(root,'library','phase'):
                         sync_project(store,project,root)
                     result.update(library_sync='completed')

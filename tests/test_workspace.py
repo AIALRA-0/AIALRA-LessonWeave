@@ -75,6 +75,7 @@ def test_active_project_stays_outside_trash(tmp_path):
 def test_progress_counts_actual_completed_tasks(tmp_path,monkeypatch):
     # 当前步骤的完成数来自实际响应或复用，未通过整书检查时保留待完成阶段
     monkeypatch.delenv('LESSONWEAVE_TRILIUM_URL',raising=False)
+    save(tmp_path/'runtime/state.json',{'workflow':'lean-c-1.0','stage':'05_writing/c'})
     begin(tmp_path,'逐问生成',['first','second','third'])
     tick(tmp_path,'first','completed')
     tick(tmp_path,'second','reused')

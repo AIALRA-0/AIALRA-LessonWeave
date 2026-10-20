@@ -21,7 +21,15 @@ def save(path, value):
     with WRITE_LOCK:
         temporary = path.with_name(path.name + '.' + uuid.uuid4().hex + '.tmp')
         temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-        os.replace(temporary, path)
+        # Windows 可能短暂占用刚被读取的目标文件，重试替换不会重新执行生成任务
+        for attempt in range(10):
+            try:
+                os.replace(temporary, path)
+                break
+            except PermissionError as error:
+                if os.name != 'nt' or getattr(error,'winerror',None) not in {5,32,33} or attempt == 9:
+                    raise
+                time.sleep(min(.01 * 2 ** attempt,.2))
 
 
 def data_root():
@@ -123,11 +131,6 @@ class Store:
             job=db.execute('SELECT project_id,status FROM jobs WHERE id=?',(key,)).fetchone()
             if not job or db.execute('SELECT deleted FROM projects WHERE id=?',(job['project_id'],)).fetchone()['deleted']:
                 raise ValueError('先从回收站恢复项目，再继续任务')
-            if job['status']=='needs_review':
-                project=db.execute('SELECT path FROM projects WHERE id=?',(job['project_id'],)).fetchone()
-                state=read(Path(project['path'])/'runtime/state.json',{})
-                if state.get('round',0)>=state.get('maximum',3):
-                    raise ValueError('本次已经达到返修上限，完整稿和检查问题已保留')
             if db.execute("SELECT 1 FROM jobs WHERE project_id=? AND id<>? AND status IN ('running','queued','cancelling')",(job['project_id'],key)).fetchone():
                 raise ValueError('这个项目已有任务正在处理')
             changed=db.execute("UPDATE jobs SET status='queued',updated=? WHERE id=? AND status IN ('interrupted','needs_review','failed','cancelled')", (time.time(), key)).rowcount

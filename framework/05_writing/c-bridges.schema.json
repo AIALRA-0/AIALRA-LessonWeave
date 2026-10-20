@@ -1,0 +1,43 @@
+{
+  "type": "object",
+  "properties": {
+    "bridges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "section_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "carryover": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "premise": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "question": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "required": [
+          "section_id",
+          "carryover",
+          "premise",
+          "question"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "bridges"
+  ],
+  "additionalProperties": false
+}
