@@ -1,0 +1,23 @@
+.env.example
+  s_bd317cec756d17::t_68f714f295569b 5-6
+lessonweave/generation_settings.py
+  s_bd317cec756d17::t_68f714f295569b 17-21
+tests/test_generation_settings.py
+  s_bd317cec756d17::t_68f714f295569b 35-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "53720b8271f5c08a55306df1436e638ae74eb5a1",
+  "prompts": {},
+  "sessions": {
+    "s_bd317cec756d17": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b69-207f-7e61-ba85-f7edc501349a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    }
+  }
+}
