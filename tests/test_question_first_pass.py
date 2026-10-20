@@ -175,7 +175,7 @@ def test_common_planning_entry_skips_fact_inventory_and_calls_two_stages(tmp_pat
     # 完整规划入口只调用问题和章节两个任务，逐事实清点和承接正文均不提前生成
     _, response = fixture(tmp_path)
     import information_points
-    monkeypatch.setattr(information_points, 'build', lambda *args: (_ for _ in ()).throw(AssertionError('旧全局清点被调用')))
+    assert not hasattr(information_points, 'build')
     calls = []
 
     class Backend:
