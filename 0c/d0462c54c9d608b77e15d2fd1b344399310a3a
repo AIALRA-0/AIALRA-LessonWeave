@@ -1,0 +1,29 @@
+tests/test_acquisition_production.py
+  s_bd317cec756d17::t_0021040664dc4b 49
+  s_bd317cec756d17::t_f5ad42c081303a 34-48
+framework/01_tree/tree_web.py
+  s_bd317cec756d17::t_f5ad42c081303a 5-6,22,42-43
+framework/01_tree/content_checks.py
+  s_bd317cec756d17::t_f5ad42c081303a 69-79,124,126
+  s_bd317cec756d17::t_d40a41511f5083 194,260
+lessonweave/jobs.py
+  s_bd317cec756d17::t_f5ad42c081303a 125-127
+framework/00_source/web_archive.py
+  s_bd317cec756d17::t_fe225d8901f5e4 163,240
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0cd0462c54c9d608b77e15d2fd1b344399310a3a",
+  "prompts": {},
+  "sessions": {
+    "s_bd317cec756d17": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b69-207f-7e61-ba85-f7edc501349a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    }
+  }
+}
