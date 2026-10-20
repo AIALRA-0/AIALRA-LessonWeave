@@ -103,6 +103,10 @@ def test_first_batch_repair_keeps_its_explicit_recorded_kind(tmp_path):
     save(folder/'usage.json',{'task':'c_repair-batch','job_id':'job','status':'completed',
         'attempt_kind':'repair','round':0,'started_at':now-2,
         'usage':[{'input_tokens':10,'output_tokens':3,'cached_input_tokens':0}]})
+    save(tmp_path/'runtime/timing.json',{'records':[{'id':'repair','job_id':'job','stage':'repair',
+        'operation':'phase','status':'completed','started_at':now-3,'ended_at':now-1,'elapsed_seconds':2}]})
     value=metrics.report(tmp_path,{'id':'job','status':'completed','created':now-10,'updated':now})
     assert value['calls'][0]['kind']=='repair'
     assert value['summary']['repair_calls']==1 and value['summary']['initial_generation_seconds']==0
+    assert value['summary']['repair_rounds_entered']==value['summary']['repair_rounds_with_model_calls']==1
+    assert value['summary']['repair_batch_seconds']==2

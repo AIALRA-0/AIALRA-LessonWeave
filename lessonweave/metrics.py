@@ -181,7 +181,7 @@ def report(root,job):
     reviews=[row for row in calls if row['stage']=='review']
     retries=[row for row in calls if row['kind']=='retry']
     queue=[row for row in records if row['operation']=='job_queue']
-    rounds=[row for row in records if row['operation']=='repair_round']
+    rounds=[row for row in records if row['operation']=='repair_round' or (row['stage']=='repair' and row['operation']=='phase')]
     scripts=[row for row in records if row['operation'] in {'check','format'}]
     summary={'elapsed_seconds':round(max(0,end-job['created']),3),'job_queue_seconds':union_seconds(queue,end) if queue else None,
              'execution_seconds':union_seconds([row for row in records if row['operation']=='job_run'],end) if records else None,
@@ -198,7 +198,7 @@ def report(root,job):
              'repair_rounds_entered':len(rounds) if rounds else None,
              'repair_batch_seconds':union_seconds(rounds,end) if rounds else None,
              'review_failed_sections':sum(row['stage']=='review' and row.get('validation_passed') is False for row in records),
-             'repair_rounds_with_model_calls':len({row['round'] for row in calls if row['round']>0}),
+             'repair_rounds_with_model_calls':len({row['round'] for row in repair}),
              'unknown_usage_calls':sum(row['input_tokens'] is None or row['output_tokens'] is None for row in calls),
              'historical_estimate_calls':sum(row['measurement']=='historical_file_times' for row in calls)}
     if not records:
