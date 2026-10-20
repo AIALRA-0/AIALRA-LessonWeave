@@ -4,13 +4,15 @@ import time
 import os
 from .storage import read,save,WRITE_LOCK
 
+STAGE_GROUPS={'00':{'input_check','acquire'},'01':{'parse'},'02':{'questions'},'03':{'chapters'},'04':{'writing'},'05':{'translation'},'06':{'transitions'},'07':{'review'},'08':{'repair'},'09':{'assembly'},'10':{'locations'},'11':{'package'},'12':{'library'}}
+
 
 def stage_times(root,job,rows,state):
     """每阶段合并重叠记录，恢复前后的空档不计入实际执行时间"""
     from .metrics import union_seconds
     end=time.time() if job['status'] in {'queued','running','cancelling'} else job['updated']
     records=[r for r in read(root/'runtime/timing.json',{'records':[]})['records'] if r.get('job_id')==job.get('id')]
-    groups={'00':{'input_check','acquire'},'01':{'parse'},'02':{'questions'},'03':{'chapters'},'04':{'writing'},'05':{'translation'},'06':{'transitions'},'07':{'review'},'08':{'repair'},'09':{'assembly'},'10':{'locations'},'11':{'package'},'12':{'library'}}
+    groups=STAGE_GROUPS
     for row in rows:
         spans=[r for r in records if r['stage'] in groups[row['id']] and r['operation'] not in {'job_queue','job_run','slot_queue'}]
         seconds=union_seconds(spans,end) if spans else 0 if row['status']=='skipped' else None
@@ -109,9 +111,16 @@ def detailed_view(root,job,state):
         pending=next((r for r in rows if r['status']=='waiting'),None)
         if pending:pending['status']='failed' if job['status']=='failed' else 'interrupted'
     detail=[]
+    from .metrics import stage as task_stage,report
+    from .pricing import usage_totals,PRICING
+    metered=report(root,job) if job.get('id') else {'calls':[],'steps':[]}
+    for row in rows:
+        row['usage']=usage_totals([call for call in metered['calls'] if call['stage'] in STAGE_GROUPS[row['id']]])
+        row['reuse_count']=sum(step['operation']=='reuse' and step['stage'] in STAGE_GROUPS[row['id']] for step in metered['steps'])
+        row['groups']=sorted(STAGE_GROUPS[row['id']])
     for name,status in tasks.items():
         t=times.get(name,{})
-        detail.append({'name':name,'status':status,'elapsed_seconds':round(max(0,t.get('ended',now)-t.get('started',now))),**t})
+        detail.append({'name':name,'stage':'library' if name.startswith('attachment:') else task_stage(name),'status':status,'elapsed_seconds':round(max(0,t.get('ended',now)-t.get('started',now))),**t})
     current=[r['label'] for r in rows if r['status']=='running']
     result=job.get('result') or {}
     if isinstance(result,str):
@@ -123,6 +132,6 @@ def detailed_view(root,job,state):
         'phase':'已完成并保存' if job['status']=='completed' else '；'.join(current) or work.get('label','等待执行'),
         'done':finished if expected else sum(v in {'completed','reused'} for v in tasks.values()),'total':len(expected) or len(tasks),'active':sum(v=='running' for v in tasks.values()),'round':int(bool(repair.get('model_calls'))),'maximum':1,
         'elapsed_seconds':round(max(0,end-job['created'])),'updated':work.get('updated',state.get('updated_at',job['updated'])),
-        'observed_at':now,'tasks':detail,'coverage':qcoverage,'issues':state.get('issues',[]) or (result.get('issues',[]) if not active else []),
+        'observed_at':now,'tasks':detail,'coverage':qcoverage,'pricing':PRICING,'issues':state.get('issues',[]) or (result.get('issues',[]) if not active else []),
         'output_ready':(root/'05_writing/book.json').is_file() and (root/'05_writing/source-location/index.json').is_file(),
         'diagnosis':{},'workflow':'lean-c-1.0',**timing}

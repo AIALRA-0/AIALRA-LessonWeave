@@ -112,3 +112,16 @@
 @media(max-width:1100px){.reader-ui .demo-masthead{grid-template-columns:minmax(0,1fr) minmax(220px,320px) minmax(0,1fr)}}
 @media(max-width:1000px){.reader-ui .demo-masthead{height:auto;min-height:96px;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:36px 38px;gap:6px 10px;padding:6px 12px}.reader-ui .reader-search{grid-column:1/-1;grid-row:2;order:initial;width:min(400px,100%);justify-self:center}.reader-ui .reader-search kbd{display:none}.reader-ui .demo-reading-pane.ui-drawer{top:104px}#drawer-backdrop{inset:96px 0 32px}}
 @media(max-width:520px){.reader-ui .demo-masthead>.document-heading{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.reader-ui .demo-header-actions{grid-column:1/-1;justify-self:stretch;justify-content:space-between}}
+
+/* 嵌入工作区时沿用同一套主题与工具栏，面板以共用分界线排列 */
+.lw-embedded.reader-ui .demo-masthead{min-height:56px;height:56px;padding:8px 16px;border-bottom:1px solid var(--line);grid-template-columns:minmax(120px,1fr) minmax(180px,340px) auto;gap:12px}
+.lw-embedded .document-heading .eyebrow,.lw-embedded .book-symbol,.lw-embedded .workspace-footer{display:none}
+.lw-embedded.reader-ui .demo-shell{margin:0;gap:0;--panel-gap:0px}
+.lw-embedded.reader-ui .demo-reading-pane{border:0;border-radius:0;border-inline-end:1px solid var(--line)}
+.lw-embedded .demo-header-actions{gap:8px}.lw-embedded .demo-header-actions .control-group+.control-group{border:0;padding-left:4px}
+.lw-embedded .demo-header-actions .icon-button{width:32px;min-width:32px;height:32px;min-height:32px;padding:6px}
+.lw-embedded .resizer{transform:translateX(-8px)}
+@media(max-width:1050px){.lw-embedded.reader-ui .demo-masthead{height:auto;min-height:96px;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:36px 36px;gap:6px 10px}.lw-embedded .reader-search{grid-column:1/-1;grid-row:2}}
+@media(max-width:650px){.lw-embedded .demo-masthead>.document-heading{display:none}.lw-embedded .demo-header-actions{grid-column:1/-1;justify-self:stretch;justify-content:space-between;gap:4px}.lw-embedded .demo-header-actions .control-group{gap:0}.lw-embedded .demo-header-actions .control-group+.control-group{padding-left:0}.lw-embedded .demo-header-actions .icon-button{width:30px;min-width:30px;padding:5px}}
+
+.lw-embedded{--paper:var(--surface);--ink:var(--text);--soft:var(--selected)}

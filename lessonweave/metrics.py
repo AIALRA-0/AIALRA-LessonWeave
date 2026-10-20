@@ -6,6 +6,7 @@ import os
 import time
 import uuid
 from .storage import read,save,WRITE_LOCK
+from .pricing import usage_totals,PRICING
 
 LABELS={'acquire':'获取材料','parse':'解析材料','input_check':'检查输入','questions':'生成问题',
         'chapters':'规划章节','transitions':'规划承接','inventory':'清点材料','translation':'翻译材料',
@@ -175,7 +176,7 @@ def report(root,job):
                        'failed_calls':sum(row['status'] in {'failed','uncertain','invalid','cancelled'} for row in group_calls),
                        'failed_checks':sum(row['status']=='failed' and row['operation'] in {'check','format'} for row in work) if records else None,
                        'reuse_count':sum(row['stage']==sid and row['operation']=='reuse' for row in records) if records else None,
-                       'historical_estimate':bool(historical)})
+                       'historical_estimate':bool(historical),**usage_totals(group_calls)})
     initial=[row for row in calls if row['stage'] not in {'review','qa'} and row['kind']=='initial']
     repair=[row for row in calls if row['stage'] not in {'review','qa'} and row['kind']=='repair']
     reviews=[row for row in calls if row['stage']=='review']
@@ -209,7 +210,8 @@ def report(root,job):
         known=[row[field] for row in calls if row[field] is not None]
         summary[field]=sum(known) if known else None
         summary[field+'_missing_calls']=sum(row[field] is None for row in calls)
-    result={'profile':'lessonweave-metrics-v1','job_id':job['id'],'status':job['status'],'generated_at':time.time(),
+    summary.update({key:value for key,value in usage_totals(calls).items() if key in {'estimated_costs','unpriced_calls'}})
+    result={'profile':'lessonweave-metrics-v1','job_id':job['id'],'status':job['status'],'generated_at':time.time(),'pricing':PRICING,
             'summary':summary,'stages':groups,'calls':sorted(calls,key=lambda row:row.get('started_at') or 0),'steps':records,
             'notes':['实际用时合并并行区间，累计调用时间逐次相加，各阶段可能重叠，合计以任务实际时间为准',
                      '首次生成、内容返修、失败重试、独立审查和结果复用分别统计，审查复核单列次数',

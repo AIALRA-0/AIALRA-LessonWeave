@@ -8,6 +8,7 @@
   let state = structuredClone(defaults), tokens, current = {}, drawer = null, trigger = null, dragging = null, initialized = false, frame = 0;
   let tooltipTimer, peekOpenTimer, peekCloseTimer, peekTarget = null, pinnedDrawer = false, restoringDrawerFocus=false;
   try { const old=JSON.parse(localStorage.getItem(key)); if(old?.version===1) state={...state,...old,widths:{...state.widths,...old.widths},visible:{...state.visible,...old.visible}}; } catch {}
+  if(['light','dark'].includes(window.LESSONWEAVE_THEME))state.theme=window.LESSONWEAVE_THEME;
   for(const name of Object.keys(names)) state.widths[name]=Math.max(180,Math.min(name==='source'?840:560,Number(state.widths[name])||defaults.widths[name]));
   state.body=Math.max(16,Math.min(21,Number(state.body)||17));
   state.line=Math.max(1.65,Math.min(2.2,Number(state.line)||1.95));
@@ -26,7 +27,8 @@
   function layout(){
     const available=$('reader-shell').clientWidth;current={...state.visible};
     if(state.focus||innerWidth<900) Object.keys(current).forEach(p=>current[p]=false);
-    const budget=()=>Object.entries(current).reduce((n,[p,on])=>n+(on?state.widths[p]+16:0),0)+560;
+    const gap=parseFloat(getComputedStyle($('reader-shell')).columnGap)||0;
+    const budget=()=>Object.entries(current).reduce((n,[p,on])=>n+(on?state.widths[p]+gap:0),0)+560;
     for(const p of ['directory','glossary','source'])if(budget()>available)current[p]=false;
     const cols=[];
     for(const p of ['directory','source'])if(current[p])cols.push(state.widths[p]+'px');
@@ -233,6 +235,6 @@
   fetch('/design-tokens.json').then(r=>r.json()).then(value=>{tokens=value;theme();layout();enhance();}).catch(()=>{theme();layout();message('已使用本地默认样式，设计参数文件读取失败');});
   window.readerUIState=()=>({preferences:structuredClone(state),visible:{...current},drawer});
   window.prototypeState=window.readerUIState;
-  window.ReaderUI={openPane:(name,options={})=>{if(name==='lesson'){if(drawer)closeDrawer(false);}else if(panes[name])openDrawer(name,!!options.modal,options.trigger||null);},closeDrawer};
+  window.ReaderUI={setTheme:name=>{state.theme=name==='dark'?'dark':'light';theme();save();},openPane:(name,options={})=>{if(name==='lesson'){if(drawer)closeDrawer(false);}else if(panes[name])openDrawer(name,!!options.modal,options.trigger||null);},closeDrawer};
   theme();layout();enhance();
 })();

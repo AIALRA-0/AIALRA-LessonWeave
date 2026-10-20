@@ -23,3 +23,13 @@
 #generation-workspace>.generation-layout{flex:1;margin-top:32px;gap:32px}#generation-workspace .generation-stages{max-height:none}#generation-workspace .generation-detail{padding:10px 8px}#generation-workspace .generation-issues{padding:14px 0;overflow-wrap:anywhere}
 #system-info{padding:10px 16px;font-size:12px;border-top:1px solid var(--line)}.system-facts{display:flex;flex-wrap:wrap;gap:8px 24px;padding:12px 0;color:var(--muted)}.system-facts strong{color:var(--ink)}
 @media(max-width:700px){.generation-layout{grid-template-columns:minmax(0,1fr);gap:16px}.generation-stages{max-height:240px}.generation-stages button{font-size:13px}.generation-detail h3{font-size:21px}.task{padding:12px 9px}.task-heading{gap:6px}.task-heading .task-name{max-width:none}.generation-facts{gap:6px;font-size:12px}.generation-detail{padding:5px 0}#generation-workspace{padding:20px 14px}#generation-workspace>.generation-layout{display:block}#generation-workspace .generation-stages{max-height:230px}#generation-workspace .generation-detail{overflow:visible;padding:20px 0}#task-panel{max-height:65vh}.work-header{gap:8px}.work-header #architecture-link{margin-left:auto}.work-header .spacer{display:none}.document-toolbar{gap:3px}.document-toolbar .icon-control{width:31px;height:31px;min-height:31px}.task-heading .task-name{flex-basis:45%}}
+
+/* 图标按钮统一用悬停与选中背景，主操作按钮继续保留文字 */
+.icon-control{border:0;background:transparent;color:var(--muted);box-shadow:none}
+.icon-control:hover,.icon-control.is-active{background:var(--hover);color:var(--ink)}
+.trash-entry.icon-control{margin:10px 12px;width:36px}
+.is-reading .document-toolbar{display:none}
+.generation-stages,.generation-detail,.generation-table,#task-panel{overflow-anchor:none}
+.generation-usage{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:20px;margin:28px 0}
+.generation-usage span{display:block;color:var(--muted);font-size:12px}.generation-usage strong{font-size:18px;font-variant-numeric:tabular-nums;font-weight:600}
+.generation-pricing{font-size:12px;color:var(--muted);line-height:1.8}.generation-pricing summary{cursor:pointer}.generation-pricing a{text-decoration:underline}

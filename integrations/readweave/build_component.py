@@ -19,8 +19,9 @@ export function mountReader(container, options) {
   const shadow = container.shadowRoot || container.attachShadow({mode:'open'});
   const style = globalThis.document.createElement('style');
   const root = globalThis.document.createElement('div');
-  root.className = 'lw-reader-root writing-page demo-page reader-ui book-page';
-  root.lang='zh-CN'; root.dataset.theme='light';
+  root.className = 'lw-reader-root writing-page demo-page reader-ui book-page'+(options.embedded?' lw-embedded':'');
+  root.lang='zh-CN'; root.dataset.theme=options.theme||(globalThis.document.body.classList.contains('dark')?'dark':'light');
+  for(const [role,value]of Object.entries(DESIGN_TOKENS[root.dataset.theme]||{}))root.style.setProperty('--'+role.replace(/[A-Z]/g,c=>'-'+c.toLowerCase()),value);
   style.textContent=STYLES; root.innerHTML=TEMPLATE; shadow.replaceChildren(style,root);
   const abort=new AbortController(), timers=new Set(), frames=new Set(), observers=new Set(); let disposed=false;
   const native=globalThis.window;
@@ -30,7 +31,7 @@ export function mountReader(container, options) {
   const path=value=>{let text=String(value||'');const resolved=options.resolveResource?.(text);if(resolved)return resolved;if(/^(https?:|data:|blob:|#)/.test(text))return text;if(text.startsWith(config.base+'/'))return text;if(text.startsWith('/book.html')||text.startsWith('book.html'))text=text.replace('book.html','readweave.html');return config.base+'/'+text.replace(/^\\/+/,'')};
   const fetch=(value, init)=>value==='/design-tokens.json'?Promise.resolve(new Response(JSON.stringify(DESIGN_TOKENS),{headers:{'Content-Type':'application/json'}})):options.fetch?options.fetch(value,init):native.fetch(typeof value==='string'&&/^\\/(0[0-5]_)/.test(value)?path(value):value,init);
   const location={pathname:'readweave/book.html',search:options.search??'?preview=true',hash:'',get href(){return native.location.origin+config.base+'/book.html'+this.search},set href(value){options.onNavigate?.(new URL(value,native.location.href).search)}};
-  const owned={LESSONWEAVE:config,LWPath:path};
+  const owned={LESSONWEAVE:config,LWPath:path,LESSONWEAVE_THEME:root.dataset.theme};
   const listen=(target,type,handler,settings={})=>target.addEventListener(type,handler,{...(typeof settings==='boolean'?{capture:settings}:settings),signal:abort.signal});
   const document=new Proxy(native.document,{get(target,key){
     if(key==='body'||key==='documentElement')return root;
@@ -57,6 +58,12 @@ export function mountReader(container, options) {
 '''
     scripts=(READER/'reading-icons.js').read_text('utf-8')+'\nconst uiIcon=window.uiIcon;\n'+(READER/'reader-text.js').read_text('utf8')+'\nconst ReaderText=window.ReaderText;\n'+(READER/'media-renderer.js').read_text('utf8')+'\n'+ '\n\n'.join((READER/name).read_text('utf-8') for name in ['reader-search.js','writing-demo.js','reading-ui.js','source-locator.js','source-split.js','generation-settings.js'])
     tail='''
+  if(options.embedded){
+    root.querySelector('#toggle-theme').hidden=true;
+    const actions=globalThis.document.createElement('div');actions.className='control-group workspace-reader-actions';actions.setAttribute('role','group');actions.setAttribute('aria-label','读本操作');
+    for(const action of options.actions||[]){const button=globalThis.document.createElement('button');button.type='button';button.className='icon-button';button.innerHTML=action.icon;button.title=action.label;button.setAttribute('aria-label',action.label);button.disabled=!!action.disabled;listen(button,'click',action.run);actions.append(button)}
+    root.querySelector('.demo-header-actions').append(actions);
+  }
   listen(root,'reading:source-selection',event=>options.onSourceSelection?.(event.detail));
   if(options.onNavigate)listen(root,'click',event=>{const link=event.target.closest?.('a[href]');if(!link||event.ctrlKey||event.metaKey||event.shiftKey||link.target==='_blank')return;const url=new URL(link.href,native.location.href);if(/\\/(?:book|readweave)\\.html$/.test(url.pathname)&&url.pathname.startsWith(config.base+'/')){event.preventDefault();options.onNavigate(url.search)}},true);
   const bound=new WeakSet();
@@ -68,7 +75,7 @@ export function mountReader(container, options) {
     listen(button,'click',async()=>{await options.saveNote?.(key,input.value);const status=box.querySelector('.help');if(status)status.textContent='已保存到个人笔记'});
   });
   const observer=new MutationObserver(connectNotes);observer.observe(root,{childList:true,subtree:true});connectNotes();
-  return {root, getState:()=>owned.ReaderSourceBridge?.getState(),
+  return {root, setTheme:name=>owned.ReaderUI?.setTheme(name), getState:()=>owned.ReaderSourceBridge?.getState(),
     focusNotes:()=>root.querySelector('.writing-note textarea')?.focus(),
     toggleGlossary:()=>root.querySelector('[data-toggle-pane="glossary"]')?.click(),
     unmount(){disposed=true;abort.abort();for(const item of [...observers])item.disconnect();for(const id of timers){native.clearTimeout(id);native.clearInterval(id)}for(const id of frames)native.cancelAnimationFrame(id);shadow.replaceChildren();}
