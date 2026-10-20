@@ -1,0 +1,21 @@
+lessonweave/metrics.py
+  s_bd317cec756d17::t_d2593d00daf247 184,201
+tests/test_metrics.py
+  s_bd317cec756d17::t_d2593d00daf247 106-107,111-112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ea8edf88e94cf1813d08480f6e67ab2084c7a6d2",
+  "prompts": {},
+  "sessions": {
+    "s_bd317cec756d17": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b69-207f-7e61-ba85-f7edc501349a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    }
+  }
+}
