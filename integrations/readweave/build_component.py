@@ -64,6 +64,7 @@ export function mountReader(container, options) {
     for(const action of options.actions||[]){const button=globalThis.document.createElement('button');button.type='button';button.className='icon-button';button.innerHTML=action.icon;button.title=action.label;button.setAttribute('aria-label',action.label);button.disabled=!!action.disabled;listen(button,'click',action.run);actions.append(button)}
     root.querySelector('.demo-header-actions').append(actions);
   }
+  listen(root,'reading:layout-reset',()=>options.onResetLayout?.());
   listen(root,'reading:source-selection',event=>options.onSourceSelection?.(event.detail));
   if(options.onNavigate)listen(root,'click',event=>{const link=event.target.closest?.('a[href]');if(!link||event.ctrlKey||event.metaKey||event.shiftKey||link.target==='_blank')return;const url=new URL(link.href,native.location.href);if(/\\/(?:book|readweave)\\.html$/.test(url.pathname)&&url.pathname.startsWith(config.base+'/')){event.preventDefault();options.onNavigate(url.search)}},true);
   const bound=new WeakSet();

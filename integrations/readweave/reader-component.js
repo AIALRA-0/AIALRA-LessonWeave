@@ -1821,7 +1821,7 @@ window.LessonMedia=(()=>{
   $('reading-settings').addEventListener('close',()=>{$('open-settings').focus({preventScroll:true});save();});
   $('body-size').oninput=event=>{state.body=Number(event.target.value);theme();};
   $('line-height').oninput=event=>{state.line=Number(event.target.value);theme();};
-  $('reset-layout').onclick=()=>{state={...structuredClone(defaults),theme:state.theme};closeDrawer(false);theme();layout();save();};
+  $('reset-layout').onclick=()=>{state={...structuredClone(defaults),theme:state.theme};document.dispatchEvent(new CustomEvent('reading:layout-reset'));closeDrawer(false);theme();layout();save();};
   // 拖动与方向键使用同一份宽度状态，取消拖动时恢复起点，完成后才保存
   for(const el of document.querySelectorAll('[data-resize-pane]')){
     const p=el.dataset.resizePane;
@@ -2651,6 +2651,7 @@ window.LessonMedia=(()=>{
     for(const action of options.actions||[]){const button=globalThis.document.createElement('button');button.type='button';button.className='icon-button';button.innerHTML=action.icon;button.title=action.label;button.setAttribute('aria-label',action.label);button.disabled=!!action.disabled;listen(button,'click',action.run);actions.append(button)}
     root.querySelector('.demo-header-actions').append(actions);
   }
+  listen(root,'reading:layout-reset',()=>options.onResetLayout?.());
   listen(root,'reading:source-selection',event=>options.onSourceSelection?.(event.detail));
   if(options.onNavigate)listen(root,'click',event=>{const link=event.target.closest?.('a[href]');if(!link||event.ctrlKey||event.metaKey||event.shiftKey||link.target==='_blank')return;const url=new URL(link.href,native.location.href);if(/\/(?:book|readweave)\.html$/.test(url.pathname)&&url.pathname.startsWith(config.base+'/')){event.preventDefault();options.onNavigate(url.search)}},true);
   const bound=new WeakSet();
