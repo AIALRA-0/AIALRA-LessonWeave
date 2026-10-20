@@ -160,7 +160,7 @@ def prepare_snapshot_layout(frame):
       style.textContent='*{animation-play-state:paused!important;transition:none!important;scroll-behavior:auto!important}';
       document.head.append(style);
       let fixed=0,sticky=0;
-      for(const e of document.querySelectorAll('body *')){
+      for(const e of document.querySelectorAll('html,body,body *')){
         const s=getComputedStyle(e),position=s.position;
         if(position==='sticky'){
           for(const [key,value] of Object.entries({position:'relative',top:'auto',bottom:'auto'}))e.style.setProperty(key,value,'important');
@@ -237,7 +237,7 @@ def snapshot_from_archive(root, url, archive, output):
             frame.evaluate('''()=>{document.querySelectorAll('img').forEach(i=>i.loading='eager');window.scrollTo({top:0,behavior:'instant'})}''')
             frame.evaluate('''()=>Promise.race([Promise.allSettled([...document.images].map(i=>i.decode())),new Promise(r=>setTimeout(r,4000))])''')
             layout = prepare_snapshot_layout(frame)
-            state = frame.evaluate('''()=>{const positions={};let index=0;for(const e of document.querySelectorAll('body *')){const id='s'+(++index),b=e.getBoundingClientRect();e.setAttribute('data-iqa-source',id);positions[id]={bbox:[Math.max(0,b.left+scrollX),Math.max(0,b.top+scrollY),Math.max(0,b.right+scrollX),Math.max(0,b.bottom+scrollY)],src:e.currentSrc||e.src||null}}return {positions,html:document.documentElement.outerHTML,height:Math.max(document.body.scrollHeight,document.documentElement.scrollHeight),title:document.title,text:document.body.innerText,tex:[...document.querySelectorAll('math annotation')].map(e=>e.textContent),svg:[...document.querySelectorAll('svg')].map(e=>({namespace:e.namespaceURI,viewBox:e.getAttribute('viewBox')})),images:[...document.images].map(e=>({anchor:e.getAttribute('data-iqa-source'),url:e.currentSrc||e.src,loaded:e.complete&&e.naturalWidth>0}))}}''')
+            state = frame.evaluate('''()=>{const positions={};let index=0;for(const e of document.querySelectorAll('html,body,body *')){const id='s'+(++index),b=e.getBoundingClientRect();e.setAttribute('data-iqa-source',id);positions[id]={bbox:[Math.max(0,b.left+scrollX),Math.max(0,b.top+scrollY),Math.max(0,b.right+scrollX),Math.max(0,b.bottom+scrollY)],src:e.currentSrc||e.src||null}}return {positions,html:document.documentElement.outerHTML,height:Math.max(document.body.scrollHeight,document.documentElement.scrollHeight),title:document.title,text:document.body.innerText,tex:[...document.querySelectorAll('math annotation')].map(e=>e.textContent),svg:[...document.querySelectorAll('svg')].map(e=>({namespace:e.namespaceURI,viewBox:e.getAttribute('viewBox')})),images:[...document.images].map(e=>({anchor:e.getAttribute('data-iqa-source'),url:e.currentSrc||e.src,loaded:e.complete&&e.naturalWidth>0}))}}''')
             (output / 'original.html').write_text('<!doctype html>\n' + state.pop('html'), encoding='utf-8')
             save(output / 'dom.json', state.pop('positions'))
             screenshot = capture_frame_png(page, frame, output / 'original.png')

@@ -2,7 +2,8 @@ import re
 from importlib.metadata import version
 from urllib.parse import urljoin
 
-from bs4 import BeautifulSoup, NavigableString, Tag
+from bs4 import BeautifulSoup, Comment, NavigableString, Tag
+from content_checks import web_origin
 
 from tree_code import file_source
 
@@ -18,9 +19,7 @@ def parse_webpage(builder, root, source_record, output):
     if body is None:
         raise ValueError('没有找到网页正文区域')
     def source(element):
-        anchor=element.get('data-iqa-source')
-        return [{**file_source(root,original),'kind':'html','dom_path':f'[data-iqa-source="{anchor}"]',
-                 'bbox':positions[anchor]['bbox'],'url':url}]
+        return [web_origin(root,source_record,element,positions)]
     title_tag=soup.select_one('h1.post-title') or soup.find('h1') or soup.find('title')
     title=title_tag.get_text(' ',strip=True) if title_tag else url
     tree=builder.node('webpage',{'name':title},[file_source(root,original)])
@@ -40,6 +39,8 @@ def parse_webpage(builder, root, source_record, output):
         images.append((node,address))
         return node
     def emit(element, target):
+        if isinstance(element,Comment):
+            return
         if isinstance(element,NavigableString):
             text=str(element).strip()
             if text and isinstance(element.parent,Tag):

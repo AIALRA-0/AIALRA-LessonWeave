@@ -66,6 +66,17 @@ def file_origin(root, path):
     return file_source(root, path)
 
 
+def web_origin(root, source, element, positions):
+    # 旧快照可能只标记 body 的后代，裸正文仍按实际 body 范围保留
+    located=next((p for p in [element,*element.parents]
+                  if getattr(p,'get',None) and p.get('data-iqa-source') in positions),None)
+    anchor=located.get('data-iqa-source') if located is not None else None
+    snapshot=source['snapshot']
+    return {**file_origin(root,root/source['entry']),'kind':'html','url':source['material'],
+            'dom_path':f'[data-iqa-source="{anchor}"]' if anchor else 'body',
+            'bbox':positions[anchor]['bbox'] if anchor else [0,0,snapshot['width'],snapshot['height']]}
+
+
 def source_inventory(root, document, source):
     """分母直接从冻结的 PDF、HTML 或仓库清单取得，不使用树的统计反推"""
     root = Path(root)
@@ -110,12 +121,9 @@ def source_inventory(root, document, source):
                 if not getattr(parent, 'get', None):
                     continue
                 anchor = parent.get('data-iqa-source')
-                if not anchor:
+                if not anchor and parent.name not in {'body','html'}:
                     continue
-                position = next((positions[p.get('data-iqa-source')] for p in [parent, *parent.parents]
-                                 if getattr(p, 'get', None) and p.get('data-iqa-source') in positions), {'bbox': [0, 0, 0, 0]})
-                origin = {**file_origin(root, root / source['entry']), 'kind': 'html',
-                          'dom_path': f'[data-iqa-source="{anchor}"]', 'bbox': position['bbox'], 'url': source['material']}
+                origin = web_origin(root,source,parent,positions)
                 if isinstance(element, NavigableString) and str(element).strip():
                     units.append({'id': f'html-text-{len(units)+1}', 'kind': 'text', 'text': str(element), 'source': origin})
                 elif getattr(element, 'name', None) == 'img':
@@ -183,7 +191,7 @@ def attach_missing_content(root, document, inventory, builder):
     soup = None
     if document['format'] == 'html':
         parsed = BeautifulSoup((root / inventory['units'][0]['source']['path']).read_text(encoding='utf-8'), 'html.parser') if inventory['units'] else None
-        soup = {f'[data-iqa-source="{e["data-iqa-source"]}"]': e for e in parsed.find_all(attrs={'data-iqa-source': True})} if parsed else {}
+        soup = {'body':parsed.body,'html':parsed.html,**{f'[data-iqa-source="{e["data-iqa-source"]}"]': e for e in parsed.find_all(attrs={'data-iqa-source': True})}} if parsed else {}
     regions = defaultdict(list)
     for node in nodes:
         for source in node['source']:
@@ -249,7 +257,7 @@ def coverage_report(root, document, inventory):
     soup = None
     if document['format'] == 'html' and inventory['units']:
         parsed = BeautifulSoup((root / inventory['units'][0]['source']['path']).read_text(encoding='utf-8'), 'html.parser')
-        soup = {f'[data-iqa-source="{e["data-iqa-source"]}"]': e for e in parsed.find_all(attrs={'data-iqa-source': True})}
+        soup = {'body':parsed.body,'html':parsed.html,**{f'[data-iqa-source="{e["data-iqa-source"]}"]': e for e in parsed.find_all(attrs={'data-iqa-source': True})}}
     node_text = {node['id']: normalized(' '.join(text_values(node['content']))) for node in nodes}
     regions = defaultdict(list)
     for node in nodes:

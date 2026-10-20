@@ -122,7 +122,9 @@ def main():
                     result.update(status='interrupted',library_sync='failed',library_issue=str(error),issues=result.get('issues',[])+['书稿已经保存，笔记树保存遇到问题：'+str(error)])
             save(root/'runtime/state.json',result)
     except Exception as error:
-        result={'status':'failed','issues':[str(error)]}
+        import traceback
+        traceback.print_exc()
+        result={'status':'failed','issues':[type(error).__name__+': '+str(error)]}
     save(root/'runtime/jobs'/job['id']/'result.json',result)
 
 
