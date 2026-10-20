@@ -1,0 +1,618 @@
+lessonweave/generation_settings.py
+  s_bd317cec756d17::t_b3acfddf41686a 1-6,8,11-27,31-37
+  s_bd317cec756d17::t_3311d3c5430a5c 7,9-10
+  s_bd317cec756d17::t_985e77c2a63413 28-30
+lessonweave/legacy.py
+  s_bd317cec756d17::t_97bc3faee0c481 69
+  s_bd317cec756d17::t_f69bec90699657 9,48-49
+  s_bd317cec756d17::t_0f08a2776d6fdd 134
+  s_bd317cec756d17::t_aaac0bc41646bd 64-65
+  s_bd317cec756d17::t_1c2dc6a68ba2b6 127-131
+  s_bd317cec756d17::t_f547d4a4e4fcfc 42,50-51,56-58,60,70
+  s_bd317cec756d17::t_1ab258f3350da4 116-119,132-133,135-138,181,189-190,212-254,261-262,278-281,283-287
+  s_bd317cec756d17::t_d4baf2f6717fc8 68,71-73
+framework/05_writing/structure.md
+  s_bd317cec756d17::t_c4452a2915bdc3 1-45
+framework/03_chapters/build_chapters.py
+  s_bd317cec756d17::t_64961a56c9eff0 6,42-44,50-51,111-117,132-133,135-136,161,165-175,185-186,193,205-217,219-238
+  s_bd317cec756d17::t_a9d2e2fca621b2 19-35,162-164,218
+framework/05_writing/glossary_reuse.py
+  s_bd317cec756d17::t_3aac03cdc20b59 1-31
+  s_bd317cec756d17::t_8749c460f32722 32-34
+  s_bd317cec756d17::t_c6699ed1d2af7e 35-69
+framework/04_transitions/build_transitions.py
+  s_bd317cec756d17::t_f69bec90699657 20-22,26-27,117-118,125
+  s_bd317cec756d17::t_77ce8b70d9bc9e 59-73
+framework/00_source/web_archive.py
+  s_bd317cec756d17::t_d742aaf094bcd3 15,221
+  s_bd317cec756d17::t_865c2c86d8ad38 125-130,133-139,141-142
+  s_bd317cec756d17::t_42beff8b4cdd99 7,155-212,239,243-245,270-271,276-278
+  s_bd317cec756d17::t_bf91ebf142ad93 131-132,226
+  s_bd317cec756d17::t_b7efca4f396ad4 147-148
+  s_bd317cec756d17::t_4b5c2ebed27442 1-6,8-14,16-124,140,143-146,149-154,213-220,222-225,227-238,240-242,246-269,272-275,279-307
+framework/00_source/acquire.py
+  s_bd317cec756d17::t_4b5c2ebed27442 1-121
+tests/test_question_first_pass.py
+  s_bd317cec756d17::t_67159ba7e764bf 5,303-332
+  s_bd317cec756d17::t_3a178a20c2a59a 172-210
+  s_bd317cec756d17::t_b3336091b1a816 333-346
+  s_bd317cec756d17::t_61065859f6de6a 10,228-291
+  s_bd317cec756d17::t_801831fd9fd45e 1-4,6-9,11-171
+  s_bd317cec756d17::t_9f1171d1f1c912 211-227,292-302
+.github/workflows/checks.yml
+  s_bd317cec756d17::t_68b078ee58da92 14,16-18
+tests/test_reader_repairs.py
+  s_bd317cec756d17::t_ddd9f9d7e5daf7 4
+  s_bd317cec756d17::t_edbb555acb66c7 1-3,5-44
+lessonweave/agents.py
+  s_bd317cec756d17::t_3311d3c5430a5c 162-177,186,195
+  s_bd317cec756d17::t_cdd5dccab820cb 200-201,203-217
+  s_bd317cec756d17::t_21d3a7a4d5ba7b 48-56,239
+  s_bd317cec756d17::t_f4946c63221116 84,86,88-96,202,218,227,237-238,242
+  s_bd317cec756d17::t_d9abc97360531a 59
+  s_bd317cec756d17::t_e2a15813257ad0 65-68,97,178-185,219-225,236,240,243-244,246-248,250-251,285-286,289-290,311-313
+  s_bd317cec756d17::t_90573ffa8e29e1 60-64,235
+pyproject.toml
+  s_bd317cec756d17::t_47d4b4c0a5d317 9
+  s_bd317cec756d17::t_8051e439f595f9 6-8,10-13
+tests/test_media_contract.py
+  s_bd317cec756d17::t_1db6a579fd77fd 1-99
+framework/02_questions/source_disposition.py
+  s_bd317cec756d17::t_b3336091b1a816 1-6,8-36,47-51,54-184,187-284
+  s_bd317cec756d17::t_61d6baeeac2229 7,37-46,52-53,185-186
+framework/01_tree/content_checks.py
+  s_bd317cec756d17::t_1fb8e47beae584 1-413
+.env.example
+  s_bd317cec756d17::t_8051e439f595f9 5-11,13,23-26
+web/generation-progress.js
+  s_bd317cec756d17::t_99226f065585ce 1-17
+framework/reader/reader-search.js
+  s_bd317cec756d17::t_305b7a0ac65186 42
+  s_bd317cec756d17::t_6e67b9b8356569 35,38
+  s_bd317cec756d17::t_321d9e37a43ce9 1-34,36-37,39-41,43
+  s_bd317cec756d17::t_89ad06e10f7f38 44-61
+docs/architecture-view.md
+  s_bd317cec756d17::t_3229c13feb4d9d 5,10,29,33,35
+framework/reader/reading-ui.js
+  s_bd317cec756d17::t_4fb1ccef67a51b 173-174
+  s_bd317cec756d17::t_d3a69d546c4aa6 165,175
+  s_bd317cec756d17::t_7ee362880c3236 161,176-179
+  s_bd317cec756d17::t_bd71395b7a26e0 1-160,162,166,168-169,188-215,217-238
+  s_bd317cec756d17::t_8bed761531ae73 171,181-185,216
+  s_bd317cec756d17::t_bfb5982115c4b2 163-164,167
+  s_bd317cec756d17::t_3d6b20ae9737d4 170,172,180,186-187
+deploy/lessonweave.service
+  s_bd317cec756d17::t_8051e439f595f9 19
+lessonweave/__main__.py
+  s_bd317cec756d17::t_8051e439f595f9 18-21,34-37
+docs/current-flow.md
+  s_bd317cec756d17::t_b144b6cb9c4f93 1-5
+framework/reader/media-renderer.js
+  s_bd317cec756d17::t_79f7ea9d29e979 27-29
+  s_bd317cec756d17::t_f48f667b5e76aa 66,79
+  s_bd317cec756d17::t_e809b16317ae1c 57
+  s_bd317cec756d17::t_d53ab3f19755fa 16-20
+  s_bd317cec756d17::t_ba997bfcdbc64c 3,8,21-23,45,50,70-71,73,75-76
+  s_bd317cec756d17::t_25f45fae3db1f1 80
+  s_bd317cec756d17::t_4df068f2105f58 1-2,4-6,9-10,12-15,24-26,30-44,46-49,51-56,58-65,67-69,77-78,81-84,86-92,94
+  s_bd317cec756d17::t_a88baad1e28369 7,11
+  s_bd317cec756d17::t_d3a69d546c4aa6 72,74,85
+  s_bd317cec756d17::t_53e60e158b18f3 93
+framework/01_tree/tree_model.py
+  s_bd317cec756d17::t_1fb8e47beae584 100
+  s_bd317cec756d17::t_d86edd7213c76b 1-99,101-105
+lessonweave/experiment.py
+  s_bd317cec756d17::t_890f01d3b8ee63 1-131
+tests/test_glossary_reuse.py
+  s_bd317cec756d17::t_42c69d1856d25c 1-2,4-23
+  s_bd317cec756d17::t_378b30235ff329 3
+lessonweave/system_info.py
+  s_bd317cec756d17::t_99226f065585ce 1-36
+tests/test_source_ownership.py
+  s_bd317cec756d17::t_b8bdd14a799f1d 4
+  s_bd317cec756d17::t_ce79b7e7693a2a 1,5-19
+  s_bd317cec756d17::t_a9b8b7ff6da291 20-29
+  s_bd317cec756d17::t_378b30235ff329 2-3
+framework/05_writing/book_runtime.py
+  s_bd317cec756d17::t_fa8dddc5f8c29c 25-27,42-43,60-61,70,85-87,90-92,162-163
+tests/test_diagnostics.py
+  s_bd317cec756d17::t_745ac454b10fd1 32,34,36-38,41-42
+framework/reader/book.html
+  s_bd317cec756d17::t_7401e68c8f5a20 1-85
+framework/05_writing/book_sources.py
+  s_bd317cec756d17::t_54012cea151448 1-363,373-452,457-975
+  s_bd317cec756d17::t_ae0b4ac81f8e7e 453-456
+  s_bd317cec756d17::t_76f05b061d7536 364-372
+framework/reader/media-renderer.css
+  s_bd317cec756d17::t_fff61081f51692 1-25
+tests/test_nonblocking_flow.py
+  s_bd317cec756d17::t_745ac454b10fd1 1-51
+framework/05_writing/c-translation.schema.json
+  s_bd317cec756d17::t_fcc64705756624 1-34
+lessonweave/metrics.py
+  s_bd317cec756d17::t_dcee0e1f451c07 18-19,23-25,118,160
+  s_bd317cec756d17::t_ba650699819809 22,26
+  s_bd317cec756d17::t_0f08a2776d6fdd 13,29
+  s_bd317cec756d17::t_d9e4d9f3d86c97 14
+  s_bd317cec756d17::t_9c219524e83bba 157-159,161-162
+framework/01_tree/information_points.py
+  s_bd317cec756d17::t_0d5a5b7855c494 4,51-55,57-64,68-70,73-75
+  s_bd317cec756d17::t_1c7e0c08540ce2 1-3,5-22,25-29,31-32,34,36-39,42-50,76-77,79-80,82-83,85-93,95-97,103-123,125,128-130,138,142
+  s_bd317cec756d17::t_a5885e606a00c0 102,126,139-141
+  s_bd317cec756d17::t_f69bec90699657 23-24,30,33,35,40-41,56,71-72,78,81,84,94,98-101,124,127,131-137
+  s_bd317cec756d17::t_602970a2b02d02 65-67
+  s_bd317cec756d17::t_3506185e82d563 143-147
+lessonweave/progress.py
+  s_bd317cec756d17::t_d48a2271ce6466 10-14,21-26,34-35,38-59,61-79,82-89,95-96,98,100-101
+  s_bd317cec756d17::t_d5338df04f83a9 37,90-94,99
+  s_bd317cec756d17::t_c40db3d07b0c5d 36,97
+  s_bd317cec756d17::t_837c634a65a4bf 80-81
+lessonweave/lean.py
+  s_bd317cec756d17::t_d24508b9ee75ea 1-355
+AGENTS.md
+  s_bd317cec756d17::t_cdd5dccab820cb 3,6,8-10
+  s_bd317cec756d17::t_b144b6cb9c4f93 15-29
+  s_bd317cec756d17::t_5e546d5024b75e 7,11
+  s_bd317cec756d17::t_62693d99175680 5
+  s_bd317cec756d17::t_fe05f1fc711403 30-36
+tests/test_reader_whitespace.py
+  s_bd317cec756d17::t_f547d4a4e4fcfc 4-10,12-23
+  s_bd317cec756d17::t_21e85d0fcd7c99 1-3,11,24-46
+framework/reader/writing-demo.js
+  s_bd317cec756d17::t_d53ab3f19755fa 30,590-593,1135-1136,1144-1149
+  s_bd317cec756d17::t_73d0dea221f3d4 4-6,530,642,1103,1107,1171,1178-1180
+  s_bd317cec756d17::t_8effea87e265f6 7,726,787,789-790,793,804,823-824,868-869,891-896,919-920,1010,1131-1134,1137-1138,1143,1150-1151
+  s_bd317cec756d17::t_d3a69d546c4aa6 539,545,548-550,556-557,562
+  s_bd317cec756d17::t_53e60e158b18f3 782-783,796
+  s_bd317cec756d17::t_28752793e32b49 1139-1142
+  s_bd317cec756d17::t_bc0bdd099e0266 564
+  s_bd317cec756d17::t_da8f43dd661d12 538,542,561,563,565-566
+  s_bd317cec756d17::t_f48f667b5e76aa 540-541,543-544,546-547,551-555,558-560
+  s_bd317cec756d17::t_45878906a74cd4 304,525-528,659-660,731-732,773-781,784-786,788,791-792,794-795,797-803,805-807,813-821,1084,1159,1186-1188,1192-1194,1196,1215
+framework/05_writing/reader_repairs.py
+  s_bd317cec756d17::t_d53ab3f19755fa 1-37,39-58,68-82
+  s_bd317cec756d17::t_edbb555acb66c7 38
+  s_bd317cec756d17::t_075d18d795183e 63,66-67
+  s_bd317cec756d17::t_fcc64705756624 59-62,64-65
+  s_bd317cec756d17::t_0174c816b597c1 83-85
+lessonweave/server.py
+  s_bd317cec756d17::t_4b5c2ebed27442 89,210-220,252-254
+  s_bd317cec756d17::t_b3acfddf41686a 69-86,88,90-103,130-133,255-260,295-298
+  s_bd317cec756d17::t_99226f065585ce 127-129,238
+  s_bd317cec756d17::t_ce4a6903be6b5b 16,161-173,261-263
+lessonweave/planning.py
+  s_bd317cec756d17::t_64961a56c9eff0 1-51,53-55,57-133,135-149,151-157,159-161,163-164,166-168,170,172-175,177-190
+  s_bd317cec756d17::t_b3336091b1a816 52,56,134,169,171
+  s_bd317cec756d17::t_a9d2e2fca621b2 150,158,162,165,176
+tests/test_writing_contract.py
+  s_bd317cec756d17::t_a9b8b7ff6da291 1-188
+tests/test_independent_checks.py
+  s_bd317cec756d17::t_04d914a43ff0c0 150-160
+  s_bd317cec756d17::t_8587cfa6b54464 1-50,52-65,71-76
+  s_bd317cec756d17::t_137a01cdf2d0b3 51,66-70
+  s_bd317cec756d17::t_4126bbfbe6076b 124-134
+  s_bd317cec756d17::t_62f5bc55cb4e7a 89-108
+  s_bd317cec756d17::t_aaac0bc41646bd 109-123
+  s_bd317cec756d17::t_bba2d01bf0e2ff 135-149
+  s_bd317cec756d17::t_c958e1fd54d959 77-88
+  s_bd317cec756d17::t_9bd97d66ec2288 161-178
+  s_bd317cec756d17::t_355db05e2a1ac9 179-185
+framework/reader/source-locator.js
+  s_bd317cec756d17::t_f3fe092de8daa9 1-550
+lessonweave/architecture.py
+  s_bd317cec756d17::t_3229c13feb4d9d 67-77,267,271,278
+  s_bd317cec756d17::t_5a4d38a35cbb5a 245
+  s_bd317cec756d17::t_ce4a6903be6b5b 10,12,106,151-173,184,190-200,221,227-229,233,246-247,256,260-262,268-270,272,276-277,280,282,290,295-299,318-320
+  s_bd317cec756d17::t_82a0663d879d67 279
+  s_bd317cec756d17::t_ef65d69eed6f10 251,285,300
+  s_bd317cec756d17::t_4ce2f230ee5bcd 235-236
+framework/reader/reading-ui.css
+  s_bd317cec756d17::t_45878906a74cd4 1-279
+tests/test_architecture.py
+  s_bd317cec756d17::t_d536bae995e929 14,16
+  s_bd317cec756d17::t_75085a1dc9d771 18-19,41-42,44-47,88,90,106
+  s_bd317cec756d17::t_a5885e606a00c0 69
+  s_bd317cec756d17::t_8f952616c94df4 61-68,70-78
+framework/05_writing/translation_batches.py
+  s_bd317cec756d17::t_d24508b9ee75ea 1-61
+framework/reader/reader-text.js
+  s_bd317cec756d17::t_3ef43359c7541c 53-55
+  s_bd317cec756d17::t_27dce8567f6611 1-17,19-20,25-26,28-30,51-52,75,81,83-98
+  s_bd317cec756d17::t_b385873b0b976d 31-50,58-60,62,65-67,69-71
+  s_bd317cec756d17::t_f203d6882233f3 76
+  s_bd317cec756d17::t_3aff9426b269a7 18
+  s_bd317cec756d17::t_648167475a6648 56-57,72-74,77-80,82
+  s_bd317cec756d17::t_150358d6398496 64,68
+  s_bd317cec756d17::t_5dcfce429b86bb 21-24,27,61,63
+framework/05_writing/native_sources.py
+  s_bd317cec756d17::t_76f05b061d7536 77,146-149
+  s_bd317cec756d17::t_54012cea151448 1-17,19-28,30-34,36-58,61-64,66-76,78-145,150-161,163-173,178-181,196-204,208-220,255-259,261-264
+  s_bd317cec756d17::t_8ae3e81bf5a646 29,35,162,174-177,205-207,221-232,234-241,245-254,260
+  s_bd317cec756d17::t_d86edd7213c76b 233
+  s_bd317cec756d17::t_ae0b4ac81f8e7e 18,59-60,65,182-188
+  s_bd317cec756d17::t_4523772c7bf187 189-195,242-244
+  s_bd317cec756d17::t_7796ddf20f3925 265-267
+  s_bd317cec756d17::t_c365c73104d79a 268-274
+framework/docs/reader-settings.md
+  s_bd317cec756d17::t_fa6f1e895d46ee 1-16
+tests/test_plan_sync.py
+  s_bd317cec756d17::t_49a40d44f50100 1-31
+  s_bd317cec756d17::t_7c75a02cc8f3d9 32-38
+deploy/install-vps.sh
+  s_bd317cec756d17::t_8051e439f595f9 1-8,31-33,35-47
+  s_bd317cec756d17::t_f7558faf7aea38 9-30
+  s_bd317cec756d17::t_8f36386d3057aa 34
+framework/05_writing/plan_sync.py
+  s_bd317cec756d17::t_49a40d44f50100 1-21
+  s_bd317cec756d17::t_e9b23dfd437727 22-24
+docs/web-acquisition.md
+  s_bd317cec756d17::t_42beff8b4cdd99 25-27
+  s_bd317cec756d17::t_1a72a73f4ee3a2 1-24,28-37
+framework/03_chapters/generation.schema.json
+  s_bd317cec756d17::t_a9d2e2fca621b2 1-30
+tests/test_workspace.py
+  s_bd317cec756d17::t_4b581dc3f29c67 78
+docs/security/publication-risk-notes.md
+  s_bd317cec756d17::t_84c20e6e7beaa1 1-18
+framework/05_writing/writing_input.py
+  s_bd317cec756d17::t_8051e439f595f9 1-78
+framework/05_writing/prepare_source_locations.py
+  s_bd317cec756d17::t_42beff8b4cdd99 1-60,62,64-105,108,110-117,123-238,244-247,249-254,259-289,291-373,376-410,412-414,416-421,427-563,571-593
+  s_bd317cec756d17::t_70f7859d1c1ca6 61,63,106-107,109,118-122,239-243,248,255-258,290,374-375,411,415,422-426,564-570
+framework/reader/generation-settings.js
+  s_bd317cec756d17::t_b3acfddf41686a 1-8,10-14,16-31,34,36-55
+  s_bd317cec756d17::t_62693d99175680 9,15,32-33,35
+tests/test_repair_batches.py
+  s_bd317cec756d17::t_68a0ffbbbe0520 1-36
+framework/05_writing/reader_whitespace.py
+  s_bd317cec756d17::t_fed6de3c024d1c 1-70
+README.md
+  s_bd317cec756d17::t_016587575bbea5 30,32,34
+  s_bd317cec756d17::t_3e2c37cf090cf9 2
+  s_bd317cec756d17::t_fc1e5ff403cb57 3-5,9-10,13,15,17,19,21,24-27,36,39-40,43,45,51-60,63,66,68,70,72,74-78,80,82,84-88,90,92,94
+NOTICE
+  s_bd317cec756d17::t_68b078ee58da92 14-15
+  s_bd317cec756d17::t_1a72a73f4ee3a2 13,19-24
+tests/test_metrics.py
+  s_bd317cec756d17::t_dcee0e1f451c07 98-108
+  s_bd317cec756d17::t_9c219524e83bba 84-97
+deploy/nginx.conf.template
+  s_bd317cec756d17::t_8051e439f595f9 14
+framework/05_writing/media_contract.py
+  s_bd317cec756d17::t_137a01cdf2d0b3 91,93
+  s_bd317cec756d17::t_1db6a579fd77fd 57,78-85,98
+  s_bd317cec756d17::t_c94302528a3d62 1-56,58-77,86-90,92,94-97,99-151
+  s_bd317cec756d17::t_24f8f8c50d8336 152-166
+framework/reader/reader-polish.css
+  s_bd317cec756d17::t_9cba6015151d1c 111-113
+  s_bd317cec756d17::t_787652eae5ea46 35-57,61-65,76-89,91-94
+  s_bd317cec756d17::t_8bed761531ae73 21-24
+  s_bd317cec756d17::t_3cf5b9499bc88a 114
+  s_bd317cec756d17::t_4df068f2105f58 1-20,25-34
+  s_bd317cec756d17::t_b4f3260aa06d98 58-60
+  s_bd317cec756d17::t_d3a69d546c4aa6 66-75
+  s_bd317cec756d17::t_9c0d0c7180624b 95-110
+  s_bd317cec756d17::t_7ee362880c3236 90
+framework/05_writing/light-checks.md
+  s_bd317cec756d17::t_5e546d5024b75e 1-17,19,24-27,32
+  s_bd317cec756d17::t_9bc4ca5ad64fc4 28-31
+  s_bd317cec756d17::t_5fd8a5818bd570 18,20-23,33-34
+  s_bd317cec756d17::t_3711d11e4826de 35-36
+tests/test_acquisition_production.py
+  s_bd317cec756d17::t_bf91ebf142ad93 12,18-19
+  s_bd317cec756d17::t_594ecf0494816c 1-11,13-17,20-33
+framework/05_writing/independent_checks.py
+  s_bd317cec756d17::t_fcc64705756624 105-106
+  s_bd317cec756d17::t_bba2d01bf0e2ff 75-76
+  s_bd317cec756d17::t_62f5bc55cb4e7a 99-100,112
+  s_bd317cec756d17::t_ba650699819809 1-74,77-98,101-104,107-111,113
+  s_bd317cec756d17::t_46e00616b44e62 114-121
+framework/02_questions/read_material.py
+  s_bd317cec756d17::t_7d5ff800455f9d 1-42
+tests/test_progress_details.py
+  s_bd317cec756d17::t_9727d8071b539d 1-38
+lessonweave/jobs.py
+  s_bd317cec756d17::t_8051e439f595f9 111
+  s_bd317cec756d17::t_837c634a65a4bf 116-117
+web/workspace.js
+  s_bd317cec756d17::t_f0fff28e98f136 2,56
+  s_bd317cec756d17::t_d5338df04f83a9 58-79
+lessonweave/checks.py
+  s_bd317cec756d17::t_ccc54fb08550c9 9
+  s_bd317cec756d17::t_aaac0bc41646bd 106,115-120,143-147,160,175
+  s_bd317cec756d17::t_3aeee750f56169 192-193
+  s_bd317cec756d17::t_21d3a7a4d5ba7b 109-114,196,198-203
+  s_bd317cec756d17::t_9d61e20da6e753 261,307-314
+  s_bd317cec756d17::t_1c558d82cb8249 151-155,157-159,161-162,172-173
+  s_bd317cec756d17::t_1008c5a198beb8 164-169
+  s_bd317cec756d17::t_a7d9fa163d54b2 197,204-211
+  s_bd317cec756d17::t_04d914a43ff0c0 123-137,149
+  s_bd317cec756d17::t_17329d12200363 249-250,260,295-301
+  s_bd317cec756d17::t_9bc4ca5ad64fc4 212,237-240
+  s_bd317cec756d17::t_c958e1fd54d959 100-105,156,163,170-171,174,176-178,322,330
+  s_bd317cec756d17::t_49a40d44f50100 107-108
+  s_bd317cec756d17::t_374c08f6a66dba 3,139-141,251,255,257,262-264,266-267,269-288,316-317
+  s_bd317cec756d17::t_2f6fccb6df7bd2 1-2,4-8,10-49,52-79,179,181-191,194-195,213-221,224,246-248,254,256,258,265,289-294,302-304,306,315,318-321,323-326,328-329,331-335
+  s_bd317cec756d17::t_8587cfa6b54464 222-223,225,234,305
+  s_bd317cec756d17::t_fb4158364bd191 226-233,259
+  s_bd317cec756d17::t_78c49065aa1965 242-245
+  s_bd317cec756d17::t_0b3a9692e68461 121-122,138,142,148,150,327
+  s_bd317cec756d17::t_137a01cdf2d0b3 50-51,180
+  s_bd317cec756d17::t_62f5bc55cb4e7a 252-253
+  s_bd317cec756d17::t_4126bbfbe6076b 268
+  s_bd317cec756d17::t_bba2d01bf0e2ff 80-99,235-236,241
+  s_bd317cec756d17::t_c15494e10e5156 336-399
+deploy/bootstrap.py
+  s_bd317cec756d17::t_8051e439f595f9 1-22,25-43,46-47,53-55
+  s_bd317cec756d17::t_fc66d38e7b376f 23-24,44-45,48-52
+tests/test_generation_settings.py
+  s_bd317cec756d17::t_42c69d1856d25c 19
+  s_bd317cec756d17::t_985e77c2a63413 1-18,20-45
+framework/05_writing/lean-flow.md
+  s_bd317cec756d17::t_5fd8a5818bd570 1-50
+  s_bd317cec756d17::t_a13937ea9ddfc7 51-60
+framework/02_questions/build_questions.py
+  s_bd317cec756d17::t_f69bec90699657 1,36-39,59,65,69-70,72-81,83,98-99,110
+  s_bd317cec756d17::t_a62a5ac7a1a27f 113-116,124
+lessonweave/findings.py
+  s_bd317cec756d17::t_f69bec90699657 1-20
+framework/05_writing/repair_batches.py
+  s_bd317cec756d17::t_374c08f6a66dba 1-4,6-21,24-45
+  s_bd317cec756d17::t_68a0ffbbbe0520 5,22-23
+framework/05_writing/lean_contract.py
+  s_bd317cec756d17::t_25f45fae3db1f1 78
+  s_bd317cec756d17::t_fcc64705756624 35,55-56
+  s_bd317cec756d17::t_ba650699819809 1-34,36-41,43-54,57-74,76-77,80,98-139
+  s_bd317cec756d17::t_879874c8a42b61 42,75,79,81-97
+  s_bd317cec756d17::t_95c3a5a088e0ca 140
+.gitignore
+  s_bd317cec756d17::t_65dc55b229cf42 8-15
+  s_bd317cec756d17::t_84c20e6e7beaa1 21-22
+  s_bd317cec756d17::t_1a3442cf8d6188 24-27
+framework/architecture/index.html
+  s_bd317cec756d17::t_ce4a6903be6b5b 7,9
+docs/deployment.md
+  s_bd317cec756d17::t_68b078ee58da92 1,3,5,7,9-14,16,18,20,22,24,26,28-31,33,35,37,39,41,43,45-59
+docs/architecture.md
+  s_bd317cec756d17::t_3360dfde54db35 1,3,5,7-17,19,21,23,25,27,29,31,33,35,37,39,41
+  s_bd317cec756d17::t_86a62b59057971 43
+lessonweave/pipeline.py
+  s_bd317cec756d17::t_cdd5dccab820cb 131-145
+  s_bd317cec756d17::t_1e934ea7b5fac8 16,117,129-130,146,151,162-164,172,177,185,212,218,227-228,231,235
+  s_bd317cec756d17::t_a84ffed43be228 104-105,107-116,121-128
+  s_bd317cec756d17::t_d4baf2f6717fc8 182-184
+  s_bd317cec756d17::t_fa8dddc5f8c29c 18,74-78,87,98,170-171
+  s_bd317cec756d17::t_9c219524e83bba 44-45
+  s_bd317cec756d17::t_d3603b65a3b048 150
+  s_bd317cec756d17::t_01ff80eadb31c6 211,217
+  s_bd317cec756d17::t_f9b1359c75df11 59,244-253
+framework/05_writing/teaching_coverage.py
+  s_bd317cec756d17::t_d4baf2f6717fc8 1-278
+tests/test_translation_batches.py
+  s_bd317cec756d17::t_9bd97d66ec2288 1-2,4-8,10-12,14-15,17-25,27-29
+  s_bd317cec756d17::t_42c69d1856d25c 3,9,13,16,26,30-49
+docs/usage.md
+  s_bd317cec756d17::t_d92df5a5443fa1 15,29,44
+README.en.md
+  s_bd317cec756d17::t_3e2c37cf090cf9 2-5,9-10,13,15,17,19,21,24-27,30,32,35-36,39,41,47-56,59,62,64,66,68-72,74,76,78-82,84,86,88
+framework/requirements-parser.txt
+  s_bd317cec756d17::t_4b5c2ebed27442 1-14
+tests/test_runtime.py
+  s_bd317cec756d17::t_90573ffa8e29e1 55-82,136-147
+framework/03_chapters/generation.md
+  s_bd317cec756d17::t_a9d2e2fca621b2 1-34,36-50,52-53
+  s_bd317cec756d17::t_61065859f6de6a 35,51
+framework/architecture/flow.js
+  s_bd317cec756d17::t_ce4a6903be6b5b 38,41-42,44,47,57-63,77,81,95-99
+  s_bd317cec756d17::t_d536bae995e929 82
+tests/test_native_source_session.py
+  s_bd317cec756d17::t_d86edd7213c76b 1-13,15-60
+  s_bd317cec756d17::t_4523772c7bf187 14
+framework/05_writing/writing_contract.py
+  s_bd317cec756d17::t_a9b8b7ff6da291 1-172
+framework/reader/archive/index.html
+  s_bd317cec756d17::t_4b5c2ebed27442 1-11
+tests/test_lean.py
+  s_bd317cec756d17::t_42c69d1856d25c 1-107
+framework/05_writing/positive_writing.py
+  s_bd317cec756d17::t_137a01cdf2d0b3 5-7
+  s_bd317cec756d17::t_879874c8a42b61 1-4,8-86
+tests/test_web_archive.py
+  s_bd317cec756d17::t_1a72a73f4ee3a2 1-21,24-96,101-109
+  s_bd317cec756d17::t_008944ec4cd19a 97-100
+  s_bd317cec756d17::t_675b2147f2c5a9 22-23,110-165
+docs/question-planning.md
+  s_bd317cec756d17::t_c46b749d1cec75 1-36
+examples/web.input.json
+  s_bd317cec756d17::t_fb673eeca599cb 3,5-6
+framework/00_source/input.json
+  s_bd317cec756d17::t_9aae32a45ea7a5 2-3,5
+framework/00_source/source.schema.json
+  s_bd317cec756d17::t_7c0b271bb3613d 97-185
+framework/01_tree/points.schema.json
+  s_bd317cec756d17::t_ddc9185c804508 1-192
+framework/02_questions/generation.md
+  s_bd317cec756d17::t_b7d4f546edbe38 1-46
+framework/02_questions/initial.schema.json
+  s_bd317cec756d17::t_5a332a09c1b9d9 1-202
+framework/02_questions/patch.schema.json
+  s_bd317cec756d17::t_a5710833f4fad2 1-203
+framework/02_questions/questions.schema.json
+  s_bd317cec756d17::t_f0bfe386b99026 188-245,247-336,400-406,410-431
+framework/03_chapters/chapters.schema.json
+  s_bd317cec756d17::t_34c36b3d019ba0 159-161
+framework/03_chapters/patch.schema.json
+  s_bd317cec756d17::t_ac839ebcf03a49 1-145
+framework/04_transitions/generation.md
+  s_bd317cec756d17::t_d1f1a5e1795767 1-6
+framework/04_transitions/transitions.schema.json
+  s_bd317cec756d17::t_c848e17d06937f 135-137
+framework/05_writing/book.schema.json
+  s_bd317cec756d17::t_02ffd18423dee2 111,248-256
+framework/05_writing/book_generation.py
+  s_bd317cec756d17::t_8cde07312e8ce3 30-33,35,108,208,210,217,224,233,235,239-240,242,247,253,255,261,263,269-271,274,279-280,293-294,325,331-332,338,359-360
+framework/05_writing/bridge.schema.json
+  s_bd317cec756d17::t_23dee827e70f66 1-26
+framework/05_writing/bridge_batches.py
+  s_bd317cec756d17::t_97f33dfb42d0fa 1-30
+framework/05_writing/build_demo.py
+  s_bd317cec756d17::t_e345ac5a70eb4f 52-54,199,225-227,241-243
+framework/05_writing/c-bridges.schema.json
+  s_bd317cec756d17::t_b882b2035037b2 1-43
+framework/05_writing/c-completion.schema.json
+  s_bd317cec756d17::t_6a296049f6177b 1-611
+framework/05_writing/c-unit.schema.json
+  s_bd317cec756d17::t_81f3f823fae620 1-2250
+framework/05_writing/code-guide.schema.json
+  s_bd317cec756d17::t_1cabecb2c7970a 1-295
+framework/05_writing/coverage-inventory.schema.json
+  s_bd317cec756d17::t_39f2a316c4c9c9 146-151
+framework/05_writing/demo.schema.json
+  s_bd317cec756d17::t_4f8f439a5f6e7f 131,144-153,216,465,469,549-557,562-757,760-885,887-898,900-903,908-1026,1028-1037,1040-1148,1151-1159,1162-1270,1273-1281,1284-1350,1352-1646,1649-1660,1663-1750,1752-1832,1835-1847,1850-1910,1912-1992,1995-2005,2008-2056,2058-2138,2141-2150,2153-2262,2264-2284,2286-2292,2346,2391-2400,2403-2412
+framework/05_writing/document_sources.py
+  s_bd317cec756d17::t_2c826a5acc00fb 1-125
+framework/05_writing/glossary-common.json
+  s_bd317cec756d17::t_6bf614af51853d 1-1554
+framework/05_writing/glossary.schema.json
+  s_bd317cec756d17::t_ad78e461ce4814 1-379
+framework/05_writing/json_response.py
+  s_bd317cec756d17::t_e083319ba70f80 1-19
+framework/05_writing/math_syntax.cjs
+  s_bd317cec756d17::t_93f5eac5310579 1-16
+framework/05_writing/math_syntax.py
+  s_bd317cec756d17::t_26c3a44270cf66 1-76
+framework/05_writing/media-guide.schema.json
+  s_bd317cec756d17::t_270a31bcf1e4bf 1-81
+framework/05_writing/media-resource.schema.json
+  s_bd317cec756d17::t_d1b7e6dc389feb 1-1518
+framework/05_writing/media.rules.md
+  s_bd317cec756d17::t_869bd348467511 1-43
+framework/05_writing/runtime-profile.json
+  s_bd317cec756d17::t_dac9de9b1ed66b 1-8
+framework/05_writing/terminology.rules.md
+  s_bd317cec756d17::t_87faa30f1f71e5 37,39-43
+framework/05_writing/writing-extras.schema.json
+  s_bd317cec756d17::t_3d19f0ea138240 1-277
+framework/05_writing/writing-unit.schema.json
+  s_bd317cec756d17::t_f973759aae5e29 1-1884
+framework/architecture/compact.css
+  s_4552c046844e7c::t_2f9caf715cfa52 4-5
+framework/architecture/contract.json
+  s_bd317cec756d17::t_f2a1d6593ee7fd 2-31,34-41,44-46,49-51,54-56,59-61,64-66,69-71,74-76,78-90
+framework/architecture/stages.json
+  s_bd317cec756d17::t_e0b7762c9207c0 1-1140
+framework/examples/media/assets/break-even.html
+  s_bd317cec756d17::t_3fa72007c502c3 1
+framework/examples/media/assets/checkout.py
+  s_bd317cec756d17::t_6dc29c0db8597c 1-35
+framework/examples/media/index.html
+  s_bd317cec756d17::t_4d6fe02362922f 1
+framework/examples/media/resources.json
+  s_bd317cec756d17::t_52b10adb84cb74 1-1357
+framework/examples/media/source-records.json
+  s_bd317cec756d17::t_5dac26440e3075 1-99
+framework/reader/archive/LICENSE-ReplayWeb.page.txt
+  s_bd317cec756d17::t_5eb345e211aac4 1-661
+framework/reader/archive/replay/sw.js
+  s_bd317cec756d17::t_f5e4f622333fee 1-118
+framework/reader/archive/ui.js
+  s_bd317cec756d17::t_9a9d16fd4a2622 1-5563
+framework/reader/media-vendor/LICENSE-mermaid.txt
+  s_bd317cec756d17::t_a9eaccf2bfd3c0 1-21
+framework/reader/media-vendor/katex/LICENSE
+  s_bd317cec756d17::t_8d1c3d94454fe3 1-21
+framework/reader/media-vendor/katex/dist/README.md
+  s_bd317cec756d17::t_1e69f81063b8db 1-125
+framework/reader/media-vendor/katex/dist/contrib/auto-render.js
+  s_bd317cec756d17::t_3a4ff48cc1d594 1-338
+framework/reader/media-vendor/katex/dist/contrib/auto-render.min.js
+  s_bd317cec756d17::t_833e069a8421ee 1
+framework/reader/media-vendor/katex/dist/contrib/auto-render.mjs
+  s_bd317cec756d17::t_413e7dde19e4e6 1-244
+framework/reader/media-vendor/katex/dist/contrib/copy-tex.js
+  s_bd317cec756d17::t_e48b5e435c7316 1-127
+framework/reader/media-vendor/katex/dist/contrib/copy-tex.min.js
+  s_bd317cec756d17::t_d35e2c1d69bb9d 1
+framework/reader/media-vendor/katex/dist/contrib/copy-tex.mjs
+  s_bd317cec756d17::t_f4faf07f04629c 1-105
+framework/reader/media-vendor/katex/dist/contrib/mathtex-script-type.js
+  s_bd317cec756d17::t_2a3dbc239d5992 1-109
+framework/reader/media-vendor/katex/dist/contrib/mathtex-script-type.min.js
+  s_bd317cec756d17::t_973c50ea4c3d02 1
+framework/reader/media-vendor/katex/dist/contrib/mathtex-script-type.mjs
+  s_bd317cec756d17::t_1d20bacb20a837 1-24
+framework/reader/media-vendor/katex/dist/contrib/mhchem.js
+  s_bd317cec756d17::t_811005e4e657f3 1-3213
+framework/reader/media-vendor/katex/dist/contrib/mhchem.min.js
+  s_bd317cec756d17::t_897e38fe2322f5 1
+framework/reader/media-vendor/katex/dist/contrib/mhchem.mjs
+  s_bd317cec756d17::t_fbd88d96e6b8e8 1-3109
+framework/reader/media-vendor/katex/dist/contrib/render-a11y-string.js
+  s_bd317cec756d17::t_4e1cfce721bd88 1-887
+framework/reader/media-vendor/katex/dist/contrib/render-a11y-string.min.js
+  s_bd317cec756d17::t_1a712058aa83ce 1
+framework/reader/media-vendor/katex/dist/contrib/render-a11y-string.mjs
+  s_bd317cec756d17::t_a83d8ba7fdcd4b 1-800
+framework/reader/media-vendor/katex/dist/katex.css
+  s_bd317cec756d17::t_b32260d32155bb 1-1210
+framework/reader/media-vendor/katex/dist/katex.js
+  s_bd317cec756d17::t_ce7c259fbffdf4 1-19092
+framework/reader/media-vendor/katex/dist/katex.min.css
+  s_bd317cec756d17::t_ecf95acb2e6e89 1
+framework/reader/media-vendor/katex/dist/katex.min.js
+  s_bd317cec756d17::t_cc6f267c8acb11 1
+framework/reader/media-vendor/katex/dist/katex.mjs
+  s_bd317cec756d17::t_8f57be8bbd5525 1-18549
+framework/reader/media-vendor/katex/package-info.json
+  s_bd317cec756d17::t_95784eebdfa91a 1-6
+framework/reader/media-vendor/mermaid.min.js
+  s_bd317cec756d17::t_9e41e0a0e6338f 1-2029
+integrations/readweave/HANDOFF.md
+  s_bd317cec756d17::t_e5d8a2c5b96b7a 90
+integrations/readweave/build_component.py
+  s_bd317cec756d17::t_f849936c8e89b0 7
+lessonweave/concurrency.py
+  s_bd317cec756d17::t_e3a2ea67c7140d 1-54
+lessonweave/package.py
+  s_bd317cec756d17::t_46019bd6b2b72c 78,110
+lessonweave/storage.py
+  s_bd317cec756d17::t_6161b960e57695 24-32
+requirements.txt
+  s_bd317cec756d17::t_7400ec098d1e67 1
+tests/test_materials.py
+  s_bd317cec756d17::t_3aa6848e8c182d 6
+tests/test_reader_coverage.py
+  s_bd317cec756d17::t_38417a71196325 1-74
+tests/test_storage.py
+  s_bd317cec756d17::t_0d43bae23ba07c 1-28
+web/workspace.css
+  s_bd317cec756d17::t_e23ee3838abe82 4-5
+tests/test_image_paths.py
+  s_bd317cec756d17::t_16ae5c02ecaa40 1-12
+tests/test_repository_source_paths.py
+  s_bd317cec756d17::t_66054430e13916 1-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2504981358058e06891a6e554f0e66cd46c97503",
+  "prompts": {},
+  "sessions": {
+    "s_4552c046844e7c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14919-891d-7b32-9e12-b2bf212304ff",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    },
+    "s_bd317cec756d17": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b69-207f-7e61-ba85-f7edc501349a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    }
+  }
+}
