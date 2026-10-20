@@ -1,5 +1,5 @@
 from lessonweave.storage import save
-from lessonweave.progress import begin,tick,view
+from lessonweave.progress import begin,tick,view,stage_times
 from lessonweave.system_info import snapshot
 import time
 
@@ -46,3 +46,17 @@ def test_library_progress_counts_saved_and_reused_attachments(tmp_path,monkeypat
     value=view(tmp_path,{'status':'running','created':time.time()-10,'updated':time.time()})
     row=next(r for r in value['stages'] if r['id']=='12')
     assert row['status']=='running' and row['done']==2 and row['total']==3
+
+
+def test_stage_clocks_merge_nested_work_and_exclude_interruption_gaps(tmp_path):
+    save(tmp_path/'runtime/timing.json',{'records':[
+        {'job_id':'job','stage':'writing','operation':'model','started_at':0,'ended_at':10},
+        {'job_id':'job','stage':'writing','operation':'format','started_at':2,'ended_at':8},
+        {'job_id':'job','stage':'translation','operation':'model','started_at':5,'ended_at':15},
+        {'job_id':'job','stage':'other','operation':'job_run','started_at':0,'ended_at':15},
+        {'job_id':'job','stage':'other','operation':'job_run','started_at':100,'ended_at':105},
+        {'job_id':'another','stage':'writing','operation':'model','started_at':0,'ended_at':200}]})
+    rows=[{'id':'04','status':'done'},{'id':'05','status':'done'},{'id':'08','status':'skipped'}]
+    result=stage_times(tmp_path,{'id':'job','status':'completed','updated':105},rows,{})
+    assert [r['execution_seconds'] for r in rows]==[10,10,0]
+    assert result=={'stage_execution_seconds':20,'execution_seconds':20}

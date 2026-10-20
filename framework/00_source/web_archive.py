@@ -284,7 +284,7 @@ def snapshot_from_archive(root, url, archive, output):
 
 
 def resource_snapshot_script():
-    return '''()=>{const used=new Set([...document.querySelectorAll('[data-iqa-source]')].map(e=>e.getAttribute('data-iqa-source')));let index=0;return [...document.querySelectorAll('svg,canvas,video,audio,iframe,object,embed')].map(e=>{let anchor=e.getAttribute('data-iqa-source');if(!anchor){do{anchor='s'+(++index)}while(used.has(anchor));used.add(anchor);e.setAttribute('data-iqa-source',anchor)}const r={anchor,kind:e.localName,url:e.src||e.data||null};if(e.localName==='svg')r.svg=new XMLSerializer().serializeToString(e);if(e.localName==='canvas'){try{r.canvas=e.toDataURL('image/png').split(',')[1]}catch(error){r.error=String(error)}}return r})}'''
+    return '''()=>{const used=new Set(),owners=new Map();for(const e of document.querySelectorAll('[data-iqa-source]')){const a=e.getAttribute('data-iqa-source');used.add(a);if(!owners.has(a))owners.set(a,e)}let index=0;return [...document.querySelectorAll('svg,canvas,video,audio,iframe,object,embed')].map(e=>{let anchor=e.getAttribute('data-iqa-source');if(!anchor||!/^s[0-9]+$/.test(anchor)||owners.get(anchor)!==e){do{anchor='s'+(++index)}while(used.has(anchor));used.add(anchor);owners.set(anchor,e);e.setAttribute('data-iqa-source',anchor)}const r={anchor,kind:e.localName,url:e.src||e.data||null};if(e.localName==='svg')r.svg=new XMLSerializer().serializeToString(e);if(e.localName==='canvas'){try{r.canvas=e.toDataURL('image/png').split(',')[1]}catch(error){r.error=String(error)}}return r})}'''
 
 
 def capture_web_archive(root, url, output):

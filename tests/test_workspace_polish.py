@@ -39,7 +39,7 @@ def test_dynamic_svg_canvas_and_frames_receive_stable_unique_anchors():
     with sync_playwright() as p:
         browser=p.chromium.launch(headless=True)
         page=browser.new_page();page.set_content('<div data-iqa-source="s1">已保存</div>')
-        page.evaluate("()=>document.body.insertAdjacentHTML('beforeend','<svg xmlns=\"http://www.w3.org/2000/svg\"></svg><canvas></canvas><iframe></iframe><video></video>')")
+        page.evaluate("()=>document.body.insertAdjacentHTML('beforeend','<svg data-iqa-source=\"s1\" xmlns=\"http://www.w3.org/2000/svg\"></svg><canvas data-iqa-source=\"../unsafe\"></canvas><iframe></iframe><video></video>')")
         first=page.evaluate(web_archive.resource_snapshot_script())
         second=page.evaluate(web_archive.resource_snapshot_script())
         assert len(first)==4 and first==second
