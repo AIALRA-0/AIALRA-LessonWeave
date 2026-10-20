@@ -1,0 +1,31 @@
+web/workspace.css
+  s_bd317cec756d17::t_bcfd2780751e9d 13-14,17-18,20,23
+lessonweave/progress.py
+  s_bd317cec756d17::t_8bc5e16d30ecab 7-27,121,128
+web/generation-progress.js
+  s_bd317cec756d17::t_7a654145e2050a 2,5-13,21
+tests/test_progress_details.py
+  s_bd317cec756d17::t_8bc5e16d30ecab 2,49-62
+framework/00_source/web_archive.py
+  s_bd317cec756d17::t_1e9c0e92607586 287
+tests/test_workspace_polish.py
+  s_bd317cec756d17::t_4ade26e6a5f5c3 42
+web/workspace.js
+  s_bd317cec756d17::t_f7dbb84241e044 83,95
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b4fa4c2ab9b4614f60ee3f4fd5a1efc4b9ecfd1b",
+  "prompts": {},
+  "sessions": {
+    "s_bd317cec756d17": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b69-207f-7e61-ba85-f7edc501349a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    }
+  }
+}
