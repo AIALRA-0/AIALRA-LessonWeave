@@ -1,0 +1,43 @@
+lessonweave/metrics.py
+  s_bd317cec756d17::t_46b3d93d5183d3 9,179,213-214
+lessonweave/progress.py
+  s_bd317cec756d17::t_46b3d93d5183d3 7-8,15,114-120,123,135
+tests/test_pricing.py
+  s_bd317cec756d17::t_a2f115404c0a73 1-42
+lessonweave/pricing.py
+  s_bd317cec756d17::t_46b3d93d5183d3 1-45
+web/workspace.js
+  s_bd317cec756d17::t_c77a95c502b717 22,55,61-62,65,75-89,91,98-99,105,109-111,119-120,126
+framework/reader/reading-ui.js
+  s_bd317cec756d17::t_c77a95c502b717 11,30-31,238
+integrations/readweave/build_component.py
+  s_bd317cec756d17::t_c77a95c502b717 22-24,34,61-66,78
+framework/reader/reader-polish.css
+  s_bd317cec756d17::t_5f5fff2fc151ee 115-127
+integrations/readweave/reader-component.js
+  s_bd317cec756d17::t_ef42a06ca1f435 102,109-111,121,1705,1724-1725,1932,2613-2618,2630
+web/generation-progress.js
+  s_bd317cec756d17::t_eb27b73b61c9f6 14-22,28,30
+web/metrics.js
+  s_bd317cec756d17::t_cd4a87ea91b260 1,17,22-23
+web/workspace.css
+  s_bd317cec756d17::t_d1868d6a4ff6c6 26-35
+web/workspace.html
+  s_bd317cec756d17::t_ddb49914609e37 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "85bd6f57bb2e22e520992e6c8aca1b54e24004da",
+  "prompts": {},
+  "sessions": {
+    "s_bd317cec756d17": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b69-207f-7e61-ba85-f7edc501349a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <aialra@163.com>"
+    }
+  }
+}
