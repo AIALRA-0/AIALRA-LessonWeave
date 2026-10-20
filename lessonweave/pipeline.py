@@ -97,6 +97,16 @@ def prepare(root):
                 tree = flow.build_tree(root, payload, source)
         record(root, '01_tree', tree['validation']['errors'])
     else:
+        tree=read(root/'01_tree/tree.json')
+        if tree.get('format')=='html' and tree.get('coverage',{}).get('inventory') and not tree.get('validation',{}).get('passed'):
+            # 恢复时只重算旧诊断，树的内容、节点编号和模型响应继续复用
+            from content_checks import source_inventory
+            from tree_model import save_result
+            inventory_path=root/tree['coverage']['inventory']
+            source=read(inventory_path.parent/'source.json')
+            save(inventory_path,source_inventory(root,tree,source))
+            tree=save_result(root,tree,inventory_path.parent)
+            record(root,'01_tree',tree['validation']['errors'])
         for sid in ['acquire','parse']:
             with span(root,sid,'reuse'):pass
 

@@ -16,6 +16,19 @@ PROFILE = 'content-tree-v1'
 SKIP_TAGS = {'script', 'style', 'noscript', 'template', 'button', 'form'}
 
 
+def original_image_url(value):
+    # 回放地址和原站地址表示同一资源，尺寸、格式和查询参数仍保留
+    return re.sub(r'^https?://[^/]+/archive/replay/.*?/\d{1,14}[a-z]*_/(?=https?://)','',value or '')
+
+
+def image_asset(record,anchor,*addresses):
+    items=record.get('images',[])
+    direct=next((item['path'] for item in items if anchor and item.get('anchor')==anchor),None)
+    if direct:return direct
+    aliases={original_image_url(item['url']):item['path'] for item in items}
+    return next((aliases[original_image_url(address)] for address in addresses if original_image_url(address) in aliases),None)
+
+
 def walk(node):
     yield node
     for child in node['children']:
@@ -108,7 +121,6 @@ def source_inventory(root, document, source):
             if element is not body and body not in element.parents:
                 roots.append(element)
         seen = set()
-        images = {item['url']: item['path'] for item in source.get('images', [])}
         resources = {item['anchor']: item for item in source.get('resources', [])}
         for container in roots:
             for element in [container, *container.descendants]:
@@ -129,7 +141,7 @@ def source_inventory(root, document, source):
                 elif getattr(element, 'name', None) == 'img':
                     from urllib.parse import urljoin
                     address = positions.get(anchor, {}).get('src') or urljoin(source['material'], element.get('src', ''))
-                    path = images.get(address)
+                    path = image_asset(source,anchor,address,urljoin(source['material'],element.get('src','')),element.get('data-src',''))
                     units.append({'id': 'html-image-' + anchor, 'kind': 'image', 'asset': '/' + path if path else '', 'source': origin})
                 elif getattr(element, 'name', None) in ('svg', 'canvas', 'video', 'audio', 'iframe', 'object', 'embed'):
                     item = resources.get(anchor, {})
@@ -281,6 +293,8 @@ def coverage_report(root, document, inventory):
             owners = [n['id'] for n, _ in candidates if n['type'] == 'file']
         elif kind in ('image', 'resource'):
             owners = [n['id'] for n in nodes if unit['asset'] and n['content'].get('asset') == unit['asset']]
+            if not owners and not unit['asset'] and kind=='image':
+                owners=[n['id'] for n,s in candidates if n['content'].get('representation')=='original_page_region' and n['content'].get('asset') and location_matches(unit,s,soup)]
         else:
             text = normalized(unit['text'])
             for node, source in candidates:

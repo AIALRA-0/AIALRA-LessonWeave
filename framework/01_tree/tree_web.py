@@ -3,22 +3,9 @@ from importlib.metadata import version
 from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup, Comment, NavigableString, Tag
-from content_checks import web_origin
+from content_checks import web_origin,image_asset,original_image_url
 
 from tree_code import file_source
-
-
-def original_image_url(value):
-    # 回放地址和原站地址表示同一资源，移除回放前缀但保留尺寸、格式和查询参数
-    return re.sub(r'^https?://[^/]+/archive/replay/.*?/\d{1,14}[a-z]*_/(?=https?://)','',value or '')
-
-
-def image_asset(record,anchor,*addresses):
-    items=record.get('images',[])
-    direct=next((item['path'] for item in items if anchor and item.get('anchor')==anchor),None)
-    if direct:return direct
-    aliases={original_image_url(item['url']):item['path'] for item in items}
-    return next((aliases[original_image_url(address)] for address in addresses if original_image_url(address) in aliases),None)
 
 
 def parse_webpage(builder, root, source_record, output):

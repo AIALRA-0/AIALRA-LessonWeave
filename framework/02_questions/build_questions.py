@@ -19,8 +19,8 @@ def material_scope(document, root):
     if not path.is_relative_to(root) or not path.is_file():
         raise ValueError('问题树没有对应的本地材料树')
     material = json.loads(path.read_text(encoding='utf-8'))
-    if material['run'] != document['material_run'] or not material['validation']['passed']:
-        raise ValueError('问题树引用的材料版本尚未通过检查或运行编号不一致')
+    if material['run'] != document['material_run']:
+        raise ValueError('问题树与材料树的运行编号不一致')
     nodes = {node['id']: node for node in walk(material['tree'])}
     roots = document['source_roots']
     if document['scope'] == 'full_material' and roots != [material['tree']['id']]:

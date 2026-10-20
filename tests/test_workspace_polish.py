@@ -9,9 +9,11 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'framework/00_source')
 import acquire
 import web_archive
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'framework/01_tree'))
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'framework/02_questions'))
 from tree_web import image_asset
 from tree_web import parse_webpage
 from tree_model import TreeBuilder,walk
+from content_checks import source_inventory,coverage_report
 
 
 def test_record_delete_keeps_idempotence_content_and_notes(tmp_path):
@@ -86,3 +88,13 @@ def test_missing_remote_image_keeps_actual_page_region_instead_of_aborting(tmp_p
     assert node['content']['representation']=='original_page_region'
     with Image.open(tmp_path/node['content']['asset'].lstrip('/'))as image:assert image.size==(70,40)
     assert len(result['summary']['image_issues'])==1
+    result['format']='html'
+    inventory=source_inventory(tmp_path,result,record)
+    assert coverage_report(tmp_path,result,inventory)['ratio']==1
+
+
+def test_material_diagnostics_do_not_block_question_source_mapping(tmp_path):
+    from build_questions import material_scope
+    save(tmp_path/'01_tree/tree.json',{'run':'same','validation':{'passed':False,'errors':['保留解析器诊断']},'tree':{'id':'m1','children':[]}})
+    doc={'material_tree':'01_tree/tree.json','material_run':'same','source_roots':['m1'],'context_nodes':[],'scope':'full_material'}
+    assert material_scope(doc,tmp_path)[1]=={'m1'}
