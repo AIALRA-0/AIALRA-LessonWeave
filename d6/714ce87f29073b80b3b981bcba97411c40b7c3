@@ -1,0 +1,30 @@
+framework/reader/reader-polish.css
+  s_bd317cec756d17::t_800b218ff95f1b 128-153
+web/workspace.html
+  s_bd317cec756d17::t_7974c9c3878910 3-4
+web/workspace.css
+  s_bd317cec756d17::t_9f6cc6a05502e6 36-37
+integrations/readweave/reader-component.js
+  s_bd317cec756d17::t_f813cfd26f13d7 102,1859-1862,1864
+  s_bd317cec756d17::t_358987a3acf02c 1879
+framework/reader/reading-ui.js
+  s_bd317cec756d17::t_c6ae81b5b7481e 165-168,170,185
+web/workspace.js
+  s_bd317cec756d17::t_11bf10b04c730a 127
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d6714ce87f29073b80b3b981bcba97411c40b7c3",
+  "prompts": {},
+  "sessions": {
+    "s_bd317cec756d17": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b69-207f-7e61-ba85-f7edc501349a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": null
+    }
+  }
+}
