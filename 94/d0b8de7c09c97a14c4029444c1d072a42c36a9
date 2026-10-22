@@ -1,0 +1,29 @@
+tests/test_readweave_host.py
+  s_bd317cec756d17::t_d852c3875db19e 240-276
+docs/readweave-validation.md
+  s_bd317cec756d17::t_ca0d78ec4ce53b 23
+web/shared-reader-entry.js
+  s_bd317cec756d17::t_11c115be1dd024 7
+tests/test_standalone_shared_math.py
+  s_bd317cec756d17::t_3ee15272a0fc0b 46-51
+  s_bd317cec756d17::t_11c115be1dd024 1-45,52-53
+integrations/readweave/shared-reader.js
+  s_bd317cec756d17::t_ad6214fef3201d 94
+  s_bd317cec756d17::t_3e6ccf1cc86f55 13,129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "94d0b8de7c09c97a14c4029444c1d072a42c36a9",
+  "prompts": {},
+  "sessions": {
+    "s_bd317cec756d17": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b69-207f-7e61-ba85-f7edc501349a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <71060413+AIALRA-0@users.noreply.github.com>"
+    }
+  }
+}
