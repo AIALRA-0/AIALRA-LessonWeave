@@ -1,0 +1,37 @@
+framework/reader/writing-demo.js
+  s_bd317cec756d17::t_b4c1d403210ec3 114-115
+  s_bd317cec756d17::t_e42447431ab1e3 81,85-89,125
+  s_bd317cec756d17::t_c339b2c680433d 69,73-80,82-84,90-113,118,122-124,127-133
+  s_bd317cec756d17::t_1e2a309e624d9a 126
+framework/reader/media-renderer.js
+  s_bd317cec756d17::t_9736d31a3bec28 115
+docs/security/publication-risk-notes.md
+  s_bd317cec756d17::t_27cf19b2c69c76 33-36
+docs/readweave-validation.md
+  s_bd317cec756d17::t_bb623b8e3066a7 20
+tests/test_shared_media_hydration.py
+  s_bd317cec756d17::t_dc2b93198b7cac 29,88-93,95,97,99
+  s_bd317cec756d17::t_b44fcdfce05348 17,73,77,84,86,94,96,98
+  s_bd317cec756d17::t_ff87aa7377cc54 100-123
+  s_bd317cec756d17::t_8fe104dd0e1892 1-16,18-26,28,30-32,36-57,59,61-66,68-72,74-76,78-83,85,87
+  s_bd317cec756d17::t_2433b62510a83c 27,33-35
+  s_bd317cec756d17::t_e4461cda1a08c3 58,60,67
+integrations/readweave/reader-component.js
+  s_bd317cec756d17::t_f1c2e944032846 480,626,630-672,675,679-690
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c11910d8a08c56db5a8715afcedf6abb18b268e4",
+  "prompts": {},
+  "sessions": {
+    "s_bd317cec756d17": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b69-207f-7e61-ba85-f7edc501349a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <71060413+AIALRA-0@users.noreply.github.com>"
+    }
+  }
+}
