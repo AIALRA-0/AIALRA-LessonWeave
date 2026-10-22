@@ -1,0 +1,1172 @@
+docs/architecture.md
+  s_bd317cec756d17::t_824a117fb87533 1,5,7,9-22,25,29,33,35-36,41,51-52,54,56,58-60,62,64-66,68
+  s_bd317cec756d17::t_873e3137f29b35 23,73
+  s_bd317cec756d17::t_d654bed1d23bd0 3,27,31,34,37,39,43,45,47,49,53,55,57,61,63,67,69
+  s_bd317cec756d17::t_24c79c8304f7b5 70-72,74-75
+tests/test_media_pin.py
+  s_bd317cec756d17::t_b59948b37d34ef 1-3,5-17,19-20,22-32,36-56,58-75,78-89,91-108
+  s_bd317cec756d17::t_2cef76f582b982 76,90
+  s_bd317cec756d17::t_ce7ae46ed77ca2 21
+  s_bd317cec756d17::t_19fb98a68b4eef 18,57,77
+  s_bd317cec756d17::t_e7dddbc1af838c 4,33-35
+README.en.md
+  s_bd317cec756d17::t_f6153283f260bb 74
+  s_bd317cec756d17::t_a52159fa905058 3
+  s_bd317cec756d17::t_98c90afeeb07d3 9-10,24,26,28,30,34,37-40,43-47,49,55,57-58,60-62,64,67,70,76,78,80,82,84-87,91,93,95
+  s_bd317cec756d17::t_873e3137f29b35 72,89
+  s_bd317cec756d17::t_0f7eed36b4823e 2
+  s_bd317cec756d17::t_256c60bfbad372 5
+  s_bd317cec756d17::t_f1136f38cc0deb 13-22
+  s_bd317cec756d17::t_2f7b1b0ca6499f 4,92
+  s_bd317cec756d17::t_c11d4e7c7a9bd6 32,90
+  s_bd317cec756d17::t_ec69dbbc4d16ff 88
+lessonweave/trilium.py
+  s_bd317cec756d17::t_7e2185df46e5ef 150-151,236,244,316-317
+  s_bd317cec756d17::t_3f752a6a52c97c 41-44,142-144,159-161
+  s_bd317cec756d17::t_ee26153027de85 251,267
+  s_bd317cec756d17::t_ea1f66dff30266 199-206,233
+integrations/readweave/host/server.ts
+  s_bd317cec756d17::t_7bf4826fa0b263 1-11
+deploy/nginx.conf.template
+  s_bd317cec756d17::t_98772e58a3d720 22-23
+tests/test_readweave_package_source.py
+  s_bd317cec756d17::t_81f1c3bd37dba1 1-3,5-10,12-26,31-53,57-59,64-65,68-75,84,86-93,95-116,133-135,138-142,144-147,155,158-176,194-201,203-209,212-219,221,257-259
+  s_bd317cec756d17::t_6c96ad5929e6ef 179
+  s_bd317cec756d17::t_291d6c87ce0f52 222-229
+  s_bd317cec756d17::t_beec89848f01bb 60-62,150
+  s_bd317cec756d17::t_6e60288121d770 76,83,85,94,211,220
+  s_bd317cec756d17::t_b09d974800a757 4,11,77-82,117-132,136-137,202,210
+  s_bd317cec756d17::t_e2ca3d84a39fe1 66-67,156-157
+  s_bd317cec756d17::t_3361adc5d1c2dd 177-178,180-184
+  s_bd317cec756d17::t_bec0b465b8803d 54-56,152-154,185
+  s_bd317cec756d17::t_002d4d14d3ca04 230-240
+  s_bd317cec756d17::t_4a7aab857c75b9 249-256
+  s_bd317cec756d17::t_f7068112cfa02b 241-248
+  s_bd317cec756d17::t_47e6327063c35b 63,148-149,151,186-189
+  s_bd317cec756d17::t_3f3b73a06e17ec 27-30,143,190-193
+lessonweave/shared_html.py
+  s_bd317cec756d17::t_a1ac4abe1448e4 7-8,22
+  s_bd317cec756d17::t_064c7fc690dc00 1-2,4-6,9-21,23-43,45,55-61
+  s_bd317cec756d17::t_4e9a6e7c21e41f 46-54
+  s_bd317cec756d17::t_ea1f66dff30266 3,44
+lessonweave/__init__.py
+  s_bd317cec756d17::t_1c2d1f19caad31 1
+integrations/readweave/host/entry.tsx
+  s_bd317cec756d17::t_b3ebfc66232bc8 9-11,14
+  s_bd317cec756d17::t_a658c878ee2198 12-13
+  s_bd317cec756d17::t_04db7a0e51520d 21,23-27
+  s_bd317cec756d17::t_b47ce82103dba1 6,15-16
+  s_bd317cec756d17::t_5064c96a5ee28b 8
+  s_bd317cec756d17::t_7bf4826fa0b263 1-5,7,17-20,22,28-31
+framework/02_questions/source_disposition.py
+  s_bd317cec756d17::t_5865c7af562dc8 197-201
+lessonweave/server.py
+  s_bd317cec756d17::t_65a0a424a8c9f2 366
+  s_bd317cec756d17::t_b7ab3eeb8b820e 384-403
+  s_bd317cec756d17::t_3f752a6a52c97c 180-181
+  s_bd317cec756d17::t_47c017fef0bf9b 199,367
+  s_bd317cec756d17::t_1c2d1f19caad31 128-129
+  s_bd317cec756d17::t_362ff60b7c6ad0 236,240,252
+  s_bd317cec756d17::t_7e2185df46e5ef 124-125,293-294,332,381-383,404-438
+  s_bd317cec756d17::t_04db7a0e51520d 162-163
+  s_bd317cec756d17::t_6b6e35fd11a1fa 198,368
+  s_bd317cec756d17::t_5064c96a5ee28b 262
+  s_bd317cec756d17::t_d7a7fbd983c773 229-235,237
+docs/agent-deployment.md
+  s_bd317cec756d17::t_9dd4d4403a29a8 29
+  s_bd317cec756d17::t_19c135994d485d 1-2,4-5,7-12,14,16-17,32-33
+  s_bd317cec756d17::t_d039b4a853e3df 3,6,13,15,18-25,30-31,34
+  s_bd317cec756d17::t_33049ad3247ed5 26-28
+integrations/readweave/backend-contract.json
+  s_bd317cec756d17::t_11c2a863c644de 1-190
+  s_bd317cec756d17::t_5b1258babca4c5 191-198
+tests/test_readweave_shared_reader_browser.py
+  s_bd317cec756d17::t_019db928d6d2a5 61,67
+  s_bd317cec756d17::t_a658c878ee2198 213,222
+  s_bd317cec756d17::t_afa9477f0e4ced 135-138
+  s_bd317cec756d17::t_b912042e424a47 1,164-165,167-171
+  s_bd317cec756d17::t_d707b32f19004e 69
+  s_bd317cec756d17::t_1cd14bd4ea3478 68
+  s_bd317cec756d17::t_759f62de128e1e 2-38,40-60,62-66,70-76,78-91,102-109,113-121,125-134,139,141-144,146-149,153-163,172-178,188,190-193,195-205,231
+  s_bd317cec756d17::t_84104d07d47527 39,92-101,110-112,150-152,166,179-187,189
+  s_bd317cec756d17::t_51beb1f6f7f66f 77,122-124,140,145,194,206-212,214-221,223-230
+  s_bd317cec756d17::t_fa84be89375396 232-248
+docs/architecture-view.md
+  s_bd317cec756d17::t_a70de766cb9e21 1,5,13,15-18,22-28
+  s_bd317cec756d17::t_256c60bfbad372 3,7,9,11,29
+  s_bd317cec756d17::t_873e3137f29b35 20
+integrations/readweave/host/host.css
+  s_bd317cec756d17::t_7bf4826fa0b263 1-14,16-17
+  s_bd317cec756d17::t_7e943b7aadcb19 15
+tests/test_progress_details.py
+  s_bd317cec756d17::t_ee26153027de85 5-23
+README.md
+  s_bd317cec756d17::t_ec69dbbc4d16ff 89
+  s_bd317cec756d17::t_f30b145718f13a 26,45,71,79,81,96
+  s_bd317cec756d17::t_2f7b1b0ca6499f 4,93
+  s_bd317cec756d17::t_256c60bfbad372 5
+  s_bd317cec756d17::t_f1136f38cc0deb 13-22
+  s_bd317cec756d17::t_6cb04e8c1046da 54
+  s_bd317cec756d17::t_c11d4e7c7a9bd6 91
+  s_bd317cec756d17::t_0f7eed36b4823e 2
+  s_bd317cec756d17::t_67a12eb15a0dea 9-10,24,30,34,37-40,44,47-48,56,58-65,68,77,83,85-88,92,94
+  s_bd317cec756d17::t_83c01156569d97 28
+  s_bd317cec756d17::t_e7d35b4e998e96 32,43,49
+  s_bd317cec756d17::t_6a14ca7532cdd3 75
+  s_bd317cec756d17::t_a52159fa905058 3
+  s_bd317cec756d17::t_873e3137f29b35 73,90
+framework/05_writing/raster_tiles.py
+  s_bd317cec756d17::t_28531ad20ed528 1-34
+.gitignore
+  s_bd317cec756d17::t_e6e83cb2efc537 6-8
+scripts/package-public-cases.py
+  s_bd317cec756d17::t_aaf437a9a3d79a 41
+  s_bd317cec756d17::t_5d8e0da15035fa 232-257,263,294,302-304,320,328-372,374-376,384-385,513,519
+  s_bd317cec756d17::t_713d0d87b61bf0 681-700,706,708-712,715-726
+  s_bd317cec756d17::t_fcda99c564805b 584
+  s_bd317cec756d17::t_28a9a349144be4 1-40,42,44-211,265-270,286,288-292,295,297,299-301,306-319,321-327,373,377-383,386-397,403-417,422-490,492-501,505-512,521-583,585-680,701-705,707,713-714,727-787
+  s_bd317cec756d17::t_a27d08f70e77b8 212-231,258-262,264,271-285,287,293,296,298,305,398-402,418-421,491,502-504,514-518,520
+  s_bd317cec756d17::t_387be94e987c46 43
+integrations/readweave/host/hooks.tsx
+  s_bd317cec756d17::t_7bf4826fa0b263 1-7
+lessonweave/readweave.py
+  s_bd317cec756d17::t_94bea76ffd3ae9 1-3,5-9,11-31,41-59,89-97,110-112,114-117,119,121-125,128-131,133-134,137-139,149-163,166,171,173,176-180,182,184,186-190,192-196,200-203,205,209,214,217
+  s_bd317cec756d17::t_e4282702bda8aa 103-104
+  s_bd317cec756d17::t_b55c96340c8bac 191,197-199,204,206-208,211,218
+  s_bd317cec756d17::t_9e7764a3754a8a 33-40
+  s_bd317cec756d17::t_470468a60626b8 213
+  s_bd317cec756d17::t_3f752a6a52c97c 4,10,61-88
+  s_bd317cec756d17::t_064c7fc690dc00 113,126-127
+  s_bd317cec756d17::t_abbe6965a30b58 164-165
+  s_bd317cec756d17::t_b47ce82103dba1 60,118,120,132,135-136,140-148,181
+  s_bd317cec756d17::t_5975e306133513 210,212,215-216
+  s_bd317cec756d17::t_56250dd19f92dd 32,98-102,105-109,167-170,172,174-175,183,185
+NOTICE
+  s_bd317cec756d17::t_46a02db320b382 4-14
+tests/test_shared_html.py
+  s_bd317cec756d17::t_6aa5e5ff9940dc 1-25
+tests/test_readweave_notes.py
+  s_bd317cec756d17::t_4f85bfe926c053 5,41-48,50-60
+  s_bd317cec756d17::t_2c27a9caf77cbf 40
+  s_bd317cec756d17::t_e4282702bda8aa 49
+  s_bd317cec756d17::t_31a8e37f64c9d9 1-4,6-22,25-39
+  s_bd317cec756d17::t_470468a60626b8 23-24
+tests/test_continuous_writer.py
+  s_bd317cec756d17::t_0c2623d39aaeae 51-67
+  s_bd317cec756d17::t_b0846535627c88 1-50
+tests/test_independent_checks.py
+  s_bd317cec756d17::t_348d7e0ee96f65 23-28
+  s_bd317cec756d17::t_597242c696f28c 29-33
+framework/architecture/contract.json
+  s_bd317cec756d17::t_24c79c8304f7b5 101-110
+  s_bd317cec756d17::t_c11d4e7c7a9bd6 134-155,157
+  s_bd317cec756d17::t_41bbb97ee30474 31,99-100,111-122,133,158-192
+  s_bd317cec756d17::t_ce56197e4d8f9d 123-131
+  s_bd317cec756d17::t_0f230c92f94177 132,156
+web/workspace.js
+  s_bd317cec756d17::t_04db7a0e51520d 23,64,75
+framework/05_writing/independent_checks.py
+  s_bd317cec756d17::t_afac37d3142c01 93-94
+  s_bd317cec756d17::t_0b868c5c819a16 8,90-92
+  s_bd317cec756d17::t_28531ad20ed528 36,59-60
+AGENTS.md
+  s_bd317cec756d17::t_81bb435bee2396 13,37-43
+tests/test_web_complete.py
+  s_bd317cec756d17::t_5865c7af562dc8 1-65
+integrations/readweave/HANDOFF.md
+  s_bd317cec756d17::t_508b529789c0e9 31
+  s_bd317cec756d17::t_9aca2ae94717b8 5,49
+  s_bd317cec756d17::t_f94e22d7c633c4 47
+  s_bd317cec756d17::t_c4bd21a3c0b03f 48
+  s_bd317cec756d17::t_51f747fc253023 1,9,11,13,17,19,21,23,25,27,29,33,35,37,39,41,43,45,56,60-64,66,68
+  s_bd317cec756d17::t_873e3137f29b35 3,7,15
+  s_bd317cec756d17::t_1623f5f1bda18a 46,50-51,53,58
+  s_bd317cec756d17::t_330d2dc448bd42 52
+  s_bd317cec756d17::t_b991d7daa75f64 54
+docs/security/publication-risk-notes.md
+  s_bd317cec756d17::t_b309b0ae0e4c97 19-24
+tests/test_architecture.py
+  s_bd317cec756d17::t_5a07c60533f7d5 61-62,66,68-73,78-81
+lessonweave/lean.py
+  s_bd317cec756d17::t_ce4f93223d9f8d 30-32
+  s_bd317cec756d17::t_bd34aace4dfcea 44-45,94,125,185-190,260,276
+  s_bd317cec756d17::t_0c2623d39aaeae 21,29,55-62,240
+  s_bd317cec756d17::t_45e7fd000fa63a 262-263,265-269
+docs/deployment.md
+  s_bd317cec756d17::t_2f7b1b0ca6499f 40
+  s_bd317cec756d17::t_b991d7daa75f64 49
+  s_bd317cec756d17::t_0875d423dd3082 54-55,98,102
+  s_bd317cec756d17::t_19c135994d485d 1,5,8-11,13-15,17,19-20,22-27,29-31,33,35,71,73,111-114,116,118-119,123
+  s_bd317cec756d17::t_6cb04e8c1046da 3,7,12,16,18,21,28,32,34,76,80,82,115,117,121,125,127,129
+  s_bd317cec756d17::t_b80e673dc31787 36-37,39,41-48,50,58,62,64-68,84,86-89,91,93-97,100-101,103-104,108,110
+  s_bd317cec756d17::t_2af5045fb00059 38,51,60,69,106
+integrations/readweave/build_component.py
+  s_bd317cec756d17::t_32589a523f2acf 74-76,78,86
+  s_bd317cec756d17::t_04db7a0e51520d 61-62,64,91
+  s_bd317cec756d17::t_fc058f14fa2c24 77,83-84
+  s_bd317cec756d17::t_b7ab3eeb8b820e 63
+  s_bd317cec756d17::t_6b975754ec4c9f 30-31
+docs/examples.md
+  s_bd317cec756d17::t_2f7b1b0ca6499f 7
+  s_bd317cec756d17::t_f4dbbe9fc4dba0 24
+  s_bd317cec756d17::t_256c60bfbad372 1-6,8-12,22-23,25-36
+  s_bd317cec756d17::t_9eb83f50a56712 13-16,19-21
+  s_bd317cec756d17::t_0a0cb36d654538 17-18
+lessonweave/legacy.py
+  s_bd317cec756d17::t_28531ad20ed528 48,70
+framework/05_writing/lean-flow.md
+  s_bd317cec756d17::t_5fd8a5818bd570 3
+  s_bd317cec756d17::t_5abbe6cb0f1573 7
+framework/05_writing/native_sources.py
+  s_bd317cec756d17::t_a97a0dd1ea9602 7,26-37,176-192,202,206
+framework/01_tree/web_metadata.py
+  s_bd317cec756d17::t_5865c7af562dc8 1-69
+framework/reader/media-renderer.js
+  s_bd317cec756d17::t_19fb98a68b4eef 6
+  s_bd317cec756d17::t_b4c4def14a4ee1 5,7-37,51,57,65,73-74,89,99-100,104,106,108
+framework/05_writing/book_terminology.py
+  s_bd317cec756d17::t_220b00539a4d13 13-15,24-31,187-192,201-296,302-307
+framework/05_writing/repair_batches.py
+  s_bd317cec756d17::t_f5cdf94af0622d 24-26,28
+  s_bd317cec756d17::t_037af859386b5f 8-22,29-30,32-34
+  s_bd317cec756d17::t_4b193cb3ab8558 23,27,31
+framework/reader/writing-demo.css
+  s_bd317cec756d17::t_382aa208187789 173-176
+lessonweave/progress.py
+  s_bd317cec756d17::t_28531ad20ed528 61,143
+  s_bd317cec756d17::t_ee26153027de85 30-31,36-39
+  s_bd317cec756d17::t_abbe6965a30b58 108,110-112,129
+framework/01_tree/content_checks.py
+  s_bd317cec756d17::t_5865c7af562dc8 86,89-95,97-98,123,127,129-161,205-209,220,249-253,261-264,277-278,285-286,288,299,323-324,364-369
+framework/05_writing/c-unit.schema.json
+  s_bd317cec756d17::t_795262c94438af 31-79,89-92,1666-1677,1690-1703,1948-1955,1980-1987,2323-2326
+framework/05_writing/glossary.schema.json
+  s_bd317cec756d17::t_3ed0f612579e61 22-29,54-61
+integrations/readweave/host/widget.tsx
+  s_bd317cec756d17::t_7bf4826fa0b263 1-10
+docs/current-flow.md
+  s_bd317cec756d17::t_b959cdd42edea7 1,3,5-30
+deploy/install-vps.sh
+  s_bd317cec756d17::t_fefabcf9e49fc4 73-75
+  s_bd317cec756d17::t_de0398d1e1d143 4-28,71-72,76
+docs/readweave-validation.md
+  s_bd317cec756d17::t_1623f5f1bda18a 8-9,12,15-16,19,21,24
+  s_bd317cec756d17::t_04b6faeb131dfb 14,18
+  s_bd317cec756d17::t_330d2dc448bd42 20
+  s_bd317cec756d17::t_0f24aa104d1041 1-2,4-6,11,13,23
+  s_bd317cec756d17::t_2f7b1b0ca6499f 3,17
+  s_bd317cec756d17::t_b991d7daa75f64 7,10,22
+framework/reader/writing-demo.js
+  s_bd317cec756d17::t_7d09601ee5d0a0 31,994-995,1138-1139,1142
+  s_bd317cec756d17::t_c1187d367f404d 29-30,32-35,965,980-993,996-1137,1140-1141,1143-1171
+  s_bd317cec756d17::t_3f752a6a52c97c 60
+  s_bd317cec756d17::t_b7ab3eeb8b820e 50-59,61-71
+  s_bd317cec756d17::t_b4c4def14a4ee1 72,864
+  s_bd317cec756d17::t_617386035ef25d 73-86,1234-1240,1287
+  s_bd317cec756d17::t_ba7fa45f12bd53 1320,1400
+framework/reader/media-renderer.css
+  s_bd317cec756d17::t_22997a4c0421a9 26-35
+framework/05_writing/prepare_source_locations.py
+  s_bd317cec756d17::t_28531ad20ed528 572-573
+.env.example
+  s_bd317cec756d17::t_3980c5e99cc348 18-22,25,28
+  s_bd317cec756d17::t_2f4894d5a230d6 23
+integrations/readweave/host/globals.ts
+  s_bd317cec756d17::t_04db7a0e51520d 7,9,11
+  s_bd317cec756d17::t_8716caa85e966b 6,8
+  s_bd317cec756d17::t_7bf4826fa0b263 1-5,10,12-20
+framework/architecture/stages.json
+  s_bd317cec756d17::t_71cf211e46bd19 418-420,428-430,433-442,462-471,485,493,516-517,692,818-820,828-831,868-870,878-880,888-890,941,950,988,1051,1095,1136-1137
+  s_bd317cec756d17::t_b9fc0fb42c049f 693
+  s_bd317cec756d17::t_02f07bb109966d 1052-1060,1066-1094,1096-1108,1112-1135,1138-1139
+tests/test_term_case_exceptions.py
+  s_bd317cec756d17::t_a221108e01a264 83
+  s_bd317cec756d17::t_641f1e760d8e90 13,143-173
+  s_bd317cec756d17::t_dee2374e28dd2a 14,174-198
+  s_bd317cec756d17::t_55e535776d9b35 1-12,15-43,46-68,81-82,84-139
+  s_bd317cec756d17::t_2c7ff648d10d78 44-45,69-80,140-142
+tests/test_readweave_host.py
+  s_bd317cec756d17::t_c62b799bb1746b 1-74,76-80
+  s_bd317cec756d17::t_7e943b7aadcb19 75
+framework/reader/source-locator.js
+  s_bd317cec756d17::t_d1b1b9b4471367 7-27,94-100
+integrations/readweave/package_source.py
+  s_bd317cec756d17::t_bc651945e4bd8d 177
+  s_bd317cec756d17::t_eef151ce079bb4 46-48,72,645
+  s_bd317cec756d17::t_d7d78cae61afdf 26,371,373-381,452-453,608
+  s_bd317cec756d17::t_0dc8da403c79bf 42-45,246-249
+  s_bd317cec756d17::t_b36eaf318c3677 143,399-415,458-459,606-607,609-611,614
+  s_bd317cec756d17::t_43828aa9d9c050 644
+  s_bd317cec756d17::t_cd594160a5a19c 146,474-481,493-502,505
+  s_bd317cec756d17::t_5358ec61416a4a 144
+  s_bd317cec756d17::t_f46b322481177a 515,531,533,538-539,621,627,631,659-661
+  s_bd317cec756d17::t_1f28ee39a8059b 416-424,426-434,460-461,612
+  s_bd317cec756d17::t_63ac8ab178dec2 159-166,517-530,532,534-537,540-543,664
+  s_bd317cec756d17::t_96512612ac097c 2-25,27-41,73-142,145,149-151,153-158,167-176,178-187,189-193,201-206,212,218-245,250-260,263-265,267-282,285-286,289-290,292-370,382-398,451,454-457,464-473,482-483,492,506-514,516,544-553,568-578,581-583,586-593,595-599,601-605,615-620,622-626,628-630,632-639,646-649,651-652,654-658,662-663,665-706
+  s_bd317cec756d17::t_e996f12e43701d 435-450,462-463,613
+  s_bd317cec756d17::t_0da1fff23e0d38 1,152,372,486
+  s_bd317cec756d17::t_2b590694496a34 147-148,503-504
+  s_bd317cec756d17::t_fbfdb8b34947a3 49-71,207-211
+  s_bd317cec756d17::t_5abfe97b974191 484-485,487-491
+  s_bd317cec756d17::t_252b861637e0e4 554-567,594
+  s_bd317cec756d17::t_baf6c7e23fe139 261-262,266,283-284,579-580,584-585
+  s_bd317cec756d17::t_2cdeb67e93f59b 188,213-217,287-288,291
+  s_bd317cec756d17::t_cda0a60c172c7e 194-195,200
+  s_bd317cec756d17::t_abbce9c5ff6b5d 650
+  s_bd317cec756d17::t_25f48908bd6f81 653
+  s_bd317cec756d17::t_f83c322f9f3d7a 196-199
+  s_bd317cec756d17::t_528e3593a993c9 425
+  s_bd317cec756d17::t_363ffda8f8c0e0 600,640-643
+lessonweave/system_info.py
+  s_bd317cec756d17::t_bd34aace4dfcea 28
+deploy/bootstrap.py
+  s_bd317cec756d17::t_35ec4255f4a0a5 52-72
+  s_bd317cec756d17::t_162d5b31d107e1 12-19,23-30
+web/shared-reader-entry.js
+  s_bd317cec756d17::t_fc058f14fa2c24 10,14-15
+  s_bd317cec756d17::t_cfe9242f20e700 9,17
+  s_bd317cec756d17::t_362ff60b7c6ad0 1-6,8,11-13,16,18-19
+  s_bd317cec756d17::t_b7ab3eeb8b820e 7
+framework/architecture/flow.js
+  s_bd317cec756d17::t_5bf23f56fa5315 43-50
+integrations/readweave/build_native.mjs
+  s_bd317cec756d17::t_60d62cc1af8c8c 34
+  s_bd317cec756d17::t_5064c96a5ee28b 10-14,21
+  s_bd317cec756d17::t_af83f6bd0232e1 23
+  s_bd317cec756d17::t_8716caa85e966b 22,26-27,32
+  s_bd317cec756d17::t_7bf4826fa0b263 1-9,15-20,24-25,28-30,33,35
+  s_bd317cec756d17::t_1dabc155ff0d40 31
+lessonweave/architecture.py
+  s_bd317cec756d17::t_24c79c8304f7b5 25
+framework/reader/reading-icons.js
+  s_bd317cec756d17::t_b4c4def14a4ee1 16-21
+pyproject.toml
+  s_bd317cec756d17::t_4124ff04433bed 3
+integrations/readweave/host/button.tsx
+  s_bd317cec756d17::t_8716caa85e966b 1-3
+lessonweave/checks.py
+  s_bd317cec756d17::t_74b6d5a9765517 124,172,377-384
+tests/check_pages.py
+  s_bd317cec756d17::t_81bb435bee2396 55
+deploy/readweave_bootstrap.py
+  s_bd317cec756d17::t_2517a90cedf8ab 463-464
+  s_bd317cec756d17::t_8b62ecc38cc71e 90-91
+  s_bd317cec756d17::t_368ae8b374271d 306,313-314,565,573-575,587,591-593
+  s_bd317cec756d17::t_8f9bca9f0c6461 552-558
+  s_bd317cec756d17::t_f6a00d87c04172 19-20,28-29,73,316-338,356-393,396-398
+  s_bd317cec756d17::t_bd4e7247e4757b 614-615
+  s_bd317cec756d17::t_cfed2a7ad59292 493
+  s_bd317cec756d17::t_0ba5f7521c21a6 637,643
+  s_bd317cec756d17::t_5a9aa10ea2a602 74-78,175-179,187,252-255,537,560-562,569
+  s_bd317cec756d17::t_19181aa6e373fb 234-237,239-244
+  s_bd317cec756d17::t_1b5918a68c15ba 156-158,601-602
+  s_bd317cec756d17::t_d556f492640a8e 572
+  s_bd317cec756d17::t_5352a84d96a68b 82-89,92-145,192,195,218,222,238,245-246
+  s_bd317cec756d17::t_18de56cc41e6f4 509
+  s_bd317cec756d17::t_3d6aa9353d916e 155,339-355,394-395,590
+  s_bd317cec756d17::t_0d4d44dc989835 517
+  s_bd317cec756d17::t_a22fe7854be58a 544,582,584,607,627,635
+  s_bd317cec756d17::t_e167ca42f9e95c 1-18,21-27,30-72,79-81,146-154,159-174,180-186,188,193-194,196-217,219-221,223-233,247-251,256-305,307-312,315,399-462,465-492,494-508,510-516,518-536,538-543,545-551,559,563-564,566-568,570-571,576-581,583,585-586,588-589,594-600,603-606,608-613,616-626,628-634,636,638-642,644-653
+  s_bd317cec756d17::t_409e9ec3fae046 189-191
+tests/test_readweave_bootstrap.py
+  s_bd317cec756d17::t_c41f28c4a346e4 2-4,9-45
+  s_bd317cec756d17::t_2dbe3246c45383 1,5-8
+integrations/readweave/shared-reader.js
+  s_bd317cec756d17::t_d8de8d0342590b 31,34,36,39,59,61-62,68-70,72,74,80,82-87,89
+  s_bd317cec756d17::t_2dbfa77b3c4d9a 40,46,50,78
+  s_bd317cec756d17::t_8868d5c043704e 111,127-128
+  s_bd317cec756d17::t_8a9eadebe21551 23-30,32-33,35,37-38,41-45,47-49,51-58,60,64,66-67,71,73,75-77,79,81,88,90-92,95-100,103,107,109-110,112-120,133,135,159-160,180
+  s_bd317cec756d17::t_fc6de9e40a0954 63,65,167-176
+  s_bd317cec756d17::t_7e943b7aadcb19 147-149
+  s_bd317cec756d17::t_47360b6eb6b3ee 16,146,158,165
+  s_bd317cec756d17::t_44317de35135b1 1-15,17-22,93-94,101-102,104-106,108,121-126,129-132,134,136-145,150-157,161-164,166,177-179,181
+framework/05_writing/lean_contract.py
+  s_bd317cec756d17::t_28531ad20ed528 11,29,32-40,80-82,84-95,100-102,107,109-118,121,123-143
+  s_bd317cec756d17::t_5cdacb5ed15738 43,50,119-120
+  s_bd317cec756d17::t_a516f22fb6b448 62-63,103-106
+docs/usage.md
+  s_bd317cec756d17::t_a927d9e224a34a 3,5,9,16,18,22,29,31,35,37,39,43,45,47
+  s_bd317cec756d17::t_21e4999998475a 1,7,11-14,20,24-27,33,36,41
+framework/01_tree/tree_web.py
+  s_bd317cec756d17::t_b69e678af110cf 111-120
+framework/05_writing/book_sources.py
+  s_bd317cec756d17::t_be87844e550dce 69-77,608-609
+framework/05_writing/media_contract.py
+  s_bd317cec756d17::t_e8bb6505be5a91 59
+framework/05_writing/structure.md
+  s_bd317cec756d17::t_ffc9cfd54bf476 3,9,17,33,43
+framework/examples/media/index.html
+  s_bd317cec756d17::t_3f971277d48d54 1
+integrations/readweave/backend-source-manifest.json
+  s_bd317cec756d17::t_c8c5909899beb6 1-134
+integrations/readweave/native-assets/boxicons-NNFHLMOR.svg
+  s_bd317cec756d17::t_488286799362aa 1-1660
+integrations/readweave/native-build.json
+  s_bd317cec756d17::t_884232aecb3a5a 1-3321
+integrations/readweave/native-chunks/MindElixir-FSLVFFG2.js
+  s_bd317cec756d17::t_f381d0064812b9 1-16
+integrations/readweave/native-chunks/abnfDiagram-VRR7QNED-42Z2UZU4.js
+  s_bd317cec756d17::t_fe02cb71047286 1
+integrations/readweave/native-chunks/ar-UX6S6GAR.js
+  s_bd317cec756d17::t_2d88453ae9d211 1
+integrations/readweave/native-chunks/architecture-TIHT7OUA-RHKBTFXB.js
+  s_bd317cec756d17::t_51b8f01195943d 1
+integrations/readweave/native-chunks/architectureDiagram-ZJ3FMSHR-JGGYNZOK.js
+  s_bd317cec756d17::t_05dfcba3d138d5 1-36
+integrations/readweave/native-chunks/blockDiagram-677ZJIJ3-DVBUFYSU.js
+  s_bd317cec756d17::t_c779612f094b2b 1-132
+integrations/readweave/native-chunks/c4Diagram-LMCZKHZV-JZMXUE2P.js
+  s_bd317cec756d17::t_c6101178bd0303 1-10
+integrations/readweave/native-chunks/chunk-2E3B4Z7V.js
+  s_bd317cec756d17::t_71a408cc150dd6 1
+integrations/readweave/native-chunks/chunk-2KZLJ3MZ.js
+  s_bd317cec756d17::t_5a7a8817e5287e 1
+integrations/readweave/native-chunks/chunk-2NSFK2MV.js
+  s_bd317cec756d17::t_e1472461684cbc 1-2
+integrations/readweave/native-chunks/chunk-2TCOFK2F.js
+  s_bd317cec756d17::t_c7c0cd0ce32374 1-2
+integrations/readweave/native-chunks/chunk-2YZRN676.js
+  s_bd317cec756d17::t_eaf2471bad618f 1
+integrations/readweave/native-chunks/chunk-4JVBCYMY.js
+  s_bd317cec756d17::t_f5e3cb2c4ab631 1
+integrations/readweave/native-chunks/chunk-4T4VSO2B.js
+  s_bd317cec756d17::t_83b70b83808dbc 1
+integrations/readweave/native-chunks/chunk-5KHKZQHV.js
+  s_bd317cec756d17::t_297d7965b00079 1
+integrations/readweave/native-chunks/chunk-6ETJ4UDO.js
+  s_bd317cec756d17::t_875a4da3654971 1
+integrations/readweave/native-chunks/chunk-7SHNSRWP.js
+  s_bd317cec756d17::t_8589790fbbca3b 1-70
+integrations/readweave/native-chunks/chunk-A4UI2OWC.js
+  s_bd317cec756d17::t_bf3faf9586b399 1
+integrations/readweave/native-chunks/chunk-AVMJ6H4B.js
+  s_bd317cec756d17::t_8435dfa9eb064a 1
+integrations/readweave/native-chunks/chunk-BOLOVRPV.js
+  s_bd317cec756d17::t_1f0a9086932aaf 1-15
+integrations/readweave/native-chunks/chunk-BSPR3HME.js
+  s_bd317cec756d17::t_fafa7821e55aa0 1-2
+integrations/readweave/native-chunks/chunk-C5SO5IYD.js
+  s_bd317cec756d17::t_89847788691530 1-178
+integrations/readweave/native-chunks/chunk-CEFJIPPP.js
+  s_bd317cec756d17::t_82cde41fcf253b 1
+integrations/readweave/native-chunks/chunk-CEU3N3YQ.js
+  s_bd317cec756d17::t_b0b3d89703f1ed 1-206
+integrations/readweave/native-chunks/chunk-DUEXTXBX.js
+  s_bd317cec756d17::t_02270344f1f91d 1
+integrations/readweave/native-chunks/chunk-EBFDLVJB.js
+  s_bd317cec756d17::t_0b868e75c45b1f 1
+integrations/readweave/native-chunks/chunk-ENGTSJDD.js
+  s_bd317cec756d17::t_9888565383fe57 1-2
+integrations/readweave/native-chunks/chunk-HDEC2OZ7.js
+  s_bd317cec756d17::t_ac534b0230e56f 1
+integrations/readweave/native-chunks/chunk-HDWBKE3E.js
+  s_bd317cec756d17::t_dd179511fec481 1
+integrations/readweave/native-chunks/chunk-HNBZIBMT.js
+  s_bd317cec756d17::t_89c3cf877c4346 1-125
+integrations/readweave/native-chunks/chunk-HOTUJSSN.js
+  s_bd317cec756d17::t_2b5d3ce66a23bc 1
+integrations/readweave/native-chunks/chunk-I5VDREFL.js
+  s_bd317cec756d17::t_19c8f205c7c08d 1
+integrations/readweave/native-chunks/chunk-IM3VOYTI.js
+  s_bd317cec756d17::t_f5d19ca24b66bb 1
+integrations/readweave/native-chunks/chunk-ISUR7HUM.js
+  s_bd317cec756d17::t_8b88733b5555e2 1-339
+integrations/readweave/native-chunks/chunk-JDSUVWEQ.js
+  s_bd317cec756d17::t_c4a080c46f016a 1
+integrations/readweave/native-chunks/chunk-JES7MJ7W.js
+  s_bd317cec756d17::t_61ab65d86f295a 1
+integrations/readweave/native-chunks/chunk-KAL3PKK5.js
+  s_bd317cec756d17::t_e4bb9ff40552a1 1
+integrations/readweave/native-chunks/chunk-KF3IBED4.js
+  s_bd317cec756d17::t_65abc12fe206da 1
+integrations/readweave/native-chunks/chunk-KKXHN4H7.js
+  s_bd317cec756d17::t_8744c2c8c8e9ab 1
+integrations/readweave/native-chunks/chunk-LUUESNYC.js
+  s_bd317cec756d17::t_61f33ccb0eb992 1
+integrations/readweave/native-chunks/chunk-MHU67Z4C.js
+  s_bd317cec756d17::t_97ae2ad62c796f 1
+integrations/readweave/native-chunks/chunk-N75YSNYA.js
+  s_bd317cec756d17::t_c81574cf137dd5 1-8
+integrations/readweave/native-chunks/chunk-NHX3NLRI.js
+  s_bd317cec756d17::t_a7cd10356522f8 1-14
+integrations/readweave/native-chunks/chunk-OLWN4MJG.js
+  s_bd317cec756d17::t_2998c5c620b171 1-156
+integrations/readweave/native-chunks/chunk-P7RGVHFE.js
+  s_bd317cec756d17::t_f517df1dd595fb 1-88
+integrations/readweave/native-chunks/chunk-POO24QG3.js
+  s_bd317cec756d17::t_23acbde0e45f93 1
+integrations/readweave/native-chunks/chunk-QDDOOVKU.js
+  s_bd317cec756d17::t_f1ae3c515e9952 1
+integrations/readweave/native-chunks/chunk-QLTNP2JE.js
+  s_bd317cec756d17::t_dfc3a0d08b9024 1
+integrations/readweave/native-chunks/chunk-R6A7YSBT.js
+  s_bd317cec756d17::t_2b481d8adfdcab 1
+integrations/readweave/native-chunks/chunk-SXYAS3TP.js
+  s_bd317cec756d17::t_bfefb194bb78ad 1
+integrations/readweave/native-chunks/chunk-SYB3J72Q.js
+  s_bd317cec756d17::t_8f05c1c61257bf 1-3
+integrations/readweave/native-chunks/chunk-SZLDWJ6A.js
+  s_bd317cec756d17::t_0602d22f7a9baa 1-41
+integrations/readweave/native-chunks/chunk-TAEUGFPI.js
+  s_bd317cec756d17::t_75b33b7fea7b52 1
+integrations/readweave/native-chunks/chunk-TWI7BP3O.js
+  s_bd317cec756d17::t_0f6340320e1fe6 1
+integrations/readweave/native-chunks/chunk-U2M3655F.js
+  s_bd317cec756d17::t_d8366d8059ad3f 1-62
+integrations/readweave/native-chunks/chunk-UQ57QJLS.js
+  s_bd317cec756d17::t_49f728b9738871 1-231
+integrations/readweave/native-chunks/chunk-V2EVJFCO.js
+  s_bd317cec756d17::t_e147dd2b16dbd5 1-10
+integrations/readweave/native-chunks/chunk-VHDDRNTA.js
+  s_bd317cec756d17::t_9f1f5a0930a7de 1
+integrations/readweave/native-chunks/chunk-WJTLWZK6.js
+  s_bd317cec756d17::t_a527743ee1a41f 1
+integrations/readweave/native-chunks/chunk-YGTB62VF.js
+  s_bd317cec756d17::t_818444780a9486 1
+integrations/readweave/native-chunks/classDiagram-OUVF2IWQ-5WGVIYZ3.js
+  s_bd317cec756d17::t_dfce6bf9d85dbf 1
+integrations/readweave/native-chunks/classDiagram-v2-EOCWNBFH-OIEE5T4K.js
+  s_bd317cec756d17::t_7a6b778acb6cd5 1
+integrations/readweave/native-chunks/cose-bilkent-JH36ORCC-D47YFIBR.js
+  s_bd317cec756d17::t_cd02e1c0f10375 1
+integrations/readweave/native-chunks/cs-CFJL7WIR.js
+  s_bd317cec756d17::t_01be60334f6549 1
+integrations/readweave/native-chunks/cynefin-VYW2F7L2-GK4VG6SD.js
+  s_bd317cec756d17::t_41244f0013fda1 1
+integrations/readweave/native-chunks/cynefinDiagram-TSTJHNR4-BBO5FPNW.js
+  s_bd317cec756d17::t_7b411edd87af8a 1-62
+integrations/readweave/native-chunks/dagre-VKFMJZFB-U2JN2DCT.js
+  s_bd317cec756d17::t_6770739b11d6ab 1-4
+integrations/readweave/native-chunks/de-VL6STUQJ.js
+  s_bd317cec756d17::t_2fbb7983e2c028 1
+integrations/readweave/native-chunks/diagram-FQU43EPY-MAZYQEKJ.js
+  s_bd317cec756d17::t_5bcc4b8196d8f1 1-3
+integrations/readweave/native-chunks/diagram-G47NLZAW-FJLRG43X.js
+  s_bd317cec756d17::t_ee8282d4dcdca2 1-24
+integrations/readweave/native-chunks/diagram-NH7WQ7WH-V2RPLJNK.js
+  s_bd317cec756d17::t_8b61fa6aa37b07 1-24
+integrations/readweave/native-chunks/diagram-OA4YK3LP-BZN7DDGH.js
+  s_bd317cec756d17::t_8571b8bea02bf3 1-30
+integrations/readweave/native-chunks/diagram-WEI45ONY-VFI5FMUP.js
+  s_bd317cec756d17::t_8dca90a4ca7677 1-41
+integrations/readweave/native-chunks/ebnfDiagram-CCIWWBDH-66WOZNQO.js
+  s_bd317cec756d17::t_417e2333156723 1
+integrations/readweave/native-chunks/en-CY5MKLQR.js
+  s_bd317cec756d17::t_e04c7e2af22f9c 1
+integrations/readweave/native-chunks/en-gb-WGA5IIMA.js
+  s_bd317cec756d17::t_6a1bffdbbbf0b0 1
+integrations/readweave/native-chunks/erDiagram-Q63AITRT-OOO6Q7QQ.js
+  s_bd317cec756d17::t_faeb783e457657 1-85
+integrations/readweave/native-chunks/es-SH2W6YSU.js
+  s_bd317cec756d17::t_1a5b2021522b3f 1
+integrations/readweave/native-chunks/eventmodeling-45OFAUF4-3QJ2HYOT.js
+  s_bd317cec756d17::t_d4b7f6098227a2 1
+integrations/readweave/native-chunks/flowDiagram-23GEKE2U-5OJYI7PI.js
+  s_bd317cec756d17::t_a3632323b23099 1
+integrations/readweave/native-chunks/fr-L2NLWFD4.js
+  s_bd317cec756d17::t_53fc91df6c5484 1
+integrations/readweave/native-chunks/ga-YUYKZASE.js
+  s_bd317cec756d17::t_cc4347707bcedd 1
+integrations/readweave/native-chunks/ganttDiagram-NO4QXBWP-7JNJUJZB.js
+  s_bd317cec756d17::t_8c4c43dc95ee53 1-292
+integrations/readweave/native-chunks/gitGraph-TEB2WS4Q-FEB5ZT7J.js
+  s_bd317cec756d17::t_e96bf307a882ba 1
+integrations/readweave/native-chunks/gitGraphDiagram-IHSO6WYX-4UFCFRYU.js
+  s_bd317cec756d17::t_af2d37b8566cc2 1-106
+integrations/readweave/native-chunks/hi-IWSUI6DB.js
+  s_bd317cec756d17::t_03e760cb404dba 1
+integrations/readweave/native-chunks/id-N3VRLL5K.js
+  s_bd317cec756d17::t_004817e2899714 1
+integrations/readweave/native-chunks/info-DKCQHKI2-5GSA5TMO.js
+  s_bd317cec756d17::t_497fcff26f78ae 1
+integrations/readweave/native-chunks/infoDiagram-FWYZ7A6U-GETYP4AW.js
+  s_bd317cec756d17::t_d710a629983cae 1-2
+integrations/readweave/native-chunks/ishikawaDiagram-FXEZZL3T-BEUSLUOL.js
+  s_bd317cec756d17::t_2ecf258db92c0e 1-70
+integrations/readweave/native-chunks/it-S2W5QXSK.js
+  s_bd317cec756d17::t_841f12b8731c52 1
+integrations/readweave/native-chunks/ja-VXM3UGUE.js
+  s_bd317cec756d17::t_fa7ee8d3cd9120 1
+integrations/readweave/native-chunks/journeyDiagram-5HDEW3XC-GU4OTJRM.js
+  s_bd317cec756d17::t_7a1fc380b1c502 1-139
+integrations/readweave/native-chunks/kanban-definition-HUTT4EX6-FORLGQIY.js
+  s_bd317cec756d17::t_a11648f6f8b7a7 1-89
+integrations/readweave/native-chunks/katex-IVVJTOM5.js
+  s_bd317cec756d17::t_7b9c274f9e055b 1-257
+integrations/readweave/native-chunks/math-HH3YESG3.css
+  s_bd317cec756d17::t_d2b53071772959 1
+integrations/readweave/native-chunks/math-IIC5A7UM.js
+  s_bd317cec756d17::t_767057c10469e6 1-257
+integrations/readweave/native-chunks/mermaid-QVAJH4GB.js
+  s_bd317cec756d17::t_4d0401759ce4cc 1
+integrations/readweave/native-chunks/mermaid-layout-elk.core-JWPFBUHP.js
+  s_bd317cec756d17::t_c11441320d9eab 1
+integrations/readweave/native-chunks/mermaid.core-ILY3EJVK.js
+  s_bd317cec756d17::t_5361cacc6400b7 1-18
+integrations/readweave/native-chunks/mindmap-definition-LN4V7U3C-C5FBGJKR.js
+  s_bd317cec756d17::t_036357a4c5cd0d 1-96
+integrations/readweave/native-chunks/packet-7NZHBO7P-GJCIHJZO.js
+  s_bd317cec756d17::t_b998a9e7de7660 1
+integrations/readweave/native-chunks/pegDiagram-2B236MQR-6RIFWVXE.js
+  s_bd317cec756d17::t_0c3e47d59c1ac9 1
+integrations/readweave/native-chunks/pie-RZYD4A2V-DLK6AK5E.js
+  s_bd317cec756d17::t_f136ed0cbe98c0 1
+integrations/readweave/native-chunks/pieDiagram-ENE6RG2P-VHMOHD2E.js
+  s_bd317cec756d17::t_d8d71ee5886458 1-39
+integrations/readweave/native-chunks/pl-PWTWA3DC.js
+  s_bd317cec756d17::t_fc511c96d16514 1
+integrations/readweave/native-chunks/pt-JMFE5OV7.js
+  s_bd317cec756d17::t_5d79aba23f03e4 1
+integrations/readweave/native-chunks/pt-br-UTZM5WID.js
+  s_bd317cec756d17::t_834d13f7f1183d 1
+integrations/readweave/native-chunks/quadrantDiagram-ABIIQ3AL-L7SGOHXY.js
+  s_bd317cec756d17::t_da49289da092ce 1-7
+integrations/readweave/native-chunks/radar-I7S5WNFK-6JPT5UKZ.js
+  s_bd317cec756d17::t_57fafa4358bd44 1
+integrations/readweave/native-chunks/railroad-3IZDKUUU-DAWAE6ZL.js
+  s_bd317cec756d17::t_cd04fd581402dc 1
+integrations/readweave/native-chunks/railroad-abnf-AHOZXSZD-MHTMQQSQ.js
+  s_bd317cec756d17::t_354bea1bcb86ef 1
+integrations/readweave/native-chunks/railroad-ebnf-EBAXGLYW-QKFN35L5.js
+  s_bd317cec756d17::t_27da41fd8b84be 1
+integrations/readweave/native-chunks/railroad-peg-LSFZ7HO6-XK46U2F7.js
+  s_bd317cec756d17::t_3a87b63b3a0c23 1
+integrations/readweave/native-chunks/railroadDiagram-RFXS5EU6-YWOU2ZMS.js
+  s_bd317cec756d17::t_c73cd63fc0544b 1
+integrations/readweave/native-chunks/render-X3XFXER2-UTMHZDLP.js
+  s_bd317cec756d17::t_4933a207f71bb8 1-27
+integrations/readweave/native-chunks/requirementDiagram-TGXJPOKE-KGKEYXGU.js
+  s_bd317cec756d17::t_18248c0b063bed 1-84
+integrations/readweave/native-chunks/ro-3JEAGONW.js
+  s_bd317cec756d17::t_6f652fd9e0aba7 1
+integrations/readweave/native-chunks/ru-5Y6SADB7.js
+  s_bd317cec756d17::t_f1b55424cd5ee1 1
+integrations/readweave/native-chunks/sankeyDiagram-HTMAVEWB-DW6QRBIO.js
+  s_bd317cec756d17::t_a1e0bc2c21fb43 1-40
+integrations/readweave/native-chunks/sequenceDiagram-DBY2YBRQ-5YBVKPCS.js
+  s_bd317cec756d17::t_d0c3927a0b90e1 1-162
+integrations/readweave/native-chunks/sizeCapture-X5ZJPWSS-Q7XQYNRD.js
+  s_bd317cec756d17::t_2bab68d7cf3f0b 1
+integrations/readweave/native-chunks/stateDiagram-2N3HPSRC-6RFEZCRB.js
+  s_bd317cec756d17::t_fb7a544de164e5 1
+integrations/readweave/native-chunks/stateDiagram-v2-6OUMAXLB-74F6D46D.js
+  s_bd317cec756d17::t_dc2c1ddc378a54 1
+integrations/readweave/native-chunks/swimlanes-5IMT3BWC-IFC6RNOA.js
+  s_bd317cec756d17::t_dfb6a4e9b9f6fe 1
+integrations/readweave/native-chunks/swimlanesDiagram-G3AALYLV-GDMQAAM4.js
+  s_bd317cec756d17::t_00c54de3750e5f 1-8
+integrations/readweave/native-chunks/timeline-definition-FHXFAJF6-MN455AJ6.js
+  s_bd317cec756d17::t_d6426f14335a74 1-120
+integrations/readweave/native-chunks/treeView-QDETBFTQ-J4LERWYV.js
+  s_bd317cec756d17::t_b0b460588cd75d 1
+integrations/readweave/native-chunks/treemap-6X3UGDF4-L6MZXMLL.js
+  s_bd317cec756d17::t_0e8a2e53049b53 1
+integrations/readweave/native-chunks/uk-EATNZOVK.js
+  s_bd317cec756d17::t_795657a722979b 1
+integrations/readweave/native-chunks/vennDiagram-L72KCM5P-TEZHGVOY.js
+  s_bd317cec756d17::t_83919010f0a272 1-34
+integrations/readweave/native-chunks/wardley-OPB4EBWU-M2RJPKUM.js
+  s_bd317cec756d17::t_d27150872cd2f2 1
+integrations/readweave/native-chunks/wardleyDiagram-EHGQE667-B6HSWJSC.js
+  s_bd317cec756d17::t_111b958739d296 1-78
+integrations/readweave/native-chunks/xychartDiagram-FW5EYKEG-ZSNH44P3.js
+  s_bd317cec756d17::t_a6b05fe1e00295 1-7
+integrations/readweave/native-chunks/zh-cn-RYECA7XV.js
+  s_bd317cec756d17::t_5c5275cd8f831e 1
+integrations/readweave/native-chunks/zh-tw-4IWO2KOI.js
+  s_bd317cec756d17::t_e66fd56b8881d6 1
+integrations/readweave/native-licenses/INDEX.md
+  s_bd317cec756d17::t_c8881678c94050 1-234
+integrations/readweave/native-licenses/packages/@braintree/sanitize-url/LICENSE
+  s_bd317cec756d17::t_2581beab906cbd 1-21
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-adapter-ckfinder/LICENSE.md
+  s_bd317cec756d17::t_7ccaf72e932df7 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-alignment/LICENSE.md
+  s_bd317cec756d17::t_c9ff2befab4743 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-autoformat/LICENSE.md
+  s_bd317cec756d17::t_d4bc99176cf823 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-autosave/LICENSE.md
+  s_bd317cec756d17::t_a242c3b341907c 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-basic-styles/LICENSE.md
+  s_bd317cec756d17::t_ad5291de3f3cbf 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-block-quote/LICENSE.md
+  s_bd317cec756d17::t_f76a867f89f93e 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-bookmark/LICENSE.md
+  s_bd317cec756d17::t_d7e04537090bc5 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-ckbox/LICENSE.md
+  s_bd317cec756d17::t_a55c2665ab29c9 1-27
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-ckfinder/LICENSE.md
+  s_bd317cec756d17::t_37b754eda8d44e 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-clipboard/LICENSE.md
+  s_bd317cec756d17::t_b89daa86059282 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-cloud-services/LICENSE.md
+  s_bd317cec756d17::t_07b06e4188767e 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-code-block/LICENSE.md
+  s_bd317cec756d17::t_b47cdf2a037263 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-core/LICENSE.md
+  s_bd317cec756d17::t_1cce068dfa0cb5 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-easy-image/LICENSE.md
+  s_bd317cec756d17::t_9bce10a69311d0 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-editor-balloon/LICENSE.md
+  s_bd317cec756d17::t_d8a2194002b764 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-editor-classic/LICENSE.md
+  s_bd317cec756d17::t_1b7afb02483723 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-editor-decoupled/LICENSE.md
+  s_bd317cec756d17::t_807c1cdf63da3b 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-editor-inline/LICENSE.md
+  s_bd317cec756d17::t_a90c6c9b95e396 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-editor-multi-root/LICENSE.md
+  s_bd317cec756d17::t_4e62130c203b3b 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-emoji/LICENSE.md
+  s_bd317cec756d17::t_f7e0b4dbe788cf 1-29
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-engine/LICENSE.md
+  s_bd317cec756d17::t_e345995c96cb02 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-enter/LICENSE.md
+  s_bd317cec756d17::t_29b3561c63939d 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-essentials/LICENSE.md
+  s_bd317cec756d17::t_d6e467f6acf670 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-find-and-replace/LICENSE.md
+  s_bd317cec756d17::t_901201b24378a3 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-font/LICENSE.md
+  s_bd317cec756d17::t_1e26a70a562ff0 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-fullscreen/LICENSE.md
+  s_bd317cec756d17::t_7907685c82da75 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-heading/LICENSE.md
+  s_bd317cec756d17::t_9f50e1f6a3177b 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-highlight/LICENSE.md
+  s_bd317cec756d17::t_2f9ee7a6167e39 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-horizontal-line/LICENSE.md
+  s_bd317cec756d17::t_cd8d4f3eada2ec 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-html-embed/LICENSE.md
+  s_bd317cec756d17::t_c9cd17547b4ff6 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-html-support/LICENSE.md
+  s_bd317cec756d17::t_1f561bd2435800 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-icons/LICENSE.md
+  s_bd317cec756d17::t_f4e779a995af57 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-image/LICENSE.md
+  s_bd317cec756d17::t_f971af7cc87a4a 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-indent/LICENSE.md
+  s_bd317cec756d17::t_c7d14b903c5f97 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-language/LICENSE.md
+  s_bd317cec756d17::t_3aefed7ae8f3ff 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-link/LICENSE.md
+  s_bd317cec756d17::t_ca159cd942f480 1-27
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-list/LICENSE.md
+  s_bd317cec756d17::t_4c6166f1839bce 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-markdown-gfm/LICENSE.md
+  s_bd317cec756d17::t_8b87ce694726ff 1-43
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-media-embed/LICENSE.md
+  s_bd317cec756d17::t_53e8dae94861d6 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-mention/LICENSE.md
+  s_bd317cec756d17::t_13f2520207f4fd 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-minimap/LICENSE.md
+  s_bd317cec756d17::t_a2bdb0129b5bd5 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-page-break/LICENSE.md
+  s_bd317cec756d17::t_de3e25ad8c5761 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-paragraph/LICENSE.md
+  s_bd317cec756d17::t_a91d3b28ad7457 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-paste-from-office/LICENSE.md
+  s_bd317cec756d17::t_6e2dcca2fe312e 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-remove-format/LICENSE.md
+  s_bd317cec756d17::t_8584fa9d14ea22 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-restricted-editing/LICENSE.md
+  s_bd317cec756d17::t_83f0c37d50c657 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-select-all/LICENSE.md
+  s_bd317cec756d17::t_a10fad3d634ea4 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-show-blocks/LICENSE.md
+  s_bd317cec756d17::t_5873ad13b35a14 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-source-editing/LICENSE.md
+  s_bd317cec756d17::t_df2f0cbeb544a3 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-special-characters/LICENSE.md
+  s_bd317cec756d17::t_839bce120caa46 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-style/LICENSE.md
+  s_bd317cec756d17::t_d2f3689c433651 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-table/LICENSE.md
+  s_bd317cec756d17::t_19a585f5216b20 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-typing/LICENSE.md
+  s_bd317cec756d17::t_53e3bf88050f2b 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-ui/LICENSE.md
+  s_bd317cec756d17::t_addaaeaf625b8e 1-30
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-undo/LICENSE.md
+  s_bd317cec756d17::t_339e02c725f42f 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-upload/LICENSE.md
+  s_bd317cec756d17::t_927360842163b9 1-22
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-utils/LICENSE.md
+  s_bd317cec756d17::t_0761277dcca0ea 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-watchdog/LICENSE.md
+  s_bd317cec756d17::t_e5aac5ce9f7012 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-widget/LICENSE.md
+  s_bd317cec756d17::t_fbb70455e6d563 1-26
+integrations/readweave/native-licenses/packages/@ckeditor/ckeditor5-word-count/LICENSE.md
+  s_bd317cec756d17::t_5866ce5bf8699b 1-26
+integrations/readweave/native-licenses/packages/@iconify/utils/license.txt
+  s_bd317cec756d17::t_4eb466e4b0ed96 1-21
+integrations/readweave/native-licenses/packages/@mermaid-js/layout-elk/LICENSE
+  s_bd317cec756d17::t_5431333faa6274 1-21
+integrations/readweave/native-licenses/packages/@popperjs/core/LICENSE.md
+  s_bd317cec756d17::t_5fa55bfd621f27 1-20
+integrations/readweave/native-licenses/packages/@ungap/structured-clone/LICENSE
+  s_bd317cec756d17::t_3c702f8c4b8b07 1-15
+integrations/readweave/native-licenses/packages/@upsetjs/venn.js/LICENSE
+  s_bd317cec756d17::t_d0bd9be63dd494 1-22
+integrations/readweave/native-licenses/packages/bail/license
+  s_bd317cec756d17::t_785484c0571662 1-22
+integrations/readweave/native-licenses/packages/blurhash/LICENSE.md
+  s_bd317cec756d17::t_c0a4dfc503a7b2 1-21
+integrations/readweave/native-licenses/packages/bootstrap/LICENSE
+  s_bd317cec756d17::t_b9bfe8ed894dba 1-21
+integrations/readweave/native-licenses/packages/boxicons/LICENSE
+  s_bd317cec756d17::t_d2c588d82db8ec 1-21
+integrations/readweave/native-licenses/packages/ccount/license
+  s_bd317cec756d17::t_f2c283d8fabf60 1-22
+integrations/readweave/native-licenses/packages/character-entities-html4/license
+  s_bd317cec756d17::t_7f0b3ae9c5af61 1-22
+integrations/readweave/native-licenses/packages/character-entities-legacy/license
+  s_bd317cec756d17::t_dadf6ea0cd7f14 1-22
+integrations/readweave/native-licenses/packages/ckeditor5/COPYING.GPL
+  s_bd317cec756d17::t_d0daa007f45676 1-338
+integrations/readweave/native-licenses/packages/ckeditor5/LICENSE.md
+  s_bd317cec756d17::t_7898cb112125fd 1-55
+integrations/readweave/native-licenses/packages/color-name/LICENSE
+  s_bd317cec756d17::t_4ae3aebd859df7 1-8
+integrations/readweave/native-licenses/packages/color-parse/LICENSE
+  s_bd317cec756d17::t_836d685cf70ccc 1-21
+integrations/readweave/native-licenses/packages/comma-separated-tokens/license
+  s_bd317cec756d17::t_221977401fd72b 1-22
+integrations/readweave/native-licenses/packages/cose-base/LICENSE
+  s_bd317cec756d17::t_9657cbd3d54a1e 1-21
+integrations/readweave/native-licenses/packages/cytoscape-cose-bilkent/LICENSE
+  s_bd317cec756d17::t_7125f499fb626c 1-21
+integrations/readweave/native-licenses/packages/cytoscape-fcose/LICENSE
+  s_bd317cec756d17::t_2b6a9b5ecbc3ba 1-19
+integrations/readweave/native-licenses/packages/cytoscape/LICENSE
+  s_bd317cec756d17::t_846b30faea7e9a 1-19
+integrations/readweave/native-licenses/packages/d3-array/LICENSE
+  s_bd317cec756d17::t_dbc075afca3fd5 1-13
+integrations/readweave/native-licenses/packages/d3-axis/LICENSE
+  s_bd317cec756d17::t_f2b3cb6f2b2f73 1-13
+integrations/readweave/native-licenses/packages/d3-brush/LICENSE
+  s_bd317cec756d17::t_2d9c06ab29de55 1-13
+integrations/readweave/native-licenses/packages/d3-chord/LICENSE
+  s_bd317cec756d17::t_be9baac75253c7 1-13
+integrations/readweave/native-licenses/packages/d3-color/LICENSE
+  s_bd317cec756d17::t_d7abf2d5046849 1-13
+integrations/readweave/native-licenses/packages/d3-contour/LICENSE
+  s_bd317cec756d17::t_2fdbc98d130acc 1-13
+integrations/readweave/native-licenses/packages/d3-delaunay/LICENSE
+  s_bd317cec756d17::t_dfe2ee87945d17 1-14
+integrations/readweave/native-licenses/packages/d3-dispatch/LICENSE
+  s_bd317cec756d17::t_4a23f165c413f2 1-13
+integrations/readweave/native-licenses/packages/d3-drag/LICENSE
+  s_bd317cec756d17::t_f90513e38613d2 1-13
+integrations/readweave/native-licenses/packages/d3-dsv/LICENSE
+  s_bd317cec756d17::t_429b5d33662e59 1-13
+integrations/readweave/native-licenses/packages/d3-ease/LICENSE
+  s_bd317cec756d17::t_7963dbc15612c1 1-28
+integrations/readweave/native-licenses/packages/d3-fetch/LICENSE
+  s_bd317cec756d17::t_4f797d4fb4f153 1-13
+integrations/readweave/native-licenses/packages/d3-force/LICENSE
+  s_bd317cec756d17::t_0489e3661ed2e7 1-13
+integrations/readweave/native-licenses/packages/d3-format/LICENSE
+  s_bd317cec756d17::t_68ad1dbdb612ad 1-13
+integrations/readweave/native-licenses/packages/d3-geo/LICENSE
+  s_bd317cec756d17::t_8b13759d0e7b71 1-34
+integrations/readweave/native-licenses/packages/d3-hierarchy/LICENSE
+  s_bd317cec756d17::t_2fa6daa9284621 1-13
+integrations/readweave/native-licenses/packages/d3-interpolate/LICENSE
+  s_bd317cec756d17::t_0a233e1453faae 1-13
+integrations/readweave/native-licenses/packages/d3-path/LICENSE
+  s_bd317cec756d17::t_cef6ea133511ae 1-13
+integrations/readweave/native-licenses/packages/d3-polygon/LICENSE
+  s_bd317cec756d17::t_a96360704e69a9 1-13
+integrations/readweave/native-licenses/packages/d3-quadtree/LICENSE
+  s_bd317cec756d17::t_ae72d40e3576d7 1-13
+integrations/readweave/native-licenses/packages/d3-random/LICENSE
+  s_bd317cec756d17::t_56dc92badd5015 1-13
+integrations/readweave/native-licenses/packages/d3-sankey/LICENSE
+  s_bd317cec756d17::t_f306f129c1cdf2 1-27
+integrations/readweave/native-licenses/packages/d3-scale-chromatic/LICENSE
+  s_bd317cec756d17::t_c51ada447126b7 1-28
+integrations/readweave/native-licenses/packages/d3-scale/LICENSE
+  s_bd317cec756d17::t_7d9a8f925e0c57 1-13
+integrations/readweave/native-licenses/packages/d3-selection/LICENSE
+  s_bd317cec756d17::t_e1661eadcfe374 1-13
+integrations/readweave/native-licenses/packages/d3-shape/LICENSE
+  s_bd317cec756d17::t_a3a59c636f7e2a 1-13
+integrations/readweave/native-licenses/packages/d3-time-format/LICENSE
+  s_bd317cec756d17::t_5db1afaa7ea90e 1-13
+integrations/readweave/native-licenses/packages/d3-time/LICENSE
+  s_bd317cec756d17::t_5cbe13c2247dfb 1-13
+integrations/readweave/native-licenses/packages/d3-timer/LICENSE
+  s_bd317cec756d17::t_676307605ab462 1-13
+integrations/readweave/native-licenses/packages/d3-transition/LICENSE
+  s_bd317cec756d17::t_7ba91669916f84 1-13
+integrations/readweave/native-licenses/packages/d3-zoom/LICENSE
+  s_bd317cec756d17::t_e6773f9dc178c5 1-13
+integrations/readweave/native-licenses/packages/d3/LICENSE
+  s_bd317cec756d17::t_12749d33393dae 1-13
+integrations/readweave/native-licenses/packages/dagre-d3-es/LICENSE.md
+  s_bd317cec756d17::t_637b47a2e59d1f 1-23
+integrations/readweave/native-licenses/packages/dayjs/LICENSE
+  s_bd317cec756d17::t_568040aabc1e53 1-21
+integrations/readweave/native-licenses/packages/decode-named-character-reference/license
+  s_bd317cec756d17::t_d4d17f499e2cbe 1-22
+integrations/readweave/native-licenses/packages/delaunator/LICENSE
+  s_bd317cec756d17::t_0aaf1f73c2c14e 1-15
+integrations/readweave/native-licenses/packages/devlop/license
+  s_bd317cec756d17::t_92cd263e2b970d 1-22
+integrations/readweave/native-licenses/packages/dompurify/LICENSE
+  s_bd317cec756d17::t_08e4f369662396 1-202
+integrations/readweave/native-licenses/packages/dompurify/LICENSE-MPL
+  s_bd317cec756d17::t_9cd380ad15c572 1-373
+integrations/readweave/native-licenses/packages/elkjs/LICENSE.md
+  s_bd317cec756d17::t_6efb3e0ecbfe56 1-264
+integrations/readweave/native-licenses/packages/es-toolkit/LICENSE
+  s_bd317cec756d17::t_b9adbfc8653b2a 1-25
+integrations/readweave/native-licenses/packages/extend/LICENSE
+  s_bd317cec756d17::t_38728e8ac69dbd 1-23
+integrations/readweave/native-licenses/packages/fuzzysort/LICENSE
+  s_bd317cec756d17::t_ff1f5172f0b1ef 1-21
+integrations/readweave/native-licenses/packages/hast-util-embedded/license
+  s_bd317cec756d17::t_6db21cc312847e 1-22
+integrations/readweave/native-licenses/packages/hast-util-from-dom/license
+  s_bd317cec756d17::t_d0db4baef63552 1-15
+integrations/readweave/native-licenses/packages/hast-util-has-property/license
+  s_bd317cec756d17::t_ebb4a70e3fc32f 1-22
+integrations/readweave/native-licenses/packages/hast-util-is-body-ok-link/license
+  s_bd317cec756d17::t_1c7a48faa33e3a 1-21
+integrations/readweave/native-licenses/packages/hast-util-is-element/license
+  s_bd317cec756d17::t_0c4d3ce435b1bf 1-22
+integrations/readweave/native-licenses/packages/hast-util-minify-whitespace/license
+  s_bd317cec756d17::t_23aae1b0900370 1-21
+integrations/readweave/native-licenses/packages/hast-util-parse-selector/license
+  s_bd317cec756d17::t_9539dad4f8ab5e 1-22
+integrations/readweave/native-licenses/packages/hast-util-phrasing/license
+  s_bd317cec756d17::t_c2764fdad7986a 1-22
+integrations/readweave/native-licenses/packages/hast-util-to-dom/license
+  s_bd317cec756d17::t_d3c28d30230cb0 1-15
+integrations/readweave/native-licenses/packages/hast-util-to-html/license
+  s_bd317cec756d17::t_b9eb03faf0a2d1 1-22
+integrations/readweave/native-licenses/packages/hast-util-to-mdast/license
+  s_bd317cec756d17::t_e54b8bfd281899 1-23
+integrations/readweave/native-licenses/packages/hast-util-to-text/license
+  s_bd317cec756d17::t_87538135353745 1-22
+integrations/readweave/native-licenses/packages/hast-util-whitespace/license
+  s_bd317cec756d17::t_ef0d0df7572d4a 1-22
+integrations/readweave/native-licenses/packages/hastscript/license
+  s_bd317cec756d17::t_39b5906fa471f3 1-22
+integrations/readweave/native-licenses/packages/html-void-elements/license
+  s_bd317cec756d17::t_7ac63dea36679b 1-22
+integrations/readweave/native-licenses/packages/i18next/LICENSE
+  s_bd317cec756d17::t_82cf8072845459 1-21
+integrations/readweave/native-licenses/packages/internmap/LICENSE
+  s_bd317cec756d17::t_2844ec7627ed97 1-13
+integrations/readweave/native-licenses/packages/is-plain-obj/license
+  s_bd317cec756d17::t_d1b8952e96f619 1-9
+integrations/readweave/native-licenses/packages/katex/LICENSE
+  s_bd317cec756d17::t_e67582fb41200b 1-21
+integrations/readweave/native-licenses/packages/khroma/license
+  s_bd317cec756d17::t_94354f46af90fd 1-21
+integrations/readweave/native-licenses/packages/layout-base/LICENSE
+  s_bd317cec756d17::t_a52c7fa5676dfb 1-21
+integrations/readweave/native-licenses/packages/lodash-es/LICENSE
+  s_bd317cec756d17::t_bfe39f88181fa1 1-47
+integrations/readweave/native-licenses/packages/longest-streak/license
+  s_bd317cec756d17::t_13a692cce2279f 1-22
+integrations/readweave/native-licenses/packages/markdown-table/license
+  s_bd317cec756d17::t_de8dd301db1ac7 1-22
+integrations/readweave/native-licenses/packages/marked/LICENSE
+  s_bd317cec756d17::t_7bfae9c57a86b6 1-44
+integrations/readweave/native-licenses/packages/mdast-util-find-and-replace/license
+  s_bd317cec756d17::t_6403556e5ea386 1-22
+integrations/readweave/native-licenses/packages/mdast-util-from-markdown/license
+  s_bd317cec756d17::t_34837ad1b32af8 1-22
+integrations/readweave/native-licenses/packages/mdast-util-gfm-autolink-literal/license
+  s_bd317cec756d17::t_ea0b1947366b4f 1-22
+integrations/readweave/native-licenses/packages/mdast-util-gfm-footnote/license
+  s_bd317cec756d17::t_0b5b68e40d36c2 1-22
+integrations/readweave/native-licenses/packages/mdast-util-gfm-strikethrough/license
+  s_bd317cec756d17::t_d7de06e85dc34c 1-22
+integrations/readweave/native-licenses/packages/mdast-util-gfm-table/license
+  s_bd317cec756d17::t_5debe4c88bc048 1-22
+integrations/readweave/native-licenses/packages/mdast-util-gfm-task-list-item/license
+  s_bd317cec756d17::t_bf93702bb8bb58 1-22
+integrations/readweave/native-licenses/packages/mdast-util-gfm/license
+  s_bd317cec756d17::t_2a053ee0865bea 1-22
+integrations/readweave/native-licenses/packages/mdast-util-newline-to-break/license
+  s_bd317cec756d17::t_5563e8d5cd392b 1-22
+integrations/readweave/native-licenses/packages/mdast-util-phrasing/license
+  s_bd317cec756d17::t_2c771825ccd87d 1-23
+integrations/readweave/native-licenses/packages/mdast-util-to-hast/license
+  s_bd317cec756d17::t_68d8483e5acc77 1-22
+integrations/readweave/native-licenses/packages/mdast-util-to-markdown/license
+  s_bd317cec756d17::t_71f6d6e24363e8 1-22
+integrations/readweave/native-licenses/packages/mdast-util-to-string/license
+  s_bd317cec756d17::t_d3a326d84ba447 1-22
+integrations/readweave/native-licenses/packages/mermaid/LICENSE
+  s_bd317cec756d17::t_c3ab6c61e03385 1-21
+integrations/readweave/native-licenses/packages/micromark-core-commonmark/license
+  s_bd317cec756d17::t_7f8a9e7e60673a 1-22
+integrations/readweave/native-licenses/packages/micromark-extension-gfm-autolink-literal/license
+  s_bd317cec756d17::t_c0561c72917ae3 1-22
+integrations/readweave/native-licenses/packages/micromark-extension-gfm-footnote/license
+  s_bd317cec756d17::t_17a4a2f081a643 1-22
+integrations/readweave/native-licenses/packages/micromark-extension-gfm-strikethrough/license
+  s_bd317cec756d17::t_23e9b74142c6ee 1-22
+integrations/readweave/native-licenses/packages/micromark-extension-gfm-table/license
+  s_bd317cec756d17::t_f10084c05f8636 1-22
+integrations/readweave/native-licenses/packages/micromark-extension-gfm-tagfilter/license
+  s_bd317cec756d17::t_e43844c7876dd1 1-22
+integrations/readweave/native-licenses/packages/micromark-extension-gfm-task-list-item/license
+  s_bd317cec756d17::t_0ee93bc056b9ce 1-22
+integrations/readweave/native-licenses/packages/micromark-extension-gfm/license
+  s_bd317cec756d17::t_33f945b89a119e 1-22
+integrations/readweave/native-licenses/packages/micromark-factory-destination/license
+  s_bd317cec756d17::t_a280fe299abadc 1-22
+integrations/readweave/native-licenses/packages/micromark-factory-label/license
+  s_bd317cec756d17::t_df4c895e472626 1-22
+integrations/readweave/native-licenses/packages/micromark-factory-space/license
+  s_bd317cec756d17::t_76465714d75a13 1-22
+integrations/readweave/native-licenses/packages/micromark-factory-title/license
+  s_bd317cec756d17::t_3e94cae6881f10 1-22
+integrations/readweave/native-licenses/packages/micromark-factory-whitespace/license
+  s_bd317cec756d17::t_ba0236c23857ca 1-22
+integrations/readweave/native-licenses/packages/micromark-util-character/license
+  s_bd317cec756d17::t_e99f041ecb9f8a 1-22
+integrations/readweave/native-licenses/packages/micromark-util-chunked/license
+  s_bd317cec756d17::t_ad19ffc25b9d33 1-22
+integrations/readweave/native-licenses/packages/micromark-util-classify-character/license
+  s_bd317cec756d17::t_6732c7065d241b 1-22
+integrations/readweave/native-licenses/packages/micromark-util-combine-extensions/license
+  s_bd317cec756d17::t_345b978a96541b 1-22
+integrations/readweave/native-licenses/packages/micromark-util-decode-numeric-character-reference/license
+  s_bd317cec756d17::t_71f1d1d547bc48 1-22
+integrations/readweave/native-licenses/packages/micromark-util-decode-string/license
+  s_bd317cec756d17::t_10bec6d72dbbab 1-22
+integrations/readweave/native-licenses/packages/micromark-util-encode/license
+  s_bd317cec756d17::t_647d0763d0c012 1-22
+integrations/readweave/native-licenses/packages/micromark-util-html-tag-name/license
+  s_bd317cec756d17::t_db49bc9ad18b82 1-22
+integrations/readweave/native-licenses/packages/micromark-util-normalize-identifier/license
+  s_bd317cec756d17::t_03a6d0e345f029 1-22
+integrations/readweave/native-licenses/packages/micromark-util-resolve-all/license
+  s_bd317cec756d17::t_63997428c9832b 1-22
+integrations/readweave/native-licenses/packages/micromark-util-sanitize-uri/license
+  s_bd317cec756d17::t_79d9769631e60c 1-22
+integrations/readweave/native-licenses/packages/micromark-util-subtokenize/license
+  s_bd317cec756d17::t_4c0481eab3f98d 1-22
+integrations/readweave/native-licenses/packages/micromark/license
+  s_bd317cec756d17::t_39a87f553cb90f 1-22
+integrations/readweave/native-licenses/packages/mind-elixir/LICENSE
+  s_bd317cec756d17::t_10aaa2b9f4a16a 1-21
+integrations/readweave/native-licenses/packages/preact/LICENSE
+  s_bd317cec756d17::t_465818049ef1ce 1-21
+integrations/readweave/native-licenses/packages/property-information/license
+  s_bd317cec756d17::t_f7970ade54060d 1-22
+integrations/readweave/native-licenses/packages/rehype-dom-parse/license
+  s_bd317cec756d17::t_80a1382e026698 1-15
+integrations/readweave/native-licenses/packages/rehype-dom-stringify/license
+  s_bd317cec756d17::t_00eee33fef926d 1-15
+integrations/readweave/native-licenses/packages/rehype-minify-whitespace/license
+  s_bd317cec756d17::t_320a6dffb93fbd 1-21
+integrations/readweave/native-licenses/packages/rehype-remark/license
+  s_bd317cec756d17::t_4e28c527ef9f6d 1-22
+integrations/readweave/native-licenses/packages/remark-breaks/license
+  s_bd317cec756d17::t_08f93e86644031 1-22
+integrations/readweave/native-licenses/packages/remark-gfm/license
+  s_bd317cec756d17::t_8e1239b5e882e6 1-22
+integrations/readweave/native-licenses/packages/remark-parse/license
+  s_bd317cec756d17::t_873eef573da1ab 1-21
+integrations/readweave/native-licenses/packages/remark-rehype/license
+  s_bd317cec756d17::t_68db4a07488f10 1-22
+integrations/readweave/native-licenses/packages/remark-stringify/license
+  s_bd317cec756d17::t_b748373da9782d 1-21
+integrations/readweave/native-licenses/packages/robust-predicates/LICENSE
+  s_bd317cec756d17::t_11920bb80537bd 1-24
+integrations/readweave/native-licenses/packages/roughjs/LICENSE
+  s_bd317cec756d17::t_c8337316e9fec9 1-21
+integrations/readweave/native-licenses/packages/space-separated-tokens/license
+  s_bd317cec756d17::t_72c0296c633441 1-22
+integrations/readweave/native-licenses/packages/stringify-entities/license
+  s_bd317cec756d17::t_280027284223c8 1-22
+integrations/readweave/native-licenses/packages/stylis/LICENSE
+  s_bd317cec756d17::t_b589f553488d55 1-21
+integrations/readweave/native-licenses/packages/trim-lines/license
+  s_bd317cec756d17::t_c03bf7015545f7 1-22
+integrations/readweave/native-licenses/packages/trim-trailing-lines/license
+  s_bd317cec756d17::t_63897603c90600 1-22
+integrations/readweave/native-licenses/packages/trough/license
+  s_bd317cec756d17::t_c4cc1b2f6c7fc9 1-21
+integrations/readweave/native-licenses/packages/ts-dedent/LICENSE
+  s_bd317cec756d17::t_98629702bb70a0 1-21
+integrations/readweave/native-licenses/packages/unified/license
+  s_bd317cec756d17::t_7cb7541f93ff38 1-21
+integrations/readweave/native-licenses/packages/unist-util-find-after/license
+  s_bd317cec756d17::t_ec97deac72b257 1-22
+integrations/readweave/native-licenses/packages/unist-util-is/license
+  s_bd317cec756d17::t_2b59af74472481 1-22
+integrations/readweave/native-licenses/packages/unist-util-position/license
+  s_bd317cec756d17::t_96262b15c8897a 1-22
+integrations/readweave/native-licenses/packages/unist-util-stringify-position/license
+  s_bd317cec756d17::t_85320338448031 1-22
+integrations/readweave/native-licenses/packages/unist-util-visit-parents/license
+  s_bd317cec756d17::t_4d9134f4a096a2 1-22
+integrations/readweave/native-licenses/packages/unist-util-visit/license
+  s_bd317cec756d17::t_cb7fd066d35a95 1-22
+integrations/readweave/native-licenses/packages/uuid/LICENSE.md
+  s_bd317cec756d17::t_33ac9fdf14eb77 1-9
+integrations/readweave/native-licenses/packages/vanilla-colorful/LICENSE
+  s_bd317cec756d17::t_cb740ab602f097 1-21
+integrations/readweave/native-licenses/packages/vfile-message/license
+  s_bd317cec756d17::t_6db76d96f51c76 1-22
+integrations/readweave/native-licenses/packages/vfile/license
+  s_bd317cec756d17::t_b3bbba8bc26964 1-21
+integrations/readweave/native-licenses/packages/web-namespaces/license
+  s_bd317cec756d17::t_f9041f012f7d0b 1-22
+integrations/readweave/native-licenses/packages/zwitch/license
+  s_bd317cec756d17::t_b1a98750e31d8b 1-22
+integrations/readweave/native-licenses/readweave/LICENSE
+  s_bd317cec756d17::t_3e2402a5b54458 1-661
+integrations/readweave/native-panel.css
+  s_bd317cec756d17::t_ed3c6815892258 1
+integrations/readweave/native-panel.js
+  s_bd317cec756d17::t_55ed746a968f54 1-306
+integrations/readweave/reader-component.js
+  s_bd317cec756d17::t_c924b6110e4f79 102,117-118,160-165,279-311,325,331,339,347-348,363,373-374,378,380,382,495-501,516-552,1330,1431,1446-1637,1700-1706,1753,1786,1866,2262-2282,2349-2355,2957-2960,2970-2974,2979-2980,2982,2987
+lessonweave/jobs.py
+  s_4552c046844e7c::t_7da0669fcb172a 115
+lessonweave/metrics.py
+  s_b96a0a043d57e0::t_9e7b3b75c2abd5 14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "16ac37ef9d3123c70a121b0bc902a8468da7e807",
+  "prompts": {},
+  "sessions": {
+    "s_4552c046844e7c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14919-891d-7b32-9e12-b2bf212304ff",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <71060413+AIALRA-0@users.noreply.github.com>"
+    },
+    "s_b96a0a043d57e0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ef78-8f0b-7ab2-b080-156cce31dc79",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <71060413+AIALRA-0@users.noreply.github.com>"
+    },
+    "s_bd317cec756d17": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b69-207f-7e61-ba85-f7edc501349a",
+        "model": "gpt-6-luna"
+      },
+      "human_author": "AIALRA-0 <71060413+AIALRA-0@users.noreply.github.com>"
+    }
+  }
+}
