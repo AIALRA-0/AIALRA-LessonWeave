@@ -15,71 +15,76 @@ window.ReaderText = (() => {
     return ready;
   }
   async function math(node, value, display = false) {
-    value = String(value).trim().replace(/^\\\(([\s\S]*)\\\)$/, '$1').replace(/^\\\[([\s\S]*)\\\]$/, '$1').replace(/^\$\$([\s\S]*)\$\$$/, '$1');
+    value = window.LessonMath.normalize(value);
     node.classList.add('reader-math'); node.dataset.mathSource = value;
     node.textContent = value;
-    const texLayout = /\\begin\{(?:aligned|align|array|matrix|cases)/.test(value);
-    if ((!texLayout && /(?<!\\)&/.test(value)) || /\$(?:past|stable|rose|fell|isunknown|clog2)\b|##|_\{[^}]+\}_\{/.test(value)) {
+    if (window.LessonMath.isCode(value)) {
       node.classList.add('reader-code-expression');node.dataset.expressionKind='code';return;
     }
     await katexReady();
+    display ||= /\\tag\b/.test(value);
+    const prepared=window.LessonMath.prepare(value,source=>{try{window.katex.renderToString(source,{displayMode:display,throwOnError:true,trust:false,strict:'ignore'});return null;}catch(error){return error.message;}});
+    value=prepared.source;node.dataset.mathSource=value;
+    if(prepared.changed)node.dataset.mathRepair='validated';
+    if(prepared.error){node.dataset.mathError=prepared.error;node.classList.add('reader-math-unresolved');return;}
     window.katex.render(value, node, {displayMode: display, throwOnError: false, trust: false, strict: 'ignore'});
     const error=node.querySelector('.katex-error');if(error){node.dataset.mathError=error.title;node.classList.add('reader-math-unresolved');node.textContent=value;}
   }
-  const escape = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  function symbol(value) { return value.replace(/_([A-Za-z]{2,})(?![A-Za-z{])/g, '_{$1}'); }
-  // 只识别有数学语法的候选，普通单词、文件名、源码与货币由外层保留
-  const group0='\\{[^{}\\n]*\\}', group1='\\{(?:[^{}\\n]|'+group0+')*\\}', group='\\{(?:[^{}\\n]|'+group1+')*\\}';
-  const command='\\\\(?:[A-Za-z]+)(?:\\[[^\\]\\n]*\\])?(?:'+group+')*';
-  const atom='(?:'+command+'|'+group+'|[0-9]+(?:\\.[0-9]+)?|[A-Za-z](?![A-Za-z]))(?:[_^](?:'+group+'|[A-Za-z0-9]+))*!?';
-  const op='(?:[=+×÷−≤≥≈≠<>]|\\\\(?:times|cdot|div|leq?|geq?|approx|neq?|in|to)\\b)';
-  const expression=new RegExp('(?<![A-Za-z0-9_/:.\\\\])(?:'+atom+'(?:[ \\t]*'+op+'[ \\t]*'+atom+')+|'+command+'(?:[_^](?:'+group+'|[A-Za-z0-9]+))*(?:[ \\t]*[A-Za-z](?:[_^](?:'+group+'|[A-Za-z0-9]+))+)?|(?:[A-Za-z]|[0-9]+(?:\\.[0-9]+)?)[_^](?:'+group+'|[A-Za-z0-9]+)|[0-9]+!(?!=|[A-Za-z0-9_]))(?![A-Za-z0-9_/:.])','g');
-  function candidates(text,known){
-    const found=[];
-    const explicit=/\$\$([\s\S]+?)\$\$|(?<!\\)\$([^$\n]+?)\$|\\\(([\s\S]+?)\\\)|\\\[([\s\S]+?)\\\]|\\begin\{(equation\*?|align\*?|aligned|gather\*?|matrix|pmatrix|bmatrix|cases)\}[\s\S]*?\\end\{\5\}/g;
-    const add=(start,end,source,display=false,declared=false)=>{if(!found.some(r=>start<r.end&&end>r.start))found.push({start,end,source:symbol(source),display,declared});};
-    for(const m of text.matchAll(explicit))add(m.index,m.index+m[0].length,m[1]??m[2]??m[3]??m[4]??m[0],!!(m[1]||m[4]||m[5]),true);
-    for(const m of text.matchAll(expression)){
-      const value=m[0];
-      if(/^[A-Za-z]{2,}$/.test(value)||/^[A-Za-z]\s*[<>]\s*[A-Za-z]$/.test(value)&&!/数学|比较|变量|满足|条件/.test(text))continue;
-      if(!/[_^=×÷−≤≥≈≠<>]|\\[A-Za-z]|\d!/.test(value))continue;
-      add(m.index,m.index+value.length,value);
-    }
-    if(known.length){const rx=new RegExp('(?<![A-Za-z0-9_/:.])(?:'+known.map(escape).join('|')+')(?![A-Za-z0-9_/:.])','g');for(const m of text.matchAll(rx))add(m.index,m.index+m[0].length,m[0]);}
-    return found.sort((a,b)=>a.start-b.start);
-  }
   function rich(node, value, symbols = []) {
-    const text = String(value ?? '');
-    const declared = [...text.matchAll(/(?<![A-Za-z0-9_])([A-Za-z](?:_[A-Za-z0-9]{1,3})?)(?=表示|代表)/g)].map(m=>m[1]);
-    declared.push(...[...text.matchAll(/第([ijkmn])个|(?:节点总数|节点数|总数|数量)([A-Za-z])(?=[\u4e00-\u9fff])/g)].map(m=>m[1]||m[2]));
-    const known = [...new Set([...symbols,...declared])].filter(s => /^[A-Za-z](?:_[A-Za-z0-9{}]+)?$/.test(s)).sort((a,b) => b.length-a.length);
-    function prose(part) {
-      let at = 0;
-      for (const match of candidates(part,known)) {
-        node.append(document.createTextNode(part.slice(at, match.start)));
-        const candidate=match.source;
-        if (/[\u4e00-\u9fff]/.test(candidate.replace(/\\(?:text|mathrm)\{[^}]*\}/g,''))) {
-          node.append(document.createTextNode(part.slice(match.start,match.end)));at=match.end;continue;
-        }
-        const span = document.createElement('span');span.className='reader-math';span.textContent=part.slice(match.start,match.end);node.append(span);
-        span.mediaReady = (async()=>{
-          await katexReady();
-          try{window.katex.renderToString(candidate,{throwOnError:true,trust:false,strict:'ignore'});}
-          catch(error){span.classList.remove('reader-math');span.dataset.mathCandidate=candidate;span.dataset.mathReason=error.message;span.textContent=part.slice(match.start,match.end);return;}
-          await math(span,candidate,match.display);
-        })().catch(()=>{span.textContent=part.slice(match.start,match.end)});
-        at = match.end;
-      }
-      node.append(document.createTextNode(part.slice(at)));
-    }
+    const text = String(value ?? ''), parsed = window.LessonMath.scan(text, symbols);
+    const parts = [...parsed.matches.map(match => ({...match, kind:'math'})),
+      ...parsed.protected.filter(part => part.code).map(part => ({...part, kind:'code'}))].sort((a,b) => a.start-b.start);
     let at = 0;
-    for (const protectedPart of text.matchAll(/(`{3,}|~{3,})[^\n]*\n[\s\S]*?\1|(`+)(?!`)[\s\S]*?\2(?!`)|https?:\/\/[^\s<>]+|\$(?:past|stable|rose|fell|isunknown|clog2)\b|\$\{[^}]+\}|\$[A-Z_]{2,}[A-Z0-9_]*(?![A-Za-z0-9_$=+*/^<>-])|(?<!\\)\$\d+(?:\.\d+)?(?=[\s，,；;]|$)|\b[A-Za-z][A-Za-z0-9]+_[A-Za-z0-9_]+\b|\b[\w-]+\.(?:py|v|sv|js|json|md|pdf|png|jpr)\b/g)) {
-      prose(text.slice(at,protectedPart.index));
-      if(protectedPart[0].startsWith('`')){const code=document.createElement('code');code.textContent=protectedPart[0].replace(/^`+|`+$/g,'');node.append(code);}
-      else node.append(document.createTextNode(protectedPart[0]));
-      at=protectedPart.index+protectedPart[0].length;
+    for (const part of parts) {
+      node.append(document.createTextNode(text.slice(at,part.start)));
+      const raw = text.slice(part.start,part.end);
+      if (part.kind === 'code') {
+        const code=document.createElement('code');code.textContent=raw.replace(/^(`{3,}|~{3,})[^\n]*\n|(?:`{3,}|~{3,})$/g,'').replace(/^`+|`+$/g,'');node.append(code);
+      } else if (/[\u4e00-\u9fff]/.test(part.source.replace(/\\(?:text|mathrm)\{[^}]*\}/g,''))) {
+        node.append(document.createTextNode(raw));
+      } else {
+        const span=document.createElement('span');span.className='reader-math';span.dataset.mathRaw=raw;span.textContent=raw;node.append(span);
+        span.mediaReady=(async()=>{
+          await katexReady();
+          await math(span,part.source,part.display);
+          if(!span.dataset.mathError)span.dataset.mathRendered='true';else {span.textContent=raw;if(!part.declared){span.dataset.mathCandidate=span.dataset.mathSource;span.dataset.mathReason=span.dataset.mathError;delete span.dataset.mathError;span.classList.remove('reader-math-unresolved','reader-math');}}
+        })().catch(error=>{span.dataset.mathError=error.message;span.classList.add('reader-math-unresolved');span.textContent=raw;});
+      }
+      at=part.end;
     }
-    prose(text.slice(at));
+    node.append(document.createTextNode(text.slice(at)));
+    return node;
+  }
+  function renderIn(element, symbols = []) {
+    if (!element) return Promise.resolve();
+    const pending=[...element.querySelectorAll('.reader-math')].map(node=>node.mediaReady).filter(Boolean);
+    for(const node of element.querySelectorAll('.math-tex,[data-lw-formula]')) {
+      if(node.querySelector('.katex'))continue;
+      node.mediaReady=math(node,node.dataset.mathSource||node.textContent,true);pending.push(node.mediaReady);
+    }
+    const skip='pre,code,script,style,textarea,input,select,svg,math,.katex,.reader-math,[contenteditable="true"],[data-no-math]';
+    const walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT,{
+      acceptNode:node=>node.parentElement?.closest(skip)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT
+    });
+    const texts=[];while(walker.nextNode())texts.push(walker.currentNode);
+    for(const text of texts) {
+      if(!window.LessonMath.scan(text.nodeValue,symbols).matches.length)continue;
+      const fragment=document.createDocumentFragment();rich(fragment,text.nodeValue,symbols);
+      for(const node of fragment.querySelectorAll('.reader-math'))if(node.mediaReady)pending.push(node.mediaReady);
+      text.replaceWith(fragment);
+    }
+    return Promise.all(pending.map(promise=>Promise.resolve(promise).catch(()=>{})));
+  }
+  function audit(element) {
+    const errors=[...element.querySelectorAll('[data-math-error]')].map(node=>({source:node.dataset.mathSource||node.dataset.mathRaw||node.textContent,error:node.dataset.mathError}));
+    const walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT,{acceptNode:node=>node.parentElement?.closest('pre,code,script,style,textarea,input,select,svg,math,.katex,.reader-math,[contenteditable="true"],[data-no-math]')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+    while(walker.nextNode())for(const match of window.LessonMath.scan(walker.currentNode.nodeValue).matches)if(match.declared)errors.push({source:match.source,error:'公式已经有标记，但当前位置还没有渲染'});
+    return {rendered:element.querySelectorAll('.katex').length,errors};
+  }
+  function plain(element) {
+    if(element.nodeType===3)return element.nodeValue;
+    if(element.classList?.contains('reader-math'))return element.dataset.mathRaw||element.dataset.mathSource||element.textContent;
+    return [...element.childNodes].map(plain).join('');
   }
   // 已有分号和句末标点提供安全断点，显示拆段时保留每个原字符
   function paragraphs(text) {
@@ -94,5 +99,5 @@ window.ReaderText = (() => {
       return result;
     }).filter(s => s.trim());
   }
-  return {rich, math, paragraphs};
+  return {rich, math, paragraphs, renderIn, audit, plain};
 })();

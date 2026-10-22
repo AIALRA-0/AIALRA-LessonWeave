@@ -55,7 +55,7 @@ LessonWeave 的 `/p/<项目>/readweave.html` 路由会转到同一项目的 `boo
 
 ## 怎样构建公开源码包
 
-`v0.2.0` 的 ReadWeave 源码包和公开案例包可从[版本页面](https://github.com/AIALRA-0/AIALRA-LessonWeave/releases/tag/v0.2.0)下载。当前源码包 SHA-256 为 `9785a850e3442742b7aa5dfcbd31248f5aebd4fe5966c802b7bd4acc27db4ba8`，包含 25 项桥接覆盖。解包后，复核源码可以运行：
+当前分支使用[阅读修复版源码包](https://github.com/AIALRA-0/AIALRA-LessonWeave/releases/download/v0.2.0/readweave-source-reader-followup-20261022.tar.gz)，SHA-256 为 `560945276b663e2038b48301eca8975fc4430051ad0bab712f8e758f064ad23a`，包含 34 项桥接覆盖与 2,731 个源文件；旧源码包和公开案例包仍保留在 [v0.2.0 版本页面](https://github.com/AIALRA-0/AIALRA-LessonWeave/releases/tag/v0.2.0)，供对应旧提交使用。解包后，复核源码可以运行：
 
 ```bash
 corepack pnpm install --frozen-lockfile --ignore-scripts
@@ -66,3 +66,9 @@ corepack pnpm server:build
 `--ignore-scripts` 是必要参数：脱敏源码包保留 `apps/web-clipper` 的 workspace 清单以匹配锁文件，但省略了无关的扩展入口；正常 postinstall 会因缺少这些入口而停止。部署器在 Linux Docker builder 中执行源码构建。`server:build` 会重新生成客户端和 PDF viewer，因此容器构建只需执行这一项构建命令。
 
 公开归档的文件清单和各文件哈希保存在根目录的 `SOURCE-MANIFEST.json`；桥接覆盖文件还须逐项匹配 LessonWeave 的 `integrations/readweave/backend-source-manifest.json`。归档仅包含已授权公开的源码和对应许可证文件，不含私有部署历史、运行数据、凭据或数据库。
+
+## 阅读修复版怎样沿用当前库
+
+网站在切节开始时清除旧文章关联，再给新正文、原文与译文绑定各自的共享 ID，选区和打开、编辑入口都使用当前文章；数学选区的保存与恢复共用公式源码，避免把 KaTeX 的辅助文字算进引用。提问、定义、注解、总结和笔记继续使用原生面板与现有生成 harness。
+
+启动时只为缺少共享登记的成书补登记，并补已有 PDF 的可选文字层；已有文章和墓碑继续沿用原 ID。术语名称可用 `display-title` 操作单独整理，定义正文仍从共享对象读取，独立的用户展示改稿也会保留。网站不再创建正文编辑框，编辑会打开 ReadWeave；回收需要确认，ReadWeave 的两个清空入口也共用确认逻辑，取消时不发送删除请求。Trilium 后端脚本执行保持关闭。

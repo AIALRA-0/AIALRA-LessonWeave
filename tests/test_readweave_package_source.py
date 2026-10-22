@@ -196,6 +196,15 @@ class ReadWeavePackageSourceTests(unittest.TestCase):
         sidecar = first.with_name(first.name + ".sha256").read_text(encoding="ascii")
         self.assertTrue(sidecar.startswith(hashlib.sha256(first.read_bytes()).hexdigest()))
 
+    def test_git_archive_disables_autocrlf_for_reproducible_blobs(self) -> None:
+        archive_path = self.root / "git-source.tar"
+        with patch.object(package_source.subprocess, "run") as run:
+            package_source._archive_head(self.source, archive_path)
+        run.assert_called_once()
+        command = run.call_args.args[0]
+        self.assertIn("-c", command)
+        self.assertIn("core.autocrlf=false", command)
+
     def test_overlay_hash_mismatch_stops_packaging(self) -> None:
         self._write_bytes(self.overlay_path, b"changed after manifest\n")
         with self.assertRaisesRegex(package_source.PackageError, "哈希与 manifest 不一致"):

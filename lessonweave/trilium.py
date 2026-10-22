@@ -33,13 +33,22 @@ def public_note_url(client,note_id,public_url):
     raise ValueError('对应笔记尚未连接到 ReadWeave 根目录')
 
 
-def reading_link(project,root,section=None):
+def reading_link(project,root,section=None,article=None):
     public_url=os.environ.get('LESSONWEAVE_TRILIUM_PUBLIC_URL')
     if not public_url or not configured():
         raise ValueError('正式 ReadWeave 尚未关联，导入完成后可直达对应笔记')
     mapping=read(Path(root)/'runtime/trilium/current.json',{})
     from .readweave import current,configured as shared_configured
     shared=current(root) if shared_configured()else{}
+    if article:
+        if not re.fullmatch(r'[A-Za-z0-9_]+',article) or not shared.get('edition_id'):
+            raise ValueError('当前文章尚未关联到这份读本的共享版本')
+        from .readweave import proxy
+        publication=proxy('GET','lessonweave/publications/'+shared['edition_id'])
+        member=next((row for row in publication.get('articles',[])if row['articleId']==article),None)
+        if not member or member.get('deleted') or publication.get('deleted'):
+            raise ValueError('这篇文章不在当前读本中，或已移入回收站')
+        return public_note_url(Client(),article,public_url)
     if section and shared.get('sections',{}).get(section):
         return public_note_url(Client(),shared['sections'][section],public_url)
     target=mapping.get('sections',{}).get(section) if section else project.get('native_note_id') or mapping.get('project_note_id')

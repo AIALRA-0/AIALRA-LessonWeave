@@ -12,7 +12,7 @@ def generate(backend, boundaries):
         index, rows = pair
         name = 'c_bridges' if len(groups) == 1 else 'c_bridges-batch-' + str(index + 1).zfill(3)
         prompt = contract.dumps({'task': '为各节写两段承接，carryover 承上，premise 加 question 启下，标题固定为承上启下',
-            'rules': ['只根据实际答案承上，首节根据材料情境起笔，前提直接引出问题，不重述整节内容，不生成术语或审查'],
+            'rules': ['首个正文节结合 project_background 中的全书目标与本节 current 起笔，不把导读或第 0 章答案当作正文前提；后续正文节只承接前一正文节的实际结果；前提直接引出问题，不重述整节内容，不生成术语或审查'],
             'boundaries': rows})
         return index, backend._call_once(name, prompt, contract.schema('c-bridges'))
     output = {}

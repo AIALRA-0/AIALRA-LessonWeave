@@ -35,3 +35,9 @@
 .generation-pricing{font-size:12px;color:var(--muted);line-height:1.8}.generation-pricing summary{cursor:pointer}.generation-pricing a{text-decoration:underline}
 
 .library-heading-actions{display:flex;align-items:center;gap:4px}
+
+#initial-loader{position:fixed;inset:0;z-index:10000;display:none;place-items:center;background:var(--bg);color:var(--muted)}
+html[data-app-loading] #initial-loader{display:grid}
+html[data-app-loading] body>:not(#initial-loader){visibility:hidden}
+#initial-loader svg{width:72px;height:72px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;animation:loader-breathe 1.3s ease-in-out infinite alternate}
+@keyframes loader-breathe{to{opacity:.45;transform:scale(.94)}}

@@ -1,10 +1,12 @@
 <!doctype html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN" data-theme="light" data-reader-loading>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>对照原材料阅读</title>
+  <script>try{const reader=JSON.parse(localStorage.getItem('aialra:reader-ui:v1')||'{}'),saved=localStorage.getItem('lessonweave:theme');document.documentElement.dataset.theme=['light','dark'].includes(window.LESSONWEAVE_THEME)?window.LESSONWEAVE_THEME:['light','dark'].includes(reader.theme)?reader.theme:['light','dark'].includes(saved)?saved:'light'}catch{}</script>
+  <style>html[data-reader-loading] body>:not(#reader-startup){visibility:hidden}#reader-startup{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;background:#eeeeec;color:#61615d}html[data-theme=dark] #reader-startup{background:#141414;color:#ababab}#reader-startup[hidden]{display:none}#reader-startup svg{width:72px;height:72px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;animation:reader-breathe 1.3s ease-in-out infinite alternate}@keyframes reader-breathe{to{opacity:.45;transform:scale(.94)}}</style>
   <link rel="stylesheet" href="/reader.css">
   <link rel="stylesheet" href="/writing-demo.css">
   <link rel="stylesheet" href="/reading-ui.css">
@@ -12,16 +14,17 @@
 <link rel="stylesheet" href="/reader-polish.css?v=20261019-r4-checked">
 </head>
 <body class="writing-page demo-page reader-ui book-page">
+<div id="reader-startup" role="status" aria-label="正在打开读本"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 11c7-4 13-4 17 0v27c-4-4-10-4-17 0zM41 11c-7-4-13-4-17 0v27c4-4 10-4 17 0z"/><path d="M13 18c3-1 6-1 8 0M13 24c3-1 6-1 8 0M27 18c3-1 6-1 8 0M27 24c3-1 6-1 8 0"/></svg></div>
 <a class="skip-link" href="#demo-content">直接阅读讲解</a>
 <header class="demo-masthead">
-  <div class="document-heading"><span class="book-symbol" data-icon="book"></span><div class="document-name"><p class="eyebrow">对照原材料阅读 <span id="delivery-status" class="edition-label" hidden>完整稿预览 · 审查待完成</span></p><h1 id="demo-title" tabindex="0">正在读取正文</h1></div></div>
+  <div class="document-heading"><span class="book-symbol" data-icon="book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h6a3 3 0 0 1 3 3v14a4 4 0 0 0-4-3H4z"/><path d="M20 4h-4a3 3 0 0 0-3 3v14a4 4 0 0 1 4-3h3z"/></svg></span><div class="document-name"><p class="eyebrow">对照原材料阅读 <span id="delivery-status" class="edition-label" hidden>完整稿预览 · 审查待完成</span></p><h1 id="demo-title" tabindex="0">正在读取正文</h1></div></div>
   <div class="demo-header-actions" aria-label="调整阅读布局">
     <div class="control-group" role="group" aria-label="选择显示的面板">
-      <button class="icon-button" data-toggle-pane="directory" data-icon="directory" aria-label="隐藏目录" data-tooltip="显示或隐藏目录" aria-pressed="true"></button>
-      <button class="icon-button" data-toggle-pane="source" data-icon="source" aria-label="隐藏原文与译文" data-tooltip="显示或隐藏原文" aria-pressed="true"></button>
-      <button class="icon-button" data-toggle-pane="glossary" data-icon="glossary" aria-label="隐藏术语表" data-tooltip="显示或隐藏术语表" aria-pressed="true"></button>
+      <button class="icon-button" data-toggle-pane="directory" data-icon="directory" aria-label="隐藏目录" data-tooltip="显示或隐藏目录" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16m4-11h4m-4 5h4"/></svg></button>
+      <button class="icon-button" data-toggle-pane="source" data-icon="source" aria-label="隐藏原文与译文" data-tooltip="显示或隐藏原文" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4H4v16h4m8-16h4v16h-4M10 9l-3 3 3 3m4-6 3 3-3 3"/></svg></button>
+      <button class="icon-button" data-toggle-pane="glossary" data-icon="glossary" aria-label="隐藏术语表" data-tooltip="显示或隐藏术语表" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h8v14H4zM12 5h8v14h-8M7 9h2m-2 4h2m6-4h2m-2 4h2"/></svg></button>
     </div>
-    <div class="control-group"><button id="focus-reading" class="icon-button" data-icon="focus" aria-label="进入专注阅读" data-tooltip="专注阅读" aria-pressed="false"></button><button id="toggle-theme" class="icon-button" data-icon="moon" aria-label="切换深色主题" data-tooltip="切换明暗主题"></button><button id="open-settings" class="icon-button" data-icon="settings" aria-label="打开阅读设置" data-tooltip="阅读设置" aria-haspopup="dialog"></button></div>
+    <div class="control-group"><button id="focus-reading" class="icon-button" data-icon="focus" aria-label="进入专注阅读" data-tooltip="专注阅读" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M8 8h8v8H8z"/></svg></button><button id="toggle-theme" class="icon-button" data-icon="moon" aria-label="切换深色主题" data-tooltip="切换明暗主题"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 15a8.5 8.5 0 0 1-11-11 8.5 8.5 0 1 0 11 11Z"/></svg></button><button id="open-settings" class="icon-button" data-icon="settings" aria-label="打开阅读设置" data-tooltip="阅读设置" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="8" cy="18" r="2"/></svg></button></div>
   </div>
 </header>
 <nav id="demo-pane-tabs" class="demo-pane-tabs" aria-label="选择阅读面板" hidden><button data-open-pane="directory">目录</button><button data-open-pane="source">原文与译文</button><button data-open-pane="lesson" aria-pressed="true">讲解</button><button data-open-pane="glossary">术语表</button></nav>
@@ -61,7 +64,7 @@
   <aside id="glossary-result" class="demo-terms demo-reading-pane" data-pane="glossary" aria-labelledby="demo-glossary-title" hidden>
     <div class="pane-head"><h2 id="demo-glossary-title">术语表</h2><button class="icon-button" data-close-pane="glossary" data-icon="close" aria-label="收起术语表" data-tooltip="收起术语表"></button></div>
     <div class="pane-sticky-tools glossary-search-wrap"><span data-icon="search"></span><input id="glossary-search" type="search" placeholder="搜索术语" aria-label="搜索本节术语"></div>
-    <div class="pane-content"><p id="glossary-count" class="help"></p><div id="glossary-preview-controls" hidden><p id="glossary-preview-caption" class="help" role="status"></p><button id="glossary-preview-back" class="text-action">返回全部术语</button></div><details class="demo-tools debug-only"><summary>查看术语记录</summary><a id="term-report" target="_blank">查看术语出现位置</a></details><div id="glossary-list"></div></div>
+    <div class="pane-content"><p id="glossary-count" class="help"></p><div id="glossary-preview-controls" hidden><button id="glossary-preview-back" class="icon-button" data-icon="reset" aria-label="返回全部术语" data-tooltip="返回全部术语"></button></div><details class="demo-tools debug-only"><summary>查看术语记录</summary><a id="term-report" target="_blank">查看术语出现位置</a></details><div id="glossary-list"></div></div>
   </aside>
   <div class="resizer" data-resize-pane="directory" role="separator" aria-label="调整目录宽度" aria-orientation="vertical" tabindex="0"></div>
   <div class="resizer" data-resize-pane="source" role="separator" aria-label="调整原文宽度" aria-orientation="vertical" tabindex="0"></div>
@@ -78,7 +81,7 @@
 <dialog id="image-viewer" aria-label="查看完整原图"><button class="icon-button image-close" data-icon="close" aria-label="关闭原图"></button><div id="image-stage"></div></dialog>
 <dialog id="locator-dialog" aria-labelledby="locator-dialog-title"><header><h2 id="locator-dialog-title">原文定位</h2><div class="locator-head-actions"><div class="locator-zoom-controls" role="group" aria-label="调整原文定位缩放"><button class="icon-button" data-locator-zoom="out" data-icon="minus" aria-label="缩小原文定位" data-tooltip="缩小"></button><select class="locator-zoom-select" data-locator-zoom-select aria-label="设置原件缩放比例"><option value="100">100%</option></select><button class="zoom-reset" data-locator-fit aria-label="适配当前定位范围" data-tooltip="适配一次，随后保留该缩放">适配</button><button class="icon-button" data-locator-zoom="in" data-icon="plus" aria-label="放大原文定位内容" data-tooltip="放大"></button></div><button id="locator-dialog-close" class="icon-button" data-icon="close" aria-label="关闭原文定位"></button></div></header><div id="locator-dialog-content"></div></dialog>
 <div id="ui-tooltip" role="tooltip" hidden></div>
-<script src="/reading-icons.js"></script><script src="/reader-text.js?v=20261019-r4-checked"></script><script src="/media-renderer.js?v=20261019-r4-checked"></script><script src="/reader-search.js?v=20261019-r4-checked"></script><script src="/writing-demo.js?v=20261019-r4-checked"></script><script src="/reading-ui.js?v=20261019-r4-checked"></script><script src="/source-locator.js"></script><script src="/source-split.js"></script>
+<script src="/reading-icons.js"></script><script src="/math-text.js"></script><script src="/reader-text.js?v=20261019-r4-checked"></script><script src="/media-renderer.js?v=20261019-r4-checked"></script><script src="/reader-search.js?v=20261019-r4-checked"></script><script src="/writing-demo.js?v=20261019-r4-checked"></script><script src="/reading-ui.js?v=20261019-r4-checked"></script><script src="/source-locator.js"></script><script src="/source-split.js"></script>
 <script src="/generation-settings.js?v=20261019-r4-checked"></script>
 </body>
 </html>

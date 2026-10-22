@@ -309,7 +309,7 @@ def _archive_head(source: Path, archive_path: Path) -> None:
     try:
         with archive_path.open("wb") as output:
             subprocess.run(
-                ["git", "-C", str(source), "archive", "--format=tar", "HEAD"],
+                ["git", "-C", str(source), "-c", "core.autocrlf=false", "archive", "--format=tar", "HEAD"],
                 check=True,
                 stdout=output,
                 stderr=subprocess.PIPE,

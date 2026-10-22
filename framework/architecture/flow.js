@@ -4,9 +4,13 @@
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let data, timer, loading = false, generation = 0, graphs = Promise.resolve();
   const previous = new Map();
-  let dark = false;
-  try { dark = (localStorage.getItem('lessonweave:theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')) === 'dark'; } catch {}
-  document.body.classList.toggle('dark', dark);
+  let dark = document.documentElement.dataset.theme === 'dark';
+  function applyTheme(persist=false){
+    document.documentElement.dataset.theme=dark?'dark':'light';
+    document.body.classList.toggle('dark',dark);
+    if(persist)try{localStorage.setItem('lessonweave:theme',dark?'dark':'light');}catch{}
+  }
+  applyTheme();
   async function api(url) {
     const response = await fetch(url, {cache:'no-store'});
     if (!response.headers.get('content-type')?.includes('application/json')) throw Error('请重新登录后查看流程与架构');
@@ -57,7 +61,9 @@
   }
   async function renderGraphs() {
     graphs = graphs.then(async()=>{
-      window.mermaid.initialize({startOnLoad:false,securityLevel:'strict',theme:'base',fontFamily:'system-ui, Microsoft YaHei, sans-serif',themeVariables:{primaryColor:dark?'#303030':'#eeeeec',primaryTextColor:dark?'#eeeeee':'#232321',primaryBorderColor:dark?'#686868':'#aaa9a4',lineColor:dark?'#b8b8b8':'#72726c',edgeLabelBackground:dark?'#1b1b1b':'#f7f7f5'},flowchart:{htmlLabels:false,curve:'linear',useMaxWidth:true}});
+      const css=getComputedStyle(document.body),color=(name,fallback)=>css.getPropertyValue(name).trim()||fallback;
+      const app=color('--app',dark?'#141414':'#eeeeec'),surface=color('--surface',dark?'#1b1b1b':'#f7f7f5'),canvas=color('--canvas',dark?'#1e1e1e':'#fff'),text=color('--text',dark?'#eeeeee':'#232321'),muted=color('--muted',dark?'#b8b8b8':'#545451'),line=color('--line',dark?'#383838':'#d4d4d0');
+      window.mermaid.initialize({startOnLoad:false,securityLevel:'strict',theme:'base',fontFamily:'system-ui, Microsoft YaHei, sans-serif',themeVariables:{primaryColor:canvas,primaryTextColor:text,primaryBorderColor:line,secondaryColor:surface,secondaryTextColor:text,secondaryBorderColor:line,tertiaryColor:app,tertiaryTextColor:text,tertiaryBorderColor:line,mainBkg:canvas,nodeBorder:line,textColor:text,titleColor:text,lineColor:muted,edgeLabelColor:text,edgeLabelBackground:surface,clusterBkg:app,clusterBorder:line},flowchart:{htmlLabels:false,curve:'linear',useMaxWidth:true}});
       await window.mermaid.run({nodes:document.querySelectorAll('.mermaid:not([data-processed])')});
       for (const stage of data.stages) {
         const section=$('stage-'+stage.id);
@@ -109,7 +115,7 @@
   addEventListener('scroll',()=>{if(!tick){tick=true;requestAnimationFrame(markStage);}},{passive:true});
   $('project').onchange=async()=>{generation++;clearTimeout(timer);while(loading)await new Promise(resolve=>setTimeout(resolve,30));const url=new URL(location.href);if($('project').value)url.searchParams.set('project',$('project').value);else url.searchParams.delete('project');history.replaceState(null,'',url);await refresh(true);};
   $('refresh').onclick=()=>refresh();
-  $('theme').onclick=()=>{dark=!dark;document.body.classList.toggle('dark',dark);try{localStorage.setItem('lessonweave:theme',dark?'dark':'light');}catch{}if(data){for(const s of data.stages)$('stage-'+s.id).querySelector('.diagram').innerHTML='<pre class="mermaid">'+esc(s.diagram)+'</pre>';renderGraphs();}};
+  $('theme').onclick=()=>{dark=!dark;applyTheme(true);if(data){for(const s of data.stages)$('stage-'+s.id).querySelector('.diagram').innerHTML='<pre class="mermaid">'+esc(s.diagram)+'</pre>';renderGraphs();}};
   document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTimeout(timer);else refresh();});
   (async()=>{try{const projects=await api('/api/projects');for(const p of projects){const option=document.createElement('option');option.value=p.id;option.textContent=p.name;$('project').append(option);}const requested=new URL(location.href).searchParams.get('project');if(requested&&projects.some(p=>p.id===requested))$('project').value=requested;await refresh();}catch(error){$('update').textContent=error.message;}})();
 })();

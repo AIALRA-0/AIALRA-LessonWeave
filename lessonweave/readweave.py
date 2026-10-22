@@ -57,7 +57,7 @@ def publication(store,project,root):
     mapping=current(root)
     if not mapping:raise UpstreamError(404,{'error':'这份读本还没有导入共享笔记库'})
     value=proxy('GET','lessonweave/publications/'+quote(mapping['edition_id'],safe=''))
-    return dict(value,section_articles=mapping.get('sections',{}),translation_articles=mapping.get('translations',{}),original_articles=mapping.get('originals',{}),project_id=project['id'])
+    return dict(value,section_articles=mapping.get('sections',{}),translation_articles=mapping.get('translations',{}),original_articles=mapping.get('originals',{}),page_articles=mapping.get('pages',{}),source_articles=mapping.get('source_articles',{}),project_id=project['id'])
 
 
 def library_action(project,action):
@@ -111,13 +111,14 @@ def publish_project(store,project,root,trilium_mapping):
     """按稳定身份追加所有文本，重试只补没导入的内容，不覆盖改稿或恢复删除项"""
     if not configured():return {}
     from .shared_html import article_html
-    root=Path(root);version=trilium_mapping['version'];client=Client()
-    import_key=project['id']+':'+version
+    root=Path(root);client=Client()
+    book=read(root/'05_writing/preview-book.json',read(root/'05_writing/book.json',{}))
     mapping=current(root)
+    version=trilium_mapping.get('version') or mapping.get('version') or book.get('writing_run') or 'saved-book-v1'
+    import_key=project['id']+':'+version
     if mapping.get('import_key')!=import_key:
         mapping={'import_key':import_key,'version':version,'sections':{},'translations':{},'originals':{},'source_articles':{},'notes':{},'imported':[]}
-    book=read(root/'05_writing/preview-book.json',read(root/'05_writing/book.json',{}))
-    rows=[];section_keys={};translation_keys={};original_keys={};sources={}
+    rows=[];section_keys={};translation_keys={};original_keys={};sources={};page_keys={}
     resources=trilium_mapping.get('resources',{})
     for chapter in book.get('chapters',[]):
         for section in chapter['sections']:
@@ -149,6 +150,28 @@ def publish_project(store,project,root,trilium_mapping):
                 if paragraphs:
                     key='translation:'+sid;translation_keys[key]=sid
                     rows.append({'key':key,'title':section['number']+' 中文译文','kind':'translation','body':'\n'.join(paragraphs),'source':{'section_id':sid,'path':pack_path,'source_pack':pack}})
+    # 整页原文单独登记一次，页面坐标仍留在外置定位文件中
+    location_index=read(root/'05_writing/source-location/index.json',{})
+    for version_info in location_index.get('versions',[]):
+        location=read(root/str(version_info.get('manifest','')).lstrip('/'),{})
+        for page_id,page in location.get('pages',{}).items():
+            identity='\n'.join([str(location.get('material_run','')),str(location.get('material_path','')),page_id])
+            key='original-page:'+hashlib.sha256(identity.encode()).hexdigest()[:24]
+            body=None
+            if page.get('text_layer'):
+                layer=read(root/page['text_layer'].lstrip('/'),{})
+                body='\n'.join('<p>'+html.escape(line['text'])+'</p>'for line in layer.get('lines',[]))
+            elif page.get('dom'):
+                path=root/page['dom'].lstrip('/')
+                if path.is_file():
+                    from bs4 import BeautifulSoup
+                    dom=BeautifulSoup(path.read_text('utf-8'),'html.parser')
+                    for element in dom.select('script,style,form,iframe,object'):element.decompose()
+                    body=str(dom.body or dom)
+            if not body:continue
+            page_keys[key]=identity
+            rows.append({'key':key,'title':Path(page.get('path','原文')).name+' · '+str(page.get('number',page_id)),
+                         'kind':'original','body':body,'source':{'page_id':page_id,'material_run':location.get('material_run'),'material_path':location.get('material_path'),'path':page.get('path')or page.get('dom')}})
     # 原文文件与说明、译文分别登记，二进制原件继续使用附件，不把二进制猜成文本
     manifest=read(root/'05_writing/reading-package.json',{})
     for name in manifest.get('files',[]):
@@ -167,7 +190,8 @@ def publish_project(store,project,root,trilium_mapping):
     receipts=read(root/'runtime/readweave/import-receipts.json',{'batches':[]})
     for batch in import_batches(pending):
         for row in batch:tick(root,'shared:'+row['key'],'running')
-        payload={'importKey':import_key,'title':book.get('title',project['name']),'parentNoteId':trilium_mapping['edition_note_id'],'articles':batch}
+        payload={'importKey':import_key,'title':book.get('title',project['name']),'articles':batch}
+        if trilium_mapping.get('edition_note_id'):payload['parentNoteId']=trilium_mapping['edition_note_id']
         if mapping.get('edition_id'):payload['editionId']=mapping['edition_id']
         started=time.monotonic()
         result=client.call('POST','lessonweave/publications/import',payload)
@@ -180,6 +204,7 @@ def publish_project(store,project,root,trilium_mapping):
             if key in translation_keys:mapping['translations'][translation_keys[key]]=row['articleId']
             if key in original_keys:mapping.setdefault('originals',{})[original_keys[key]]=row['articleId']
             if key in sources:mapping['source_articles'][sources[key]]=row['articleId']
+            if key in page_keys:mapping.setdefault('pages',{})[page_keys[key]]=row['articleId']
         mapping['imported']=list(dict.fromkeys([*mapping['imported'],*(r['key']for r in batch)]))
         save(root/'runtime/readweave/current.json',mapping)
         for row in batch:tick(root,'shared:'+row['key'],'completed')

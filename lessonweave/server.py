@@ -6,6 +6,7 @@ from urllib.parse import unquote, urlsplit, parse_qs
 import json
 import mimetypes
 import os
+import sqlite3
 import threading
 import time
 import uuid
@@ -27,7 +28,14 @@ def public_state(state):
 def worker(store):
     from .jobs import execute
     while True:
-        job = store.claim()
+        try:
+            job = store.claim()
+        except sqlite3.OperationalError as error:
+            if not any(word in str(error).lower() for word in ('locked', 'busy')):
+                raise
+            # 临时读写占用结束后继续领取任务，不能让后台执行线程永久退出
+            time.sleep(1)
+            continue
         if job is None:
             time.sleep(1)
             continue
@@ -160,7 +168,7 @@ class Handler(SimpleHTTPRequestHandler):
                     root = Path(project['path'])
                     book = read(root/'05_writing/preview-book.json', read(root/'05_writing/book.json', {}))
                     from .readweave import current,configured as shared_configured
-                    result.append(dict(public_project(project), state=public_state(read(root/'runtime/state.json', {'status':'existing'})), title=book.get('title'), ready=bool(book) and (root/'05_writing/source-location/index.json').is_file(),readweave_available=bool(os.environ.get('LESSONWEAVE_TRILIUM_PUBLIC_URL') and project.get('native_note_id')),readweave_shared=shared_configured() and bool(current(root).get('edition_id'))))
+                    result.append(dict(public_project(project), state=public_state(read(root/'runtime/state.json', {'status':'existing'})), title=book.get('title'), ready=bool(book) and (root/'05_writing/source-location/index.json').is_file(),readweave_available=bool(os.environ.get('LESSONWEAVE_TRILIUM_PUBLIC_URL') and (project.get('native_note_id') or current(root).get('edition_id'))),readweave_shared=shared_configured() and bool(current(root).get('edition_id'))))
                 self.json(result)
             elif route.startswith('/framework-example/'):
                 from .architecture import EXAMPLE
@@ -209,7 +217,8 @@ class Handler(SimpleHTTPRequestHandler):
                 if name=='open-readweave':
                     from .trilium import reading_link
                     section=parse_qs(urlsplit(self.path).query).get('section',[None])[0]
-                    target=reading_link(project,root,section)
+                    article=parse_qs(urlsplit(self.path).query).get('article',[None])[0]
+                    target=reading_link(project,root,section,article)
                     self.send_response(302)
                     self.send_header('Location',target)
                     self.send_header('Cache-Control','no-store')
@@ -443,6 +452,8 @@ def serve(host='127.0.0.1', port=8960):
     # 升级时可让旧进程处理已有任务，新进程只领取尚未开始的任务
     store = Store(recover=os.environ.get('LESSONWEAVE_RECOVER_JOBS','1')!='0')
     Handler.store = store
+    from .readweave_backfill import backfill
+    threading.Thread(target=backfill, args=(store,), daemon=True).start()
     threading.Thread(target=worker, args=(store,), daemon=True).start()
     print('LessonWeave http://' + host + ':' + str(port), flush=True)
     server=ThreadingHTTPServer((host,port),Handler)

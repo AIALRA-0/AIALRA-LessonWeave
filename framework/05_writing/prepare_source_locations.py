@@ -150,6 +150,63 @@ def _pdf_characters(page, page_id, boxes=None, dehyphenate=False):
     return "".join(text), positions
 
 
+def pdf_text_layer(page, page_id):
+    lines = []
+    for block in page.get_text("rawdict", sort=True)["blocks"]:
+        for line in block.get("lines", []):
+            chars = [{"text": char["c"], "bbox": list(char["bbox"])}
+                     for span in line.get("spans", []) for char in span.get("chars", [])]
+            if chars:
+                lines.append({"text": "".join(char["text"] for char in chars),
+                              "bbox": list(line["bbox"]), "chars": chars})
+    return {"profile": "pdf-text-layer-v1", "page_id": page_id,
+            "width": page.rect.width, "height": page.rect.height, "lines": lines}
+
+
+def backfill_pdf_text_layers(root):
+    """只给已有原页补可划选字层，不重新定位、识别或翻译材料"""
+    import fitz
+    root = Path(root).resolve()
+    index = root / "05_writing/source-location/index.json"
+    if not index.is_file() or '05-test' in root.parts:
+        return {"pages": 0, "manifests": 0}
+    counts = {"pages": 0, "manifests": 0}
+    documents = {}
+    try:
+        for version in load(index).get('versions', []):
+            target = local(root, version.get('manifest'))
+            if not target:
+                continue
+            manifest = load(target)
+            changed = False
+            for page_id, row in manifest.get('pages', {}).items():
+                if row.get('kind') != 'pdf' or (row.get('text_layer') and local(root, row['text_layer'])):
+                    continue
+                path = local(root, row.get('path'))
+                number = row.get('number')
+                if not path or not isinstance(number, int):
+                    continue
+                document = documents.get(path)
+                if document is None:
+                    document = documents[path] = fitz.open(path)
+                if not 1 <= number <= len(document):
+                    continue
+                # 使用现有图片旁的新文件，原页图片和坐标记录保持原样
+                image = local(root, row.get('image'))
+                layer = (image or target.parent / ("page-" + str(number))).with_suffix('.text.json')
+                save(layer, pdf_text_layer(document[number - 1], page_id))
+                row['text_layer'] = url(root, layer)
+                changed = True
+                counts['pages'] += 1
+            if changed:
+                save(target, manifest)
+                counts['manifests'] += 1
+    finally:
+        for document in documents.values():
+            document.close()
+    return counts
+
+
 def prepare_pdf(root, group, out, manifest):
     import fitz
     documents, caches = {}, {}
@@ -177,6 +234,9 @@ def prepare_pdf(root, group, out, manifest):
                     page.get_pixmap(matrix=fitz.Matrix(1.5,1.5), alpha=False).save(target)
                     manifest["pages"][page_id] = {"kind": "pdf", "number": number, "path": path.relative_to(root).as_posix(),
                         "image": url(root,target), "width": page.rect.width, "height": page.rect.height, "coordinate_space": "pdf_points"}
+                    text_layer = target.with_suffix(".text.json")
+                    save(text_layer, pdf_text_layer(page, page_id))
+                    manifest["pages"][page_id]["text_layer"] = url(root, text_layer)
                 record["page_ids"].append(page_id)
                 for box in boxes:
                     if box:

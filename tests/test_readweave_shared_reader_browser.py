@@ -46,7 +46,7 @@ def shared_source_page():
         },
     }
     manifest = {
-        "editionId": "edition", "section_articles": {"s1": "explanation"},
+        "editionId": "edition", "project_id":"fixture", "section_articles": {"s1": "explanation"},
         "original_articles": {"s1": "original"}, "translation_articles": {"s1": "translation"},
     }
     source_pack = {"sources": [{"id": "source", "sentences": [
@@ -59,7 +59,7 @@ def shared_source_page():
     <script type="module">
       import {{mountSharedReader}} from '/integrations/readweave/shared-reader.js';
           const shadow=document.querySelector('#host').attachShadow({{mode:'open'}}),root=document.createElement('main');root.className='lw-reader-root';
-      root.innerHTML='<article id="demo-content"><p>讲解正文快照</p></article><aside id="glossary-result"><div id="glossary-list"></div></aside>'+
+      root.innerHTML='<style>main.lw-reader-root{{display:grid;grid-template-columns:800px 360px;gap:20px;height:880px}}#demo-content{{grid-column:1;grid-row:1}}#glossary-result{{grid-column:2;grid-row:1/4;height:850px;overflow:auto}}#demo-original{{grid-column:1;grid-row:2;height:720px;overflow:auto}}</style><article id="demo-content"><p>讲解正文快照</p></article><aside id="glossary-result" class="demo-terms"><div class="pane-content"><div id="glossary-list"></div></div></aside>'+
         '<aside id="demo-original"><div class="pane-head">原页与译文</div><div id="source-text-scroll"><div id="source-cards">'+
         '<section class="demo-source-card"><div class="source-sentence-pair" data-sentence-id="s1"><div class="source-translation"><p>中文原文一</p></div><div class="source-original"><p>英文译文一</p></div></div>'+
         '<div class="source-sentence-pair" data-sentence-id="s2"><div class="source-translation"><p>中文译文二</p></div><div class="source-original"><p>英文原文二</p></div></div></section></div></div>'+
@@ -69,7 +69,7 @@ def shared_source_page():
       window.__readerState=state;
       window.glossaryUpdates=[];
       window.shared=mountSharedReader(root,{{bridge:()=>state,manifest:()=>Promise.resolve(window.__manifest),
-        updateGlossary:terms=>{{state.doc.glossary=terms;window.glossaryUpdates.push(terms);}},
+        nativeUrl:id=>'/native/'+id,updateGlossary:terms=>{{state.doc.glossary=terms;window.glossaryUpdates.push(terms);}},
         request:async(path,init={{}})=>{{const response=await fetch('/api/'+path,init);const value=await response.json();if(!response.ok)throw Error(value.error||'request failed');return value;}}
       }});
       window.__readerRoot=root;
@@ -85,6 +85,8 @@ def shared_source_page():
             if path == "/":
                 request.fulfill(body=html, content_type="text/html")
                 return
+            if path.startswith('/native/'):
+                request.fulfill(body='<p>Native article</p>',content_type='text/html');return
             if path == "/manifest-seed":
                 request.fulfill(json=manifest)
                 return
@@ -136,58 +138,25 @@ def shared_source_page():
             page.locator(".lw-shared-state").wait_for(timeout=15000)
         except Exception as error:
             raise AssertionError(f"共享阅读器未挂载；浏览器错误={errors}；页面内容={page.locator('body').inner_text()}") from error
-        page.locator(".lw-shared-source-additions").filter(has_text="自由增加的原文").wait_for(timeout=15000)
+        page.locator('[data-shared-source-document="original"]').filter(has_text="自由增加的原文").wait_for(timeout=15000)
         yield page, articles, errors, requests, change_feed
         browser.close()
 
 
-def test_source_projection_keeps_locator_and_selects_the_matching_article(shared_source_page):
+def test_source_projection_keeps_locator_and_native_article_links(shared_source_page):
     page, articles, errors, requests, _ = shared_source_page
-    page.get_by_text("共享原文改稿一", exact=True).wait_for()
-    page.get_by_text("共享原文改稿二", exact=True).wait_for()
-    page.get_by_text("共享译文改稿二", exact=True).wait_for()
-    page.get_by_text("自由增加的译文", exact=True).wait_for()
-    page.get_by_text("原文代码片段", exact=True).wait_for()
-    page.get_by_text("原文小标题", exact=True).wait_for()
-    page.get_by_text("原文表格内容", exact=True).wait_for()
-    assert page.locator(".source-translation p").nth(0).inner_text() == "共享原文改稿一"
-    assert page.locator(".source-original p").nth(0).inner_text() == "英文译文一"
-    assert page.locator(".source-original p").nth(1).inner_text() == "共享原文改稿二"
-    assert page.locator(".source-translation p").nth(1).inner_text() == "共享译文改稿二"
-    assert page.locator("#locator-page").inner_text() == "原件定位界面"
-
-    page.locator(".source-original p").nth(1).click()
-    page.locator('[data-shared="edit"]').click()
-    original_editor = page.get_by_role("textbox", name="编辑共享文章")
-    original_editor.wait_for()
-    assert "共享原文改稿二" in original_editor.inner_text()
-    original_editor.evaluate("""node=>{node.innerHTML='<p data-lw-sentence="s1">原文新版本一</p><p data-lw-sentence="s2">原文新版本二</p><p>新版自由原文</p>';node.dispatchEvent(new Event('input',{bubbles:true}));}""")
-    page.get_by_role("button", name="保存并同步").click()
-    page.locator(".source-translation p").nth(0).filter(has_text="原文新版本一").wait_for()
-    assert page.locator(".source-translation p").nth(0).inner_text() == "原文新版本一"
-    assert page.locator(".source-original p").nth(1).inner_text() == "原文新版本二"
-    assert page.get_by_text("新版自由原文", exact=True).count() == 1
-    assert page.locator("#locator-page").inner_text() == "原件定位界面"
-    assert articles["original"]["revision"] == 3
-
-    page.locator(".source-translation p").nth(1).click()
-    page.locator('[data-shared="edit"]').click()
-    translation_editor = page.get_by_role("textbox", name="编辑共享文章")
-    translation_editor.wait_for()
-    assert "共享译文改稿二" in translation_editor.inner_text()
-    page.get_by_role("button", name="退出编辑").click()
-    page.locator(".source-original p").nth(1).click()
-    page.locator('[data-shared="delete"]').click()
-    page.get_by_role("button", name="恢复共享原文").wait_for()
-    assert page.locator(".source-original p").nth(1).is_hidden()
-    assert page.locator("#locator-page").inner_text() == "原件定位界面"
-    page.get_by_role("button", name="恢复共享原文").click()
-    page.locator(".source-original p").nth(1).filter(has_text="原文新版本二").wait_for()
-    assert not page.locator(".source-original p").nth(1).is_hidden()
-    assert articles["original"]["revision"] == 5
-    assert ("GET", "original") in requests and ("GET", "translation") in requests
-    assert ("POST-restore", "original") in requests
-    assert errors == []
+    original=page.locator('[data-shared-source-document="original"]')
+    translated=page.locator('[data-shared-source-document="translation"]')
+    original.get_by_text("共享原文改稿二",exact=True).wait_for()
+    translated.get_by_text("共享译文改稿二",exact=True).wait_for()
+    assert "原文代码片段"in original.inner_text() and "原文表格内容"in original.inner_text()
+    assert page.locator('#locator-page').inner_text()=="原件定位界面"
+    original.get_by_text("共享原文改稿二",exact=True).click()
+    assert page.locator('[data-shared="edit"]').get_attribute('href').endswith('/native/original')
+    translated.get_by_text("共享译文改稿二",exact=True).click()
+    assert page.locator('[data-shared="open"]').get_attribute('href').endswith('/native/translation')
+    assert page.locator('[contenteditable=true]').count()==0
+    assert errors==[]
 
 
 def test_deleted_glossary_definition_returns_after_restore(shared_source_page):
@@ -208,7 +177,7 @@ def test_deleted_glossary_definition_returns_after_restore(shared_source_page):
 
 def test_poll_refreshes_other_articles_without_changing_the_active_source(shared_source_page):
     page, articles, errors, requests, change_feed = shared_source_page
-    page.locator(".source-original p").nth(1).click()
+    page.locator('[data-shared-source-document="original"] p').nth(1).click()
     page.wait_for_function("window.glossaryUpdates.length > 0")
     page.evaluate("""() => {window.sharedChanges=[];window.addEventListener('readweave:shared-change',event=>window.sharedChanges.push(event.detail));}""")
     before = len(requests)
@@ -223,26 +192,42 @@ def test_poll_refreshes_other_articles_without_changing_the_active_source(shared
     refreshed = requests[before:]
     for article_id in ("explanation", "original", "translation"):
         assert ("GET", article_id) in refreshed
-    page.locator('[data-shared="edit"]').click()
-    editor = page.get_by_role("textbox", name="编辑共享文章")
-    editor.wait_for()
-    assert "共享原文改稿二" in editor.inner_text()
-    page.get_by_role("button", name="退出编辑").click()
+    assert page.locator('[data-shared="edit"]').get_attribute('href').endswith('/native/original')
     assert errors == []
 
 
-def test_switching_section_keeps_draft_and_does_not_insert_the_previous_body(shared_source_page):
+def test_switching_section_does_not_insert_the_previous_body(shared_source_page):
     page,articles,errors,requests,_=shared_source_page
     articles['explanation']['revision']=2
     articles['explanation']['body']='<p>上一节保存过的正文</p>'
     articles['next']={'articleId':'next','editionId':'edition','key':'explanation:s2','kind':'explanation','title':'下一节','body':'<p>下一节自己的正文</p>','revision':1,'deleted':False,'readweave':{'objects':[],'links':[]}}
-    page.locator('[data-shared="edit"]').click()
-    field=page.get_by_role('textbox',name='编辑共享文章')
-    field.fill('上一节尚未保存的草稿')
     page.evaluate("""() => {window.__manifest.section_articles.s2='next';window.__readerState.doc={section_id:'s2',glossary:[]};window.__readerState.sourcePack={sources:[]};window.__readerRoot.querySelector('#demo-content').innerHTML='<p>下一节自己的正文</p>';window.__readerRoot.dispatchEvent(new CustomEvent('reading:document-ready'));}""")
     page.wait_for_function("window.__readerRoot.querySelector('#demo-content').dataset.readweaveArticleId==='next'")
-    assert page.get_by_role('textbox',name='编辑共享文章').count()==0
     assert page.locator('#demo-content').inner_text()=='下一节自己的正文'
-    assert '尚未保存的草稿'in page.evaluate("localStorage.getItem('lessonweave:shared-draft:explanation')")
-    assert articles['explanation']['body']=='<p>上一节保存过的正文</p>'
+    assert page.locator('[data-shared="edit"]').get_attribute('href').endswith('/native/next')
+    assert errors==[]
+
+
+@pytest.mark.parametrize('kind,article,second_text', [('original','original','共享原文改稿二'),('translation','translation','共享译文改稿二')])
+def test_original_and_translation_allow_actual_cross_sentence_drag(shared_source_page,kind,article,second_text):
+    page,articles,errors,requests,_=shared_source_page
+    section=page.locator('[data-shared-source-document="'+kind+'"]')
+    first=section.locator('p').nth(0)
+    second=section.locator('p').nth(1)
+    second.scroll_into_view_if_needed()
+    first_box,second_box=first.bounding_box(),second.bounding_box()
+    page.mouse.move(first_box['x']+1,first_box['y']+first_box['height']/2)
+    page.mouse.down()
+    page.mouse.move(second_box['x']+110,second_box['y']+second_box['height']/2,steps=14)
+    page.mouse.up()
+    bubble=page.locator('.readweave-selection-actions')
+    try:
+        bubble.wait_for(timeout=8000)
+    except Exception as error:
+        selected=page.evaluate("document.querySelector('#host').shadowRoot.getSelection().toString()")
+        raise AssertionError({'selected':selected,'first':first_box,'second':second_box,'errors':errors}) from error
+    assert bubble.get_by_role('button').count()==5
+    selected=page.evaluate("document.querySelector('#host').shadowRoot.getSelection().toString()")
+    assert second_text in selected
+    assert page.locator('[data-shared="edit"]').get_attribute('href').endswith('/native/'+article)
     assert errors==[]

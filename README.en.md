@@ -10,22 +10,22 @@
 <p><sub>Figure 1.1　The workbench keeps source locations, continuous explanations and terminology on one page, using self-authored example material</sub></p>
 </div>
 
-<table>
-<tr>
-<td><img src="docs/assets/reader.png" width="100%" alt="The native ReadWeave reading panel shows five reading actions, terminology and the current question"></td>
-<td><img src="docs/assets/shared-edit.png" width="100%" alt="A reader edits the article in the reading panel and can save and sync or leave edit mode"></td>
-</tr>
-<tr>
-<td><sub>Figure 1.2　After selecting text, readers can ask, define, annotate, summarize or take a note, and open terminology or chapter tools</sub></td>
-<td><sub>Figure 1.3　Shared editing warns that another location cannot overwrite the article temporarily; readers can save and sync or leave edit mode</sub></td>
-</tr>
-</table>
+<div align="center">
+<img src="docs/assets/reader.png" width="1000" alt="The native ReadWeave reading panel shows five reading actions, terminology and the current question, using self-authored text">
+<p><sub>Figure 1.2　After selecting text, readers can ask, define, annotate, summarize or take a note, and open terminology or chapter tools</sub></p>
+<img src="docs/assets/native-edit-link.png" width="1000" alt="A context menu opens or edits the current article in ReadWeave, or moves it to trash, using self-authored content">
+<p><sub>Figure 1.3　Editing opens the current article in ReadWeave and saved changes sync back; moving content to trash requires confirmation</sub></p>
+</div>
 
 ## 1 How LessonWeave helps readers study source material
 
 Submit a webpage, PDF or project ZIP. LessonWeave preserves the original, parses its structure, plans learning questions and chapters, then writes a continuous explanation for each question. Readers can return from the text to a webpage passage, PDF page or source-code range, and can view translations, media guides, exercises, terminology and personal notes.
 
 Writing uses `continuous-unit-2.0`: each question gets one writing call that first creates a short outline and then writes a continuous body along that outline. Media, answers, exercises, pitfalls and terminology are included in the same call. Deduplicated English-to-Chinese translation runs alongside writing; after the answers are ready, the system writes transitions from the actual results.
+
+With ReadWeave connected, select text in explanations, translations, PDF pages or webpages. Questions, definitions, annotations, summaries and notes belong to the selected article. The right sidebar places terminology above the native reading tools; both applications use the same shared content. Editing opens ReadWeave, and saved changes appear automatically on the website.
+
+Upgrades register missing saved books and add selectable PDF text layers while retaining existing article IDs, deletions and user edits. Old and new books use the same math, table, terminology-hover and media-pin components. Trilium backend scripting stays disabled.
 
 ## 2 Start locally
 

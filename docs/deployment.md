@@ -37,7 +37,7 @@ python deploy/bootstrap.py --install-only
 
 ReadWeave 由独立源码包和 Docker 数据卷运行；部署器不会调用生成模型，也不会伪造 ReadWeave 登录或模型凭据；如果你已经有带 LessonWeave 桥接的 ReadWeave 实例，安装器会检查并复用它，不会再启动一套
 
-从 [v0.2.0 Release 页面](https://github.com/AIALRA-0/AIALRA-LessonWeave/releases/tag/v0.2.0) 下载与仓库 `backend-source-manifest.json` 完全匹配的 ReadWeave 源码包，然后在仓库根目录运行：
+当前分支请下载[阅读修复版源码包](https://github.com/AIALRA-0/AIALRA-LessonWeave/releases/download/v0.2.0/readweave-source-reader-followup-20261022.tar.gz)，保存为 `readweave-source.tar.gz`，然后在仓库根目录运行；归档 SHA-256 为 `560945276b663e2038b48301eca8975fc4430051ad0bab712f8e758f064ad23a`，其中 34 项桥接源码与仓库 `backend-source-manifest.json` 对应，旧提交仍使用版本页中的旧包：
 
 ```bash
 # 从公开源码包构建独立 ReadWeave，并只绑定本机回环地址

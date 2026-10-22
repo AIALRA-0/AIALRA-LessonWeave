@@ -5,6 +5,28 @@
   if (!surface || !viewport || !iframe) return;
   image.hidden = true;
   let tileLayer=null,tileObserver=null,tileKey=null;
+  let textLayer=null,textLayerPage=null,textLayerGeneration=0;
+  let sourcePanelStyles;
+  function announceSurface(element,detail){element.__lessonweaveSourceSurface={element,...detail};document.dispatchEvent(new CustomEvent('reading:source-surface',{detail:element.__lessonweaveSourceSurface}));}
+  async function selectablePage(page) {
+    if(page?.text_layer&&textLayerPage===page.text_layer)return;
+    const generation=++textLayerGeneration;textLayer?.remove();textLayer=null;textLayerPage=page?.text_layer||null;
+    if(!page?.text_layer)return;
+    try{
+      const response=await fetch(window.LWPath?window.LWPath(page.text_layer):page.text_layer);if(!response.ok)return;
+      const layer=await response.json();if(generation!==textLayerGeneration)return;
+      const root=make('div',null,'locator-selectable-text');root.dataset.readweaveContentRoot='readonly';root.dataset.readweaveMultiblock='true';
+      Object.assign(root.style,{position:'absolute',left:0,top:0,width:page.width+'px',height:page.height+'px',transformOrigin:'0 0',transform:'scale('+zoom.page+')',zIndex:2,color:'transparent',userSelect:'text',cursor:'text'});
+      for(const line of layer.lines||[]){
+        const paragraph=make('p');paragraph.style.cssText='position:absolute;margin:0;white-space:pre;color:transparent;line-height:1;';
+        const [left,top,right,bottom]=line.bbox;Object.assign(paragraph.style,{left:left+'px',top:top+'px',width:(right-left)+'px',height:(bottom-top)+'px'});
+        for(const char of line.chars||[]){const span=make('span',char.text),[x0,y0,x1,y1]=char.bbox;Object.assign(span.style,{position:'absolute',left:(x0-left)+'px',top:(y0-top)+'px',fontSize:(y1-y0)+'px',lineHeight:'1',color:'transparent',whiteSpace:'pre',minWidth:(x1-x0)+'px'});paragraph.append(span);}
+        root.append(paragraph,document.createTextNode('\n'));
+      }
+      $('locator-page').append(root);textLayer=root;
+      announceSurface(root,{pageId:layer.page_id,sourceId:selectedId,materialRun:sourcePack?.material_run,materialPath:sourcePack?.material_path,kind:'original'});
+    }catch(error){console.debug('Source text layer',error);}
+  }
   function showRaster(page) {
     const key=page?.tiles?.length?page.image:null;
     if(key&&key===tileKey){image.hidden=true;tileLayer.setAttribute('aria-label',image.alt);return;}
@@ -77,6 +99,7 @@
       box[0] >= 0 && box[1] >= 0 && box[2] <= page.width + 1 && box[3] <= page.height + 1;
   }
   function drawPage() {
+    selectablePage(currentPage);
     positions = currentPage ? bounds().filter(box => validBox(box, currentPage)) : [];
     $('locator-highlights').replaceChildren(...positions.map(box => {
       const el = make('span', null, 'locator-highlight');
@@ -141,6 +164,7 @@
       surface.dataset.initialFitted = 'true';
     }
     const scale = zoom.page, page = $('locator-page'), stage = $('locator-stage');
+    if(textLayer)textLayer.style.transform='scale('+scale+')';
     page.style.width = currentPage.width * scale + 'px';
     stage.style.width = currentPage.width * scale + 'px';
     stage.style.padding = viewport.clientHeight + 'px ' + viewport.clientWidth + 'px';
@@ -531,6 +555,9 @@
     target.addEventListener('dragstart', event => event.preventDefault());
     target.addEventListener('pointerdown', event => {
       if (event.button !== 0 || event.target.closest('a,button,input,textarea,select,[contenteditable=true]')) return;
+      if(event.target.closest('.locator-selectable-text')||target.ownerDocument!==surface.ownerDocument){
+        if(!event.altKey&&!event.shiftKey)return;
+      }
       drag = { id: event.pointerId, x: event.clientX, y: event.clientY, ...read() };
       target.setPointerCapture(event.pointerId); target.style.cursor = 'grabbing'; target.style.userSelect = 'none'; event.preventDefault();
     });
@@ -549,6 +576,13 @@
     if (doc?.documentElement && !panDocuments.has(doc)) {
       panDocuments.add(doc);
       installPan(doc.documentElement, () => ({ left: iframe.contentWindow.scrollX, top: iframe.contentWindow.scrollY }), (left, top) => iframe.contentWindow.scrollTo(left, top));
+    }
+    if(doc?.body){
+      const panelColors=()=>{const parent=getComputedStyle(surface),value=(name,fallback)=>parent.getPropertyValue(name).trim()||fallback;for(const [name,color]of Object.entries({'--main-text-color':value('--text','#222'),'--main-border-color':value('--line','#ddd'),'--menu-background-color':value('--panel-bg','#fff'),'--accented-background-color':value('--surface','#eee'),'--main-accent-color':value('--main-accent-color','#5587bc')}))doc.documentElement.style.setProperty(name,color);};
+      panelColors();doc.addEventListener('pointerdown',panelColors,true);
+      sourcePanelStyles??=fetch(new URL('/integrations/readweave/native-panel.css',globalThis.location.href)).then(response=>{if(!response.ok)throw Error('Source panel styles unavailable');return response.text();});
+      sourcePanelStyles.then(css=>{if(doc.defaultView?.frameElement?.isConnected){const style=doc.createElement('style');style.textContent=css.replace(/@font-face\s*\{[^}]*\}/g,'');doc.head.append(style);}}).catch(error=>console.debug('Source panel styles',error));
+      announceSurface(doc.body,{sourceId:selectedId,pageId:currentPageId,filePath:currentFile?.path||currentSource?.source?.path,materialRun:sourcePack?.material_run,materialPath:sourcePack?.material_path,kind:'original'});
     }
     const restore = savedDOMView; savedDOMView = null;
     if (restore && restore.source === selectedId && restore.sentence === activeSentenceId && restore.path === iframe.getAttribute('src')) scheduleRecenter(false, false, restore.anchor);

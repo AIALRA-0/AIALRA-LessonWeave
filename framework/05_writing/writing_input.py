@@ -51,7 +51,7 @@ def prepare(root,folder,qid,prompt,model):
     command=('& '+' '.join("'"+arg.replace("'","''")+"'"for arg in arguments))if sys.platform=='win32'else shlex.join(arguments)
     payload['complete_material_reader']={'file':str(path),'command':command,
         'operations':'list；get 材料键；lines 材料键 起始行 结束行；find 正则；lines 以当前材料片段的第一行为 1，索引中的 start_line 与 end_line 只用于定位原文件',
-        'rules':'本次先读取本问完整材料，再按职责规划和写作；大源码可用检索和明确行范围阅读，不能把清单当成已经读过内容；来源编号和全部原文仍完整保留，不调用其他模型，不改文件，不联网'}
+        'rules':'本次先读取本问完整材料，再按职责规划和写作；大源码可用检索和明确行范围阅读，不能把清单当成已经读过内容；来源编号和全部原文仍完整保留，需要核实概念或背景时主动搜索可信来源，把外部说明与原材料分清，不调用其他模型，不改文件'}
     return json.dumps(payload,ensure_ascii=False,separators=(',',':')),True,{
         'mode':'complete_local_materials','context_window':window,'transport_character_limit':transport_limit,'estimated_payload_tokens':count,
         'complete_text_file':str(path),'materials':len(view)}

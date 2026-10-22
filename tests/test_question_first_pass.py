@@ -329,7 +329,8 @@ def test_codex_preserves_login_configuration_and_only_enables_requested_read_too
     assert value == {'ok': True}
     assert '--ignore-user-config' not in captured
     assert captured[captured.index('-s') + 1] == 'read-only'
-    assert 'features.shell_tool=' + str(tools).lower() in captured
+    assert 'features.shell_tool=true' in captured
+    assert 'web_search="live"' in captured
 
 
 def test_pdf_position_links_preserve_different_text_without_case_specific_paths():

@@ -119,21 +119,94 @@ def _sentences(source_id, text, start_line=None):
             for i, part in enumerate(parts, 1) if part.strip()]
 
 
-def _texts(node):
+def _text_entries(node):
     content = node.get("content", {})
-    values = []
+    candidates = []
+    seen = set()
     for key in ("text", "raw_text", "alt"):
         value = content.get(key)
-        if isinstance(value, str) and value.strip() and value not in values:
-            values.append(value)
+        if isinstance(value, str) and value.strip() and value not in seen:
+            candidates.append((value, False))
+            seen.add(value)
     # 表格单元格与顺序都保留，TSV 仅用于逐行引用，原始二维数组仍在 raw_content 中
     if isinstance(content.get("rows"), list):
-        values.append("\n".join("\t".join(str(cell) for cell in row) for row in content["rows"]))
+        value = "\n".join("\t".join(str(cell) for cell in row) for row in content["rows"])
+        candidates.append((value, False))
+        seen.add(value)
+    complete_texts = [value for value, _ in candidates if isinstance(value, str) and value.strip()]
     for item in content.get("source_text", []):
         value = item if isinstance(item, str) else item.get("text", "") if isinstance(item, dict) else ""
-        if value.strip() and value not in values:
-            values.append(value)
-    return values
+        if isinstance(value, str) and value.strip() and value not in seen:
+            candidates.append((value, _fragment_position_matches(node, item)))
+            seen.add(value)
+    total = len(candidates)
+    entries = [(value, index) for index, (value, is_source_text) in enumerate(candidates, 1)
+               if not is_source_text or not any(_source_fragment_covered(value, complete)
+                                                for complete in complete_texts)]
+    return entries, total
+
+
+def _fragment_position_matches(node, fragment):
+    """核对残片来自同一文件、同一页和同一区域，位置不明时继续保留"""
+    if not isinstance(fragment, dict):
+        return False
+    ref = fragment.get('source')
+    if not isinstance(ref, dict):
+        return False
+    parents = node.get('source_refs') or node.get('source') or []
+    if isinstance(parents, dict):
+        parents = [parents]
+    for parent in parents:
+        if not isinstance(parent, dict) or not ref.get('path') or ref['path'] != parent.get('path'):
+            continue
+        if ref.get('page') is None or ref.get('page') != parent.get('page'):
+            continue
+        box, outer = ref.get('bbox'), parent.get('bbox')
+        if not (isinstance(box, list) and isinstance(outer, list) and len(box) == len(outer) == 4):
+            continue
+        if not all(isinstance(value, (int, float)) for value in [*box, *outer]):
+            continue
+        x, y = (box[0] + box[2]) / 2, (box[1] + box[3]) / 2
+        # PDF 的正文框与字框可有少量舍入误差，仍使用原始坐标，不改原件
+        if outer[0] - 2 <= x <= outer[2] + 2 and outer[1] - 2 <= y <= outer[3] + 2:
+            return True
+    return False
+
+
+def _texts(node):
+    return [text for text, _ in _text_entries(node)[0]]
+
+
+def _source_fragment_covered(fragment, complete):
+    """识别完整正文已经包含的 OCR 片段，包括被行尾连字符截开的词。"""
+    if not isinstance(fragment, str) or not isinstance(complete, str):
+        return False
+    fragment = re.sub(r"\s+", " ", fragment).strip().casefold()
+    complete = re.sub(r"\s+", " ", complete).strip().casefold()
+    if not fragment or not complete:
+        return False
+    if fragment in complete:
+        return True
+
+    token_pattern = re.compile(r"[^\W_]+(?:['’][^\W_]+)*(?:[-\u2010\u2011\u2012\u2013\u2014][^\W_]+)*", re.UNICODE)
+    fragment_tokens = token_pattern.findall(fragment)
+    complete_tokens = token_pattern.findall(complete)
+    trailing = re.search(r"([^\W_]{3,})[-\u2010\u2011\u2012\u2013\u2014]$", fragment, re.UNICODE)
+    if not trailing and fragment_tokens and any(
+            complete_tokens[index:index + len(fragment_tokens)] == fragment_tokens
+            for index in range(len(complete_tokens) - len(fragment_tokens) + 1)):
+        return True
+
+    if not trailing:
+        return False
+    prefix = trailing.group(1)
+    prefix_tokens = token_pattern.findall(fragment[:trailing.start(1)])
+    for index, token in enumerate(complete_tokens):
+        if token.startswith(prefix) and len(token) > len(prefix):
+            start = index - len(prefix_tokens)
+            if start >= 0 and complete_tokens[start:index] == prefix_tokens:
+                return True
+    return False
 
 
 def generated_pdf_container_sentence(root, source):
@@ -662,9 +735,9 @@ def _prepare_sources(root: Path, section_id: str, work: Path, persist: bool, leg
             record["source"] = copy.deepcopy(record["file_fragments"][0]["source"])
         else:
             record["raw_content"] = copy.deepcopy(content)
-            texts = _texts(node)
-            for index, text in enumerate(texts, 1):
-                key = nid if len(texts) == 1 else f"{nid}.text{index}"
+            text_entries, total_texts = _text_entries(node)
+            for text, original_index in text_entries:
+                key = nid if total_texts == 1 else f"{nid}.text{original_index}"
                 record["original_texts"][key] = text
                 record["sentences"].extend(_sentences(key, text))
                 inline_chars += len(text)

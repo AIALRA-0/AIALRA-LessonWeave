@@ -47,7 +47,20 @@
   const readingState = () => ({ doc: data, sourcePack: originalSourcePack, coverage: explanationCoverage,
     document_path: documentPath, source_pack_path: data?.grounding?.source_pack_path,
     preview: isPreview, ready: readerReady, selection: currentSourceSelection() });
-  window.ReaderSourceBridge = { getState: readingState, navigate, updateGlossary, hydrateSharedMedia };
+  window.ReaderSourceBridge = { getState: readingState, navigate, updateGlossary, hydrateSharedMedia, hydrateSharedText };
+
+  function mathSymbols(blockId) {
+    return (data?.local_notations || []).filter(item => !blockId || !item.scope_block_ids?.length || item.scope_block_ids.includes(blockId)).map(item => item.symbol);
+  }
+  function richNode(tag, text, cls, blockId) {
+    const node=make(tag,undefined,cls);
+    if(window.ReaderText)ReaderText.rich(node,text,mathSymbols(blockId));else node.textContent=text??'';
+    return node;
+  }
+  function hydrateSharedText(element) {
+    const ready=window.ReaderText?.renderIn(element,mathSymbols()) || Promise.resolve();
+    return ready.then(()=>{if(element?.id==='demo-content'){renderOutline();return window.ReaderText?.renderIn(get('demo-outline'),mathSymbols());}});
+  }
 
   function hydrateSharedMedia(element) {
     if (!data || !window.LessonMedia) return;
@@ -569,7 +582,40 @@
   function renderOutline() {
     const toc = get('demo-outline');
     if (!toc) return;
+    toc.replaceChildren();
     get('demo-directory').hidden = false;
+    const content=get('demo-content');
+    const sharedBody=content?.matches('.lw-shared-body')?content:content?.querySelector('.lw-shared-body');
+    const plainHeading=heading=>window.ReaderText?.plain?.(heading)??heading.textContent;
+    const uniqueHeadingId=(heading,base)=>{
+      if(heading.id)return heading.id;
+      let id=base,suffix=1;
+      const root=heading.getRootNode();
+      while(root.getElementById?.(id))id=base+'-'+(++suffix);
+      heading.id=id;return id;
+    };
+    if(sharedBody){
+      const headings=[...sharedBody.querySelectorAll('h2,h3,h4,h5,h6')].filter(heading=>String(plainHeading(heading)||'').trim());
+      const counters=Array(6).fill(0);
+      const baseLevel=headings.length?Math.min(...headings.map(heading=>Number(heading.tagName.slice(1)))):3;
+      headings.forEach((heading,index)=>{
+        const level=Number(heading.tagName.slice(1))-baseLevel;
+        if(level===0){counters[0]++;counters.fill(0,1);}
+        else{if(!counters[0])counters[0]=1;for(let i=1;i<level;i++)if(!counters[i])counters[i]=1;counters[level]++;counters.fill(0,level+1);}
+        const raw=String(plainHeading(heading)||'').trim();
+        const existingNumber=raw.match(/^((?:\d+\.)+)\s*/)?.[1]?.replace(/\.$/,'');
+        const prefix=existingNumber||counters.slice(0,level+1).join('.');
+        const title=raw.replace(/^(?:\d+\.)+\s*/,'');
+        heading.dataset.readerDepth=level;
+        if(!existingNumber)heading.dataset.readerPrefix=prefix;else delete heading.dataset.readerPrefix;
+        const id=uniqueHeadingId(heading,'shared-heading-'+String(index+1).padStart(3,'0'));
+        const button=make('button',prefix+'. '+title,level===0?'demo-outline-section':'demo-outline-detail');
+        button.type='button';button.dataset.readerDepth=level;button.style.setProperty('--outline-depth',level);button.dataset.tooltip=button.textContent;
+        button.onclick=()=>{openPane('lesson');history.replaceState(null,'','#'+id);heading.scrollIntoView({block:'start',behavior:'smooth'});};
+        toc.append(button);
+      });
+      return;
+    }
     const opening = make('button', '承上启下', 'demo-outline-section');
     opening.type = 'button';
     opening.onclick = () => focusBlock(data.opening.id);
@@ -596,8 +642,11 @@
         const segment = heading.closest('.lw-media-code-segment');
         const caption=heading.tagName==='FIGCAPTION';
         let depth = media ? (caption ? 2 : segment && heading.tagName === 'H6' ? 4 : 3) : 1;
-        const plain = heading.textContent.replace(/^(?:\d+\.)+\s*/, '');
-        if (depth === 1) groupNumber = heading.textContent.match(/^(?:\d+\.)+/)?.[0]?.replace(/\.$/,'') || unit.number.replace(/\.$/,'') + '.' + ((counters.get('groups')||0)+1);
+        const rawTitle=String(plainHeading(heading)||'').trim();
+        if(!rawTitle)continue;
+        const hasNumber=/^(?:\d+\.)+\s*/.test(rawTitle);
+        const plain = rawTitle.replace(/^(?:\d+\.)+\s*/, '');
+        if (depth === 1) groupNumber = rawTitle.match(/^(?:\d+\.)+/)?.[0]?.replace(/\.$/,'') || unit.number.replace(/\.$/,'') + '.' + ((counters.get('groups')||0)+1);
         let prefix = groupNumber;
         if(media && !caption){
           const parent=depth===4 ? segment.dataset.readerNumber : media.dataset.mediaNumber;
@@ -606,13 +655,13 @@
         }
         if (depth === 1) counters.set('groups',(counters.get('groups')||0)+1);
         // 编号来自当前页面的父子关系，只改变显示，保留正文块和来源 ID
-        if(!caption)heading.textContent=prefix+'. '+plain;
-        heading.dataset.readerDepth=depth;
-        if (!heading.id) heading.id = 'heading-' + unit.question_id + '-' + headings.indexOf(heading);
-        const link = make('button', heading.textContent, 'demo-outline-detail'); link.type='button';
+        if(!caption){heading.dataset.readerDepth=depth;if(!hasNumber)heading.dataset.readerPrefix=prefix;else delete heading.dataset.readerPrefix;}
+        const link = make('button', caption?rawTitle:prefix+'. '+plain, 'demo-outline-detail'); link.type='button';
+        link.dataset.tooltip=link.textContent;
         link.dataset.readerDepth=depth;link.style.setProperty('--outline-depth',depth);
-        link.dataset.headingId = heading.id;
-        link.onclick = () => {openPane('lesson');chooseQuestion(unit.question_id,true);history.replaceState(null,'','#'+heading.id);(caption?media:heading).scrollIntoView({block:'start',behavior:'smooth'});};
+        const id=uniqueHeadingId(heading,'heading-' + unit.question_id + '-' + headings.indexOf(heading));
+        link.dataset.headingId = id;
+        link.onclick = () => {openPane('lesson');chooseQuestion(unit.question_id,true);history.replaceState(null,'','#'+id);(caption?media:heading).scrollIntoView({block:'start',behavior:'smooth'});};
         toc.append(link);
       }
     }
@@ -839,7 +888,7 @@
 
   function readingParagraph(text, blockId) {
     const paragraph = make('p'), pattern = /\{\{media:([^}]+)\}\}/g;
-    const symbols = (data.local_notations || []).filter(n => n.scope_block_ids?.includes(blockId)).map(n => n.symbol);
+    const symbols = mathSymbols(blockId);
     const append = part => window.ReaderText ? ReaderText.rich(paragraph, part, symbols) : paragraph.append(document.createTextNode(part));
     let at = 0;
     for (const match of String(text).matchAll(pattern)) {
@@ -872,7 +921,7 @@
       }));
       return box;
     }
-    if (b.kind === 'heading') { box.append(make('h4', internalTitle(b.text), 'writing-detail-title')); return box; }
+    if (b.kind === 'heading') { box.append(richNode('h4', internalTitle(b.text), 'writing-detail-title', b.id)); return box; }
     if (b.kind === 'paragraph') {
       const parts = window.ReaderText ? ReaderText.paragraphs(b.text) : [b.text];
       parts.forEach(text => box.append(readingParagraph(text, b.id)));
@@ -880,18 +929,18 @@
       const scroll = make('div', undefined, 'table-scroll');
       const table = make('table');
       const head = make('tr');
-      b.headers.forEach(h => head.append(make('th', h)));
+      b.headers.forEach(h => head.append(richNode('th', h, undefined, b.id)));
       table.append(head);
       for (const row of b.rows) {
         const tr = make('tr');
-        row.forEach(cell => tr.append(make('td', cell)));
+        row.forEach(cell => tr.append(richNode('td', cell, undefined, b.id)));
         table.append(tr);
       }
       scroll.append(table);
       box.append(scroll);
     } else if (b.kind === 'list') {
       const list = make('ul');
-      b.items.forEach(item => list.append(make('li', item)));
+      b.items.forEach(item => list.append(richNode('li', item, undefined, b.id)));
       box.append(list);
     } else if (b.kind === 'image') {
       box.append(renderWritingImage(b));
@@ -920,7 +969,8 @@
         radio.name = q.id;
         radio.value = i;
         radio.onchange = () => { selected = i; answer.hidden = true; list.querySelectorAll('label').forEach(el => {el.classList.remove('is-correct','is-wrong');el.querySelector('.quiz-verdict').textContent='';}); };
-        label.append(radio, make('span', String.fromCharCode(65 + i) + ' · ' + option, 'quiz-option-text'), make('span','','quiz-verdict'));
+        const optionText=make('span',undefined,'quiz-option-text');optionText.append(document.createTextNode(String.fromCharCode(65+i)+' · '),richNode('span',option));
+        label.append(radio, optionText, make('span','','quiz-verdict'));
         list.append(label);
       });
       card.append(list);
@@ -949,9 +999,9 @@
         answer.setAttribute('role','status');
         answer.append(make('p', selected === q.answer ? '✅ 回答正确' : '❌ 本次选择有误，正确选项是 ' + String.fromCharCode(65 + q.answer)));
       } else {
-        answer.append(labeled('参考答案', make('p', q.reference_answer)));
+        answer.append(labeled('参考答案', richNode('p', q.reference_answer)));
         const list = make('ul');
-        q.rubric.forEach(point => list.append(make('li', point)));
+        q.rubric.forEach(point => list.append(richNode('li', point)));
         answer.append(labeled('回答时应说明', list));
       }
       answer.append(labeled('为什么这样回答', block(q.explanation)));
@@ -969,7 +1019,7 @@
       const card = make('details', undefined, 'glossary-entry');
       card.dataset.termId = term.id;
       card.id = 'term-' + term.id;
-      card.append(make('summary', term.display));
+      card.append(richNode('summary', term.display));
       const prose = make('div', undefined, 'glossary-prose');
       prose.append(readingParagraph(term.definition));
       term.explanation.forEach(text => prose.append(readingParagraph(text)));
@@ -1043,8 +1093,8 @@
     const card = make('div', undefined, 'glossary-term-popover');
     card.id = `glossary-term-definition-${++glossaryTermPopoverId}`;
     card.setAttribute('role', 'tooltip');
-    card.append(make('strong', term.display || `${term.chinese || ''}（${term.english || ''}）`));
-    card.append(make('p', definition));
+    card.append(richNode('strong', term.display || `${term.chinese || ''}（${term.english || ''}）`));
+    card.append(richNode('p', definition));
     card.addEventListener('pointerenter', () => clearTimeout(glossaryTermPopoverHideTimer));
     card.addEventListener('pointerleave', scheduleHideGlossaryTermPopover);
     document.body.append(card);
@@ -1054,6 +1104,7 @@
     trigger.setAttribute('aria-describedby', card.id);
     trigger.setAttribute('aria-expanded', 'true');
     positionGlossaryTermPopover(trigger);
+    window.ReaderText?.renderIn(card,mathSymbols()).then(()=>positionGlossaryTermPopover(trigger));
   }
 
   function glossaryTermCandidates() {
@@ -1214,7 +1265,6 @@
     get('glossary-count').textContent = '正在查看正文中的术语';
     if (get('glossary-preview-controls')) {
       get('glossary-preview-controls').hidden = false;
-      get('glossary-preview-caption').textContent = selected.querySelector('summary').textContent;
     }
     document.querySelectorAll('.inline-term').forEach(span => span.classList.toggle('is-term-active', span.dataset.termId === termId));
     restoreScroll(get('glossary-result'), 0);
@@ -1329,6 +1379,7 @@
     return loading;
   }
   async function load() {
+    document.dispatchEvent(new CustomEvent('reading:document-changing'));
     try {
       if (get('show-debug')) {
         get('show-debug').checked = false;
@@ -1528,6 +1579,7 @@
       if (data.next_section_id) get('next-section').replaceChildren(next);
       get('demo-content').closest('.demo-explanation').scrollTop=0;
       await loadGrounding();
+      await hydrateSharedText(article);
       readerReady = true;
       document.dispatchEvent(new CustomEvent('reading:document-ready', { detail: readingState() }));
     } catch (error) {

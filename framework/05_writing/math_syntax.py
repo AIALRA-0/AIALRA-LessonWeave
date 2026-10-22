@@ -8,12 +8,16 @@ import tempfile
 
 INLINE = re.compile(r'(?<!\\)\$\$([\s\S]*?)(?<!\\)\$\$|(?<![\\$])\$(?!\$)([^$\n]+?)(?<!\\)\$(?!\$)|\\\(([\s\S]*?)\\\)|\\\[([\s\S]*?)\\\]')
 CODE = re.compile(r'```[\s\S]*?```|`[^`\n]+`')
+READABLE = {'text','title','reader_title','title_premise','title_question','premise','question','body','claim','reasoning','grounding','supplement','definition','display','chinese','english','abbreviation','official_spelling','aliases','answer','reference_answer','generalization','caption','explanation','reading_guide','takeaway','purpose','label','conclusion','genus','differentia','boundary','extension','professional_definition','intuitive_explanation','typical_example','anchor','mapping','intuition','initial_conditions','mechanism','outcome','opening','opening_forward','carryover','options','headers','rows','rubric','items','summary','overview','relation_to_whole','collaboration'}
+EVIDENCE = {'source','source_refs','source_nodes','source_quotes','source_links','raw_content','original','translation','english_original','bindings','coverage','preview_provenance','plan'}
 
 
 def fields(value, parts=()):
     if isinstance(value, dict):
         if value.get('kind') == 'formula' and isinstance(value.get('text'), str):
             yield parts + ('text',), value['text']
+        if value.get('math_label') is True and isinstance(value.get('label'), str):
+            yield parts + ('label',), value['label']
         for key, child in value.items():
             if key in {'math_label', 'formula'} and isinstance(child, str) and child.strip():
                 yield parts + (key,), child
@@ -24,27 +28,33 @@ def fields(value, parts=()):
             yield from fields(child, parts + (i,))
 
 
+def readable(value, parts=(), active=False):
+    """检查全部阅读字段，原件、代码和机器标识不进入自动修正"""
+    if isinstance(value, str):
+        if active and value.strip():yield parts,value
+    elif isinstance(value, list):
+        for index, item in enumerate(value):yield from readable(item,parts+(index,),active)
+    elif isinstance(value, dict):
+        for key, child in value.items():
+            if key in EVIDENCE or (value.get('kind') in {'code','mermaid'} and key in {'text','code'}):continue
+            yield from readable(child,parts+(key,),key in READABLE if not isinstance(child,list) else key in READABLE)
+
+
 def check_documents(documents):
     import independent_checks as rules
     rows = []
     originals = {}
     for document, value in documents.items():
-        for trail, text in fields(value):
+        explicit = dict(fields(value))
+        for trail, text in explicit.items():
             path = rules.pointer(trail)
             originals[document, path] = text
             rows.append({'document': document, 'path': path, 'math': text, 'start': 0, 'end': len(text)})
-        for trail, text in rules.prose(value):
+        for trail, text in readable(value):
+            if trail in explicit:continue
             path = rules.pointer(trail)
             originals[document, path] = text
-            protected = CODE.sub(lambda m: ' ' * len(m.group()), text)
-            for match in INLINE.finditer(protected):
-                group = next(i for i, part in enumerate(match.groups(), 1) if part is not None)
-                # 阅读器会把夹杂普通中文的候选保留为原文，检查器沿用这一显示规则
-                visible = re.sub(r'\\(?:text|mathrm)\{[^}]*\}', '', match.group(group))
-                if re.search(r'[\u4e00-\u9fff]', visible):
-                    continue
-                rows.append({'document': document, 'path': path, 'math': match.group(group),
-                             'start': match.start(group), 'end': match.end(group)})
+            rows.append({'document': document, 'path': path, 'text': text})
     if not rows:
         return []
     base = Path(__file__).resolve().parent

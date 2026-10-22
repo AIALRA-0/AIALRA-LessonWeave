@@ -108,7 +108,7 @@
 .reader-ui .reader-search-results mark{background:var(--selected);color:var(--text);font-weight:650}
 .reader-ui .lw-media>.lw-media-part,.reader-ui .lw-media>.lw-media-code-segment{margin-inline-start:12px}
 .reader-ui .lw-media-code-segment>.lw-media-part{margin-inline-start:12px}
-@media(max-width:1450px){.reader-ui .demo-masthead{gap:12px}.reader-ui .demo-header-actions{gap:8px}.reader-ui .demo-header-actions .control-group{gap:0}.reader-ui .demo-header-actions .control-group+.control-group{padding-left:8px}.reader-ui .demo-header-actions .icon-button{width:30px;min-width:30px;padding:5px}.reader-ui .lessonweave-links{gap:6px}.reader-ui .lessonweave-links a{font-size:0;width:32px;min-width:32px;padding:4px;display:inline-grid;place-items:center}.reader-ui .lessonweave-links a:first-child::before{content:'⌂';font-size:19px}.reader-ui .lessonweave-links a.lw-extra::before{content:'RW';font-size:12px}}
+@media(max-width:1450px){.reader-ui .demo-masthead{gap:12px}.reader-ui .demo-header-actions{gap:8px}.reader-ui .demo-header-actions .control-group{gap:8px}.reader-ui .demo-header-actions .control-group+.control-group{padding-left:0}.reader-ui .demo-header-actions .icon-button{width:36px;min-width:36px;padding:8px}.reader-ui .lessonweave-links{gap:6px}.reader-ui .lessonweave-links a{font-size:0;width:32px;min-width:32px;padding:4px;display:inline-grid;place-items:center}.reader-ui .lessonweave-links a:first-child::before{content:'⌂';font-size:19px}.reader-ui .lessonweave-links a.lw-extra::before{content:'RW';font-size:12px}}
 @media(max-width:1100px){.reader-ui .demo-masthead{grid-template-columns:minmax(0,1fr) minmax(220px,320px) minmax(0,1fr)}}
 @media(max-width:1000px){.reader-ui .demo-masthead{height:auto;min-height:96px;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:36px 38px;gap:6px 10px;padding:6px 12px}.reader-ui .reader-search{grid-column:1/-1;grid-row:2;order:initial;width:min(400px,100%);justify-self:center}.reader-ui .reader-search kbd{display:none}.reader-ui .demo-reading-pane.ui-drawer{top:104px}#drawer-backdrop{inset:96px 0 32px}}
 @media(max-width:520px){.reader-ui .demo-masthead>.document-heading{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.reader-ui .demo-header-actions{grid-column:1/-1;justify-self:stretch;justify-content:space-between}}
@@ -118,11 +118,11 @@
 .lw-embedded .document-heading .eyebrow,.lw-embedded .book-symbol,.lw-embedded .workspace-footer{display:none}
 .lw-embedded.reader-ui .demo-shell{margin:0;gap:0;--panel-gap:0px}
 .lw-embedded.reader-ui .demo-reading-pane{border:0;border-radius:0;border-inline-end:1px solid var(--line)}
-.lw-embedded .demo-header-actions{gap:8px}.lw-embedded .demo-header-actions .control-group+.control-group{border:0;padding-left:4px}
-.lw-embedded .demo-header-actions .icon-button{width:32px;min-width:32px;height:32px;min-height:32px;padding:6px}
+.lw-embedded .demo-header-actions{gap:8px}.lw-embedded .demo-header-actions .control-group{gap:8px}.lw-embedded .demo-header-actions .control-group+.control-group{border:0;padding-left:0}
+.lw-embedded .demo-header-actions .icon-button{width:36px;min-width:36px;height:36px;min-height:36px;padding:8px}
 .lw-embedded .resizer{transform:translateX(-8px)}
 @media(max-width:1050px){.lw-embedded.reader-ui .demo-masthead{height:auto;min-height:96px;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:36px 36px;gap:6px 10px}.lw-embedded .reader-search{grid-column:1/-1;grid-row:2}}
-@media(max-width:650px){.lw-embedded .demo-masthead>.document-heading{display:none}.lw-embedded .demo-header-actions{grid-column:1/-1;justify-self:stretch;justify-content:space-between;gap:4px}.lw-embedded .demo-header-actions .control-group{gap:0}.lw-embedded .demo-header-actions .control-group+.control-group{padding-left:0}.lw-embedded .demo-header-actions .icon-button{width:30px;min-width:30px;padding:5px}}
+@media(max-width:650px){.lw-embedded .demo-masthead>.document-heading{display:none}.lw-embedded .demo-header-actions{grid-column:1/-1;justify-self:stretch;justify-content:space-between;gap:8px}.lw-embedded .demo-header-actions .control-group{gap:8px}.lw-embedded .demo-header-actions .control-group+.control-group{padding-left:0}.lw-embedded .demo-header-actions .icon-button{width:36px;min-width:36px;height:36px;min-height:36px;padding:8px}}
 
 .lw-embedded{--paper:var(--surface);--ink:var(--text);--soft:var(--selected)}
 
@@ -149,3 +149,17 @@
 .reader-ui #source-text-scroll .source-sentence-pair{margin:12px 0 20px}
 @container material (max-width:420px){.reader-ui #demo-original .locator-heading{flex-wrap:wrap}.reader-ui #demo-original .locator-head-actions{width:100%}.reader-ui #locator-view-select{max-width:none}.reader-ui #demo-original .locator-sources{flex-basis:76px}.reader-ui .source-question-choice{gap:6px;padding-inline:8px}}
 @media(pointer:coarse){.reader-ui #demo-original .locator-heading .icon-button,.reader-ui #demo-original .locator-heading .zoom-reset{height:36px;min-height:36px}}
+@media(pointer:coarse){.reader-ui .demo-header-actions .icon-button{width:44px;min-width:44px;height:44px;min-height:44px;padding:10px}}
+
+/* 素材与原文定位工具共用8px间距、36px按钮和20px图标 */
+.reader-ui .lw-media-toolbar{gap:8px}
+.reader-ui .lw-media-toolbar>.lw-media-action,.reader-ui .lw-media-dialog-bar>.lw-media-action{width:36px;min-width:36px;max-width:36px;height:36px;min-height:36px;padding:8px}
+.reader-ui .lw-media-toolbar>.lw-media-action svg,.reader-ui .lw-media-dialog-bar>.lw-media-action svg{width:20px;height:20px}
+.reader-ui #demo-original .source-view-actions{gap:8px}
+.reader-ui #demo-original .source-view-actions .icon-button{width:36px;min-width:36px;height:36px;min-height:36px;padding:8px}
+.reader-ui #demo-original .source-view-actions .icon-button svg{width:20px;height:20px}
+.reader-ui #demo-original .locator-heading{gap:8px}
+.reader-ui #demo-original .locator-heading .icon-button{width:36px;min-width:36px;height:36px;min-height:36px;padding:8px}
+.reader-ui #demo-original .locator-heading .icon-button svg{width:20px;height:20px}
+.reader-ui #demo-original .locator-sentence-navigation,.reader-ui #demo-original .locator-head-actions,.reader-ui #demo-original .locator-zoom-controls{gap:8px}
+.reader-ui #demo-original .locator-heading .zoom-reset{height:36px;min-height:36px}

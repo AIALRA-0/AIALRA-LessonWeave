@@ -81,6 +81,93 @@ def catalog(pack, root=None):
     return list(rows.values())
 
 
+def _is_preface_context(context):
+    """识别第 0 章的导读节，避免把导读答案当作首正文的前置结论。"""
+    chapter_id = str(context.get('chapter_id') or '')
+    match = re.search(r'(?:^|[-_])(?:ch|chapter)[-_]?(\d+)(?:[-_]|$)', chapter_id, re.I)
+    if match:
+        return int(match.group(1)) == 0
+    section_number = str(context.get('section_number') or '')
+    match = re.match(r'^\s*(\d+)(?:\.|$)', section_number)
+    if match:
+        return int(match.group(1)) == 0
+    section_id = str(context.get('section_id') or '')
+    return bool(re.search(r'(?:^|[-_])ch0+(?:[-_]|$)', section_id, re.I))
+
+
+def _project_background(chapters, questions):
+    tree = chapters.get('tree', {}) if isinstance(chapters, dict) else {}
+    root_questions = []
+    for question_id in tree.get('question_ids', []):
+        question = questions.get(question_id)
+        if not isinstance(question, dict):
+            continue
+        text = str(question.get('premise') or '') + str(question.get('question') or '')
+        root_questions.append({'question_id': question_id, 'text': text})
+    result = {'root_questions': root_questions}
+    if isinstance(tree.get('title'), str) and tree['title'].strip():
+        result['title'] = tree['title']
+    return result
+
+
+def build_bridge_boundaries(section_values, chapters, questions):
+    """首正文从全书背景起笔，后续正文只承接前一正文节的实际结果。"""
+    boundaries = []
+    previous_preface = None
+    previous_body = None
+    first_body = True
+    background = _project_background(chapters, questions)
+    for context, values in section_values:
+        preface = _is_preface_context(context)
+        previous = previous_preface if preface else previous_body
+        row = {
+            'section_id': context['section_id'],
+            'prior_actual_results': previous,
+            'current': {
+                'title': context.get('title', ''),
+                'questions': context.get('core_questions', []),
+                'results': [value['result'] for value in values if isinstance(value, dict) and 'result' in value],
+            },
+        }
+        row['is_preface'] = preface
+        if not preface and first_body:
+            row['is_first_main_body'] = True
+            row['project_background'] = copy.deepcopy(background)
+            first_body = False
+        boundaries.append(row)
+        current = {
+            'section_id': context['section_id'],
+            'title': context.get('title', ''),
+            'answers': [value['result']['answer'] for value in values
+                        if isinstance(value, dict) and isinstance(value.get('result'), dict)
+                        and isinstance(value['result'].get('answer'), str)],
+        }
+        if preface:
+            previous_preface = current
+        else:
+            previous_body = current
+    return boundaries
+
+
+def generate_first_opening_candidate(backend, boundaries):
+    """只为首个正文节生成可审阅的开场候选，不写入正式章节文件。"""
+    boundary = next((row for row in boundaries if row.get('is_first_main_body')), None)
+    if boundary is None:
+        return {'status': 'no_first_main_body', 'candidate': None, 'records': []}
+    import bridge_batches
+    generated = bridge_batches.generate(backend, [copy.deepcopy(boundary)])
+    bridge = next((row for row in generated.get('bridges', [])
+                   if row.get('section_id') == boundary['section_id']), None)
+    candidate = None if bridge is None else {
+        'section_id': boundary['section_id'],
+        'carryover': bridge.get('carryover', ''),
+        'premise': bridge.get('premise', ''),
+        'question': bridge.get('question', ''),
+    }
+    return {'status': 'proposed_only' if candidate else 'recorded_error',
+            'candidate': candidate, 'records': copy.deepcopy(generated.get('records', []))}
+
+
 def quota(index, count):
     return {'single_choice':4//count+(index<4%count),'short_answer':int(index==count-1)}
 
@@ -284,13 +371,11 @@ def write_sections(root,backend,reuse_only=False,inspect=False):
         except Exception as error:
             if not inspect:raise
             record(root,'c_translation',str(error))
-    boundary=[]
-    prior=None
+    section_values=[]
     for context,folder,pack,resources in prepared:
         values=[v for unit in context['units'] if (v:=read(folder/('unit-'+unit['question_id']+'.json'))) and 'result' in v]
-        boundary.append({'section_id':context['section_id'],'prior_actual_results':prior,
-                         'current':{'title':context['title'],'questions':context['core_questions'],'results':[u['result'] for u in values]}})
-        prior={'section_id':context['section_id'],'title':context['title'],'answers':[u['result']['answer'] for u in values]}
+        section_values.append((context,values))
+    boundary=build_bridge_boundaries(section_values,chapters,questions)
     pipeline.update_state(root,stage='05_writing/bridges')
     begin(root,'根据实际答案集中生成两段承接',[])
     bridge_path=root/'05_writing/work/bridges.json'

@@ -46,7 +46,9 @@ def article_html(doc,resources):
             visual=old
             if block['kind']=='table':
                 visual='<table><thead><tr>'+''.join('<th>'+html.escape(str(value))+'</th>'for value in block.get('headers',[]))+'</tr></thead><tbody>'+''.join('<tr>'+''.join('<td>'+html.escape(str(value))+'</td>'for value in row)+'</tr>'for row in block.get('rows',[]))+'</tbody></table>'
-            elif block['kind']in {'formula','mermaid'}:
+            elif block['kind']=='formula':
+                visual='<div class="math-tex" data-lw-formula="true">'+html.escape(block.get('text',''))+'</div>'
+            elif block['kind']=='mermaid':
                 visual='<pre>'+html.escape(block.get('text',''))+'</pre>'
             elif block.get('asset')and block['kind']!='image':
                 visual='<a href="'+html.escape(resources.get(block['asset'].lstrip('/'),block['asset']))+'">'+html.escape(block.get('caption',block['asset']))+'</a>'

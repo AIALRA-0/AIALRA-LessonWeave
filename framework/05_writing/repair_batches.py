@@ -6,7 +6,7 @@ import media_contract
 
 
 def format_document_terms(document, include_legacy=False):
-    """整理文档中的术语名称，旧记录默认不重写，并返回可保存的变更记录。"""
+    """先整理可确认的名称；拆解和来源问题继续交给既有统一修复记录。"""
     candidate = copy.deepcopy(document)
     appendix = candidate.get('appendix') if isinstance(candidate, dict) else None
     terms = appendix.get('terms') if isinstance(appendix, dict) else None
@@ -19,18 +19,21 @@ def format_document_terms(document, include_legacy=False):
                     field in term for field in book_terminology.CASE_FLAGS))]
     if not selected:
         return candidate, [], []
-    try:
-        formatted_terms = copy.deepcopy(terms)
-        changes = []
-        for index in selected:
-            formatted, term_changes = book_terminology.format_term_metadata([terms[index]])
+    formatted_terms = copy.deepcopy(terms)
+    changes, errors = [], []
+    for index in selected:
+        term = terms[index]
+        try:
+            formatted, term_changes = book_terminology.format_term_metadata([term])
             formatted_terms[index] = formatted[0]
             changes.extend(dict(change, term_index=index) for change in term_changes)
-    except Exception as error:
-        return candidate, [], [str(error)]
+            for finding in book_terminology.term_name_findings(formatted[0]):
+                term_id = term.get('id') if isinstance(term, dict) else None
+                errors.append(f"{term_id or 'term[' + str(index) + ']'}: {finding['field']}: {finding['message']}")
+        except Exception as error:
+            errors.append(str(error))
     appendix['terms'] = formatted_terms
-    return candidate, changes, []
-
+    return candidate, changes, errors
 
 def pack(tasks,rules):
     pool={};prepared=[]

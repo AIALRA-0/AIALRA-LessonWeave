@@ -72,7 +72,7 @@ def wire_schema(node):
 
 
 class CodexAdapter:
-    capabilities = {'images': True, 'schema': True, 'independent_context': True}
+    capabilities = {'images': True, 'schema': True, 'independent_context': True, 'web_search': True}
 
     def execute(self, task, folder):
         executable = codex_executable()
@@ -83,7 +83,8 @@ class CodexAdapter:
         cold.mkdir(exist_ok=True)
         args = [executable, 'exec', '--skip-git-repo-check', '--ephemeral',
                 '-C', str(cold), '-s', 'read-only', '-m', task['model'], '-c', 'model_reasoning_effort="' + task['effort'] + '"',
-                '-c', 'project_doc_max_bytes=0', '-c', 'features.shell_tool=' + ('true' if task.get('read_only_tools') else 'false'), '-c', 'features.multi_agent=false', '--json', '--output-schema', str(folder / 'wire-schema.json'),
+                '-c', 'project_doc_max_bytes=0', '-c', 'features.shell_tool=true',
+                '-c', 'web_search="live"', '-c', 'features.multi_agent=false', '--json', '--output-schema', str(folder / 'wire-schema.json'),
                 '-o', str(folder / 'response.json')]
         # 纯生成子进程不承担外部应用工作，不启动无关 MCP 或主对话通知钩子
         args.extend(['-c', 'features.hooks=false', '-c', 'notify=[]',
@@ -122,7 +123,8 @@ class CodexAdapter:
         receipts = [event.get('usage', {}) for event in parsed if event.get('type') == 'turn.completed']
         record = {'exit_code': process.returncode, 'session_id': next((e.get('thread_id') for e in parsed if e.get('type') == 'thread.started'), None),
                   'usage': receipts, 'parent_conversation_inherited': False, 'resume_or_fork': False,
-                  'tool_calls': [e.get('item', {}).get('type') for e in parsed if e.get('type') == 'item.started' and e.get('item', {}).get('type') in {'command_execution', 'mcp_tool_call'}]}
+                  'tool_calls': [e.get('item', {}).get('type') for e in parsed if e.get('type') == 'item.started' and e.get('item', {}).get('type') in {'command_execution', 'mcp_tool_call', 'web_search', 'web_search_call'}],
+                  'web_search_mode': 'live'}
         if process.returncode or not (folder/'response.json').is_file():
             record.update(failure_kind=event_failure(parsed),usage_measurement='reported' if receipts else 'unavailable')
         save(folder / 'receipt.json', record)
@@ -243,7 +245,7 @@ class Backend:
             common='只完成忠实翻译，保留事实、限定、专名、语气与标点，按当前任务返回 JSON'
         elif objective:
             common+='\n用户的学习目标：'+objective+'\n本次只执行当前任务规定的角色与输出合同'
-        instruction = '只读本任务指定的本地材料，不修改文件、不联网、不调用其他模型，只返回约定 JSON' if read_only_tools else '只读取本次提供的材料，不使用工具，只返回约定 JSON'
+        instruction = '先完整读取本任务的材料，需要核实术语、背景或事实时，主动搜索可信来源，优先查原始文献和官方网站，把外部补充与材料本身的陈述分清，在现有说明字段中保留可查的来源链接，不修改文件、不调用其他模型，按约定返回 JSON'
         task = {'prompt': common + '\n' + instruction + '\n\n' + prompt,
                 'schema': schema, 'images': list(dict.fromkeys(str(image_path(self.root,p)) for p in images or [])),
                 'model': self.model, 'effort': self.effort, 'role': self.role, 'backend': self.provider}

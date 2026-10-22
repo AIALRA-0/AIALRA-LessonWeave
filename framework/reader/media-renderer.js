@@ -42,7 +42,7 @@ window.LessonMedia=(()=>{
  function p(text){const n=make('p');rich(n,String(text));return n}
  function par(value,node){for(const field of ['premise','action','result'])node.append(p(value[field]))}
  function section(title,parent){const s=make('section',undefined,'lw-media-part');s.append(make(parent.classList.contains('lw-media-code-segment')?'h6':'h5',title));parent.append(s);return s}
- function table(headers,rows){const wrap=make('div',undefined,'lw-media-table'),t=make('table'),head=make('tr');headers.forEach(x=>head.append(make('th',x)));const thead=make('thead');thead.append(head);t.append(thead);const body=make('tbody');rows.forEach(values=>{const row=make('tr');values.forEach(v=>row.append(make('td',v===null?'':String(v))));body.append(row)});t.append(body);wrap.append(t);return wrap}
+ function table(headers,rows){const wrap=make('div',undefined,'lw-media-table'),t=make('table'),head=make('tr');headers.forEach(x=>{const cell=make('th');rich(cell,x);head.append(cell)});const thead=make('thead');thead.append(head);t.append(thead);const body=make('tbody');rows.forEach(values=>{const row=make('tr');values.forEach(v=>{const cell=make('td');rich(cell,v===null?'':String(v));row.append(cell)});body.append(row)});t.append(body);wrap.append(t);return wrap}
  function genericBody(r,options){
   if(r.kind==='image'){const img=options.image?options.image(r):make('img');if(!options.image){img.src=options.path(r.asset);img.alt=r.alt}img.draggable=false;return img}
   if(r.kind==='formula'){const n=make('div',undefined,'lw-media-math');n.mediaReady=math(n,r.text);return n}

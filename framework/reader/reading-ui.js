@@ -1,9 +1,19 @@
 // 布局和外观沿用已确认的 UI-04，正文、来源和笔记继续读取当前案例
 (() => {
   const $ = id => document.getElementById(id);
+  const startup = $('reader-startup');
+  const finishStartup = () => { if (startup) { startup.hidden = true; document.documentElement.removeAttribute('data-reader-loading'); } };
+  const startupObserver = startup ? new MutationObserver(() => {
+    if ($('demo-content')?.children.length || $('demo-status')?.textContent.trim()) { finishStartup(); startupObserver.disconnect(); }
+  }) : null;
+  if (startupObserver) {
+    startupObserver.observe($('demo-content'), {childList:true});
+    startupObserver.observe($('demo-status'), {childList:true,characterData:true,subtree:true});
+    if ($('demo-content')?.children.length || $('demo-status')?.textContent.trim()) { finishStartup(); startupObserver.disconnect(); }
+  }
   const names = {directory:'目录',source:'原文与译文',glossary:'术语表'};
   const panes = Object.fromEntries([...document.querySelectorAll('[data-pane]')].map(el=>[el.dataset.pane,el]));
-  const defaults = {version:1,theme:'light',widths:{directory:224,source:515.2,glossary:224},customWidths:false,visible:{directory:true,source:true,glossary:true},body:17,line:1.95,focus:false};
+  const defaults = {version:1,theme:document.documentElement.dataset.theme==='dark'?'dark':'light',widths:{directory:224,source:515.2,glossary:224},customWidths:false,visible:{directory:true,source:true,glossary:true},body:17,line:1.95,focus:false};
   const key = 'aialra:reader-ui:v1';
   let state = structuredClone(defaults), tokens, current = {}, drawer = null, trigger = null, dragging = null, initialized = false, sectionObserver = null, frame = 0;
   let tooltipTimer, peekOpenTimer, peekCloseTimer, peekTarget = null, pinnedDrawer = false, restoringDrawerFocus=false;
@@ -41,7 +51,7 @@
       const p=button.dataset.togglePane;const visible=!!current[p]||drawer===p;
       button.setAttribute('aria-pressed',visible);button.setAttribute('aria-label',(visible?'隐藏':'打开')+names[p]);
     }
-    $('focus-reading').setAttribute('aria-pressed',state.focus);$('focus-reading').setAttribute('aria-label',state.focus?'恢复对照阅读':'进入专注阅读');
+    const focusLabel=state.focus?'恢复对照阅读':'进入专注阅读';$('focus-reading').setAttribute('aria-pressed',state.focus);$('focus-reading').setAttribute('aria-label',focusLabel);$('focus-reading').dataset.tooltip=focusLabel;$('focus-reading').title=focusLabel;
     $('layout-status').textContent=state.focus?'专注阅读':`${1+Object.values(current).filter(Boolean).length} 栏阅读`;
     positionResizers();
   }
@@ -92,7 +102,27 @@
     const p=button.dataset.closePane;if(drawer===p)closeDrawer();else{state.visible[p]=false;layout();save();}
   }));
   $('drawer-backdrop').onclick=()=>closeDrawer();
-  $('focus-reading').onclick=()=>{closeDrawer(false);state.focus=!state.focus;layout();save();};
+  let focusScroll=null,focusDrawer=null;
+  const paneScroll=()=>({
+    nodes:Object.values(panes).filter(pane=>pane!==panes.lesson).flatMap(pane=>[pane,...pane.querySelectorAll('*')])
+      .filter(node=>node.scrollHeight>node.clientHeight||node.scrollWidth>node.clientWidth)
+      .map(node=>[node,node.scrollTop,node.scrollLeft]),
+    x:window.scrollX,y:window.scrollY
+  });
+  const restorePaneScroll=(snapshot,priorDrawer,lessonTop)=>requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    if(!snapshot)return;
+    for(const [node,top,left]of snapshot.nodes)if(node.isConnected){node.scrollTop=top;node.scrollLeft=left;}
+    panes.lesson.scrollTop=lessonTop;
+    window.scrollTo(snapshot.x,snapshot.y);
+    if(priorDrawer?.pane&&!current[priorDrawer.pane])openDrawer(priorDrawer.pane,priorDrawer.pinned,$('focus-reading'));
+  }));
+  $('focus-reading').onclick=()=>{
+    if(!state.focus){focusScroll=paneScroll();focusDrawer=drawer?{pane:drawer,pinned:pinnedDrawer}:null;}
+    closeDrawer(false);
+    if(!state.focus){state.focus=true;}
+    else{const lessonTop=panes.lesson.scrollTop;state.focus=false;const saved=focusScroll,priorDrawer=focusDrawer;focusScroll=null;focusDrawer=null;layout();restorePaneScroll(saved,priorDrawer,lessonTop);save();return;}
+    layout();save();
+  };
   $('toggle-theme').onclick=()=>{state.theme=state.theme==='light'?'dark':'light';theme();save();};
   $('open-settings').onclick=()=>{$('ui-tooltip').hidden=true;$('reading-settings').showModal();$('body-size').focus();};
   $('reading-settings').addEventListener('close',()=>{$('open-settings').focus({preventScroll:true});save();});
@@ -234,7 +264,7 @@
     if(!initialized)$('demo-outline').addEventListener('click',()=>{if(drawer==='directory')closeDrawer(false);});
     initialized=true;updateDocumentStatus();layout();
   }
-  document.addEventListener('reading:document-ready',event=>{enhance();updateDocumentStatus(event.detail);});
+  document.addEventListener('reading:document-ready',event=>{finishStartup();startupObserver?.disconnect();enhance();updateDocumentStatus(event.detail);});
   new ResizeObserver(queueLayout).observe($('reader-shell'));
   window.addEventListener('resize',queueLayout);
   fetch('/design-tokens.json').then(r=>r.json()).then(value=>{tokens=value;theme();layout();enhance();}).catch(()=>{theme();layout();message('已使用本地默认样式，设计参数文件读取失败');});

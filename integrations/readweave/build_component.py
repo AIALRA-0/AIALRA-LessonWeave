@@ -56,11 +56,11 @@ export function mountReader(container, options) {
   const setInterval=(callback,delay)=>{const id=native.setInterval(()=>{if(!disposed)callback()},delay);timers.add(id);return id};
   const clearInterval=id=>{timers.delete(id);native.clearInterval(id)};
 '''
-    scripts=(READER/'reading-icons.js').read_text('utf-8')+'\nconst uiIcon=window.uiIcon;\n'+(READER/'reader-text.js').read_text('utf8')+'\nconst ReaderText=window.ReaderText;\n'+(READER/'media-renderer.js').read_text('utf8')+'\n'+ '\n\n'.join((READER/name).read_text('utf-8') for name in ['reader-search.js','writing-demo.js','reading-ui.js','source-locator.js','source-split.js','generation-settings.js'])
+    scripts=(READER/'reading-icons.js').read_text('utf-8')+'\nconst uiIcon=window.uiIcon;\n'+(READER/'math-text.js').read_text('utf8')+'\n'+(READER/'reader-text.js').read_text('utf8')+'\nconst ReaderText=window.ReaderText;\n'+(READER/'media-renderer.js').read_text('utf8')+'\n'+ '\n\n'.join((READER/name).read_text('utf-8') for name in ['reader-search.js','writing-demo.js','reading-ui.js','source-locator.js','source-split.js','generation-settings.js'])
     tail='''
   let shared=null;
   if(options.shared){
-    import('./shared-reader.js').then(({mountSharedReader})=>{if(disposed)return;shared=mountSharedReader(root,{...options.shared,bridge:()=>owned.ReaderSourceBridge?.getState(),updateGlossary:terms=>owned.ReaderSourceBridge?.updateGlossary(terms),hydrateMedia:element=>owned.ReaderSourceBridge?.hydrateSharedMedia(element)});}).catch(error=>{if(!disposed)console.error('ReadWeave component',error);});
+    import('./shared-reader.js').then(({mountSharedReader})=>{if(disposed)return;shared=mountSharedReader(root,{...options.shared,onActiveArticle:article=>{owned.ReadWeaveActiveArticle=article;options.onActiveArticle?.(article)},bridge:()=>owned.ReaderSourceBridge?.getState(),updateGlossary:terms=>owned.ReaderSourceBridge?.updateGlossary(terms),hydrateMedia:element=>owned.ReaderSourceBridge?.hydrateSharedMedia(element),hydrateText:element=>owned.ReaderSourceBridge?.hydrateSharedText(element)});}).catch(error=>{if(!disposed)console.error('ReadWeave component',error);});
   }
   if(options.embedded){
     root.querySelector('#toggle-theme').hidden=true;
@@ -85,7 +85,7 @@ export function mountReader(container, options) {
   });
   if(options.shared)listen(native,'readweave:shared-change',refreshNotes);
   const observer=new MutationObserver(connectNotes);observer.observe(root,{childList:true,subtree:true});connectNotes();
-  return {root, navigate:search=>owned.ReaderSourceBridge.navigate(search), setTheme:name=>owned.ReaderUI?.setTheme(name), getState:()=>owned.ReaderSourceBridge?.getState(),
+  return {root, navigate:search=>owned.ReaderSourceBridge.navigate(search), setTheme:name=>owned.ReaderUI?.setTheme(name), getState:()=>({...owned.ReaderSourceBridge?.getState(),sharedArticle:owned.ReadWeaveActiveArticle}),
     focusNotes:()=>root.querySelector('.writing-note textarea')?.focus(),
     toggleGlossary:()=>root.querySelector('[data-toggle-pane="glossary"]')?.click(),
     unmount(){disposed=true;shared?.unmount();abort.abort();for(const item of [...observers])item.disconnect();for(const id of timers){native.clearTimeout(id);native.clearInterval(id)}for(const id of frames)native.cancelAnimationFrame(id);shadow.replaceChildren();}

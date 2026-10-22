@@ -11,6 +11,16 @@
       "test": false
     },
     {
+      "path": "apps/client/src/services/erase_deleted_notes.spec.ts",
+      "sha256": "128a4e2d41f4721d4debe3cdadeef0d2eb70f161803b9e5e0ae2007597ea9612",
+      "test": true
+    },
+    {
+      "path": "apps/client/src/services/erase_deleted_notes.ts",
+      "sha256": "aba9461805dda005b7e77f0bb54135ec3277159d5f7284a6bb6fce463768f25e",
+      "test": false
+    },
+    {
       "path": "apps/client/src/services/server.ts",
       "sha256": "740aa8e47d76e2041c29aa06e0cfa3c728818c62a2454c432b19f7e986607c02",
       "test": false
@@ -21,24 +31,74 @@
       "test": false
     },
     {
+      "path": "apps/client/src/services/ws.ts",
+      "sha256": "bb24f952c0f1c6a7278834c2aeb1612e558e226409f9ef2ed8ea8871a9243489",
+      "test": false
+    },
+    {
+      "path": "apps/client/src/widgets/dialogs/recent_changes.tsx",
+      "sha256": "31a2ed1cbbcd97accdcee822f3eb42e0af1dc80aaa5f82ed595d535561d3da38",
+      "test": false
+    },
+    {
       "path": "apps/client/src/widgets/react/hooks.tsx",
       "sha256": "1fb170519f8b6311841dc1e81c5f365e166f72fa39e0083abc5ceb108c083d24",
       "test": false
     },
     {
+      "path": "apps/client/src/widgets/sidebar/ReadWeavePanel.spec.tsx",
+      "sha256": "95a86df040a5882af794a85b2117951bebbcc90435e4a1bd6f4eed4f03d76953",
+      "test": true
+    },
+    {
       "path": "apps/client/src/widgets/sidebar/ReadWeavePanel.tsx",
-      "sha256": "51822f11709b6ab0d73286e7d879904f8b8599aee3d6a46655a811645969da33",
+      "sha256": "8ad524c773fcdaeb3eae7597d352618c4cd5d8f23eb901e0fc863c72f9538868",
       "test": false
     },
     {
-      "path": "apps/server/src/routes/api/lessonweave.ts",
-      "sha256": "e4fb9475c74b0daffe9cc098b8d81b3dd4004a5bc7fb961580571a21a4e643c9",
+      "path": "apps/client/src/widgets/sidebar/readweave_anchor_dom.spec.ts",
+      "sha256": "cfb12d8ac04cd9005ac8b72a6a2961d5a89648cb7a177fba48b4d7949d371af8",
+      "test": true
+    },
+    {
+      "path": "apps/client/src/widgets/sidebar/readweave_anchor_dom.ts",
+      "sha256": "f88e4d92104bda8da8e3b877690d6e0d790fdf9826c4dba436288e917b327ded",
+      "test": false
+    },
+    {
+      "path": "apps/client/src/widgets/sidebar/readweave_context.ts",
+      "sha256": "04577d2b38a6b519e9f55b408670ea707a9c56887989e0ae012d9d305ec60bec",
+      "test": false
+    },
+    {
+      "path": "apps/client/src/widgets/sidebar/readweave_dom_realm.ts",
+      "sha256": "e38f904f48720ab4b39f7ee2f90a3d2c021206f5376b2a398837c635322c047b",
+      "test": false
+    },
+    {
+      "path": "apps/client/src/widgets/sidebar/readweave_selection_text.ts",
+      "sha256": "f80b765f00bdb069bc022c2d0d3e2050bb42bb8781442b2ef7d5cf4bc9c64f9e",
+      "test": false
+    },
+    {
+      "path": "apps/client/src/widgets/type_widgets/options/other.tsx",
+      "sha256": "e4b8f0be0828940d18891fcc2e5834324ecfe4889ad3e1cda6c78c1845706636",
+      "test": false
+    },
+    {
+      "path": "apps/server/src/etapi/etapi_utils.ts",
+      "sha256": "057790ac461c8377271f1b020608690fcbda79135c26abca48dab69458bbefbe",
       "test": false
     },
     {
       "path": "apps/server/src/routes/api/lessonweave.spec.ts",
       "sha256": "1847c15fbd9afb420d075b14bdd691e6b036d7a62ecbc3987a05a074dbb0fd04",
       "test": true
+    },
+    {
+      "path": "apps/server/src/routes/api/lessonweave.ts",
+      "sha256": "e4fb9475c74b0daffe9cc098b8d81b3dd4004a5bc7fb961580571a21a4e643c9",
+      "test": false
     },
     {
       "path": "apps/server/src/routes/api/readweave.ts",
@@ -61,63 +121,13 @@
       "test": false
     },
     {
-      "path": "apps/server/src/services/lessonweave_bridge.ts",
-      "sha256": "3b58881620e9376547a19aae0be81a0940ef12fc11f4257f55b326f6434015a4",
-      "test": false
-    },
-    {
       "path": "apps/server/src/services/lessonweave_bridge.spec.ts",
       "sha256": "9a783677eee7d7f7586fbfc49971ac2463e9447215417f9c5e24e13d0a48cf57",
       "test": true
     },
     {
-      "path": "apps/server/src/services/readweave_repository.ts",
-      "sha256": "9b5b398c3745dedb07922af6fd525320bd04761fdb3d9483ae8673b512be8997",
-      "test": false
-    },
-    {
-      "path": "packages/commons/src/lib/readweave.ts",
-      "sha256": "701b690d91d69276f0f30c5a6f8df3859215d0a14692d05111e87575891017e7",
-      "test": false
-    },
-    {
-      "path": "packages/trilium-core/src/index.ts",
-      "sha256": "a351bd4dbf7d0deff6fa060b2a89796f9b97a1ade7acd70ee5b5554c58636b5b",
-      "test": false
-    },
-    {
-      "path": "packages/trilium-core/src/services/shared_editing.ts",
-      "sha256": "a63672560eea0347e50b5e705a44373594699b3c34be0b2f19bb7f58df97c28b",
-      "test": false
-    },
-    {
-      "path": "packages/trilium-core/src/becca/entities/bnote.ts",
-      "sha256": "dd45cae6e6f2102f28476a8e5c0ba3992d6b3a469ee08f517dee67f275f5ea69",
-      "test": false
-    },
-    {
-      "path": "packages/trilium-core/src/becca/entities/bbranch.ts",
-      "sha256": "1128931d607a99b801bf05b93b5f1636c501644b6a4dd97d153e54ffb39f2d5b",
-      "test": false
-    },
-    {
-      "path": "packages/trilium-core/src/routes/api/notes.ts",
-      "sha256": "2a463b37b81645520c3f447cc6003cfe4f4a8d783c4c5d688266ae6d4eedb07b",
-      "test": false
-    },
-    {
-      "path": "apps/client/src/services/ws.ts",
-      "sha256": "bb24f952c0f1c6a7278834c2aeb1612e558e226409f9ef2ed8ea8871a9243489",
-      "test": false
-    },
-    {
-      "path": "apps/client/src/widgets/sidebar/ReadWeavePanel.spec.tsx",
-      "sha256": "95a86df040a5882af794a85b2117951bebbcc90435e4a1bd6f4eed4f03d76953",
-      "test": true
-    },
-    {
-      "path": "apps/server/src/etapi/etapi_utils.ts",
-      "sha256": "057790ac461c8377271f1b020608690fcbda79135c26abca48dab69458bbefbe",
+      "path": "apps/server/src/services/lessonweave_bridge.ts",
+      "sha256": "3b58881620e9376547a19aae0be81a0940ef12fc11f4257f55b326f6434015a4",
       "test": false
     },
     {
@@ -127,8 +137,43 @@
     },
     {
       "path": "apps/server/src/services/readweave_anchor_read.spec.ts",
-      "test": true,
-      "sha256": "92733eb6d9a8ce50586a4c4bc068b7512c81dd17a011988e5fce20239a0a3c99"
+      "sha256": "e710537fb26d14e358c7e87a1464210de76fbd6223112671eb5c911b28098478",
+      "test": true
+    },
+    {
+      "path": "apps/server/src/services/readweave_repository.ts",
+      "sha256": "91f9b1dd314333ce84433d742238f3e052df1fd76688ce17d612b568e073131f",
+      "test": false
+    },
+    {
+      "path": "packages/commons/src/lib/readweave.ts",
+      "sha256": "db98bf1fb1dcea283b12bbf3c1643a97002356333e0282df2f62f55c4d832a18",
+      "test": false
+    },
+    {
+      "path": "packages/trilium-core/src/becca/entities/bbranch.ts",
+      "sha256": "1128931d607a99b801bf05b93b5f1636c501644b6a4dd97d153e54ffb39f2d5b",
+      "test": false
+    },
+    {
+      "path": "packages/trilium-core/src/becca/entities/bnote.ts",
+      "sha256": "dd45cae6e6f2102f28476a8e5c0ba3992d6b3a469ee08f517dee67f275f5ea69",
+      "test": false
+    },
+    {
+      "path": "packages/trilium-core/src/index.ts",
+      "sha256": "a351bd4dbf7d0deff6fa060b2a89796f9b97a1ade7acd70ee5b5554c58636b5b",
+      "test": false
+    },
+    {
+      "path": "packages/trilium-core/src/routes/api/notes.ts",
+      "sha256": "2a463b37b81645520c3f447cc6003cfe4f4a8d783c4c5d688266ae6d4eedb07b",
+      "test": false
+    },
+    {
+      "path": "packages/trilium-core/src/services/shared_editing.ts",
+      "sha256": "a63672560eea0347e50b5e705a44373594699b3c34be0b2f19bb7f58df97c28b",
+      "test": false
     }
   ]
 }

@@ -13,82 +13,39 @@ export function mountSharedReader(root,options){
  const style=document.createElement('link');style.rel='stylesheet';style.href=options.styleUrl??'/integrations/readweave/native-panel.css';root.getRootNode().append(style);
  const container=document.createElement('div');container.className='lw-readweave-host';find('glossary-result').append(container);
  const panel=mountReadWeave(container,{root:root.getRootNode(),request});
- let manifest=null,active=null,activeRoot=null,lease=null,edit=null,disposed=false,cursor=0,polling=false,sectionToken=0,leaseRenewedAt=0;
- const draftKey=id=>'lessonweave:shared-draft:'+id;
- let owner;try{owner=sessionStorage.getItem('lessonweave:editor-id')||crypto.randomUUID();sessionStorage.setItem('lessonweave:editor-id',owner);}catch{owner=crypto.randomUUID();}
- const tools=document.createElement('div');tools.className='lw-shared-tools';tools.innerHTML='<span class="lw-shared-state">正在读取共享文章</span><span style="flex:1"></span><button type="button" data-shared="edit" title="编辑当前文章" aria-label="编辑当前文章">✎</button><button type="button" data-shared="delete" title="移入回收站" aria-label="移入回收站">⌫</button>';
+ let manifest=null,active=null,activeRoot=null,disposed=false,cursor=0,polling=false,sectionToken=0,renderingSectionId=null,menu=null;
+ const icon=path=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+path+'</svg>';
+ const tools=document.createElement('div');tools.className='lw-shared-tools';tools.innerHTML='<span class="lw-shared-state">正在读取共享文章</span><span style="flex:1"></span><a data-shared="edit" target="_blank" rel="noopener" title="在 ReadWeave 编辑当前文章" aria-label="在 ReadWeave 编辑当前文章">'+icon('<path d="m15 4 5 5M4 20l5-1 12-12a2 2 0 0 0-5-5L4 15z"/>')+'</a><a data-shared="open" target="_blank" rel="noopener" title="在 ReadWeave 打开当前文章" aria-label="在 ReadWeave 打开当前文章">'+icon('<path d="M14 3h7v7m0-7L10 14M10 4H4v16h16v-6"/>')+'</a>';
  find('demo-content').before(tools);
  const status=text=>tools.querySelector('.lw-shared-state').textContent=text;
  const entry=id=>'lessonweave/articles/'+encodeURIComponent(id);
- const articleCache=new Map(),glossaryBaseline=new Map(),sourceTextHistory=new Map();
+ const articleCache=new Map(),glossaryBaseline=new Map();
  let sourceContext=null;
- const normalizeText=value=>String(value??'').replace(/\s+/g,' ').trim();
- const sentenceHasChinese=value=>/[\u4e00-\u9fff]/u.test(String(value??''));
  function sourceSentences(){
-  const values=new Map();for(const source of options.bridge()?.sourcePack?.sources||[])for(const sentence of source.sentences||[])values.set(sentence.id,sentence);return values;
+  const values=new Map();for(const source of options.bridge()?.sourcePack?.sources||[])for(const sentence of source.sentences||[])values.set(sentence.id,{...sentence,source_id:source.id});return values;
  }
  function clearSourceBindings(){
   for(const node of root.querySelectorAll('[data-readweave-source-projection]')){node.hidden=false;delete node.dataset.readweaveArticleId;delete node.dataset.readweaveContentRoot;delete node.dataset.readweaveSourceProjection;}
-  for(const node of root.querySelectorAll('.lw-shared-source-additions'))node.remove();
+  for(const node of root.querySelectorAll('.lw-shared-source-additions,.lw-shared-source-documents'))node.remove();
+  for(const node of root.querySelectorAll('[data-shared-source-hidden]')){node.hidden=false;delete node.dataset.sharedSourceHidden;}
  }
- function sourceBlocks(row){
-  const template=root.ownerDocument.createElement('template');template.innerHTML=sanitizeArticle(row.body||'');
-  return [...template.content.children];
+ function applySourceArticle(row){
+  if(!sourceContext)return;
+  if(row.articleId===sourceContext.translationId)renderSourceDocument(row,'translation');
+  else if(row.articleId===(sourceContext.displayOriginalId||sourceContext.originalId))renderSourceDocument(row,'original');
  }
- function sourceTarget(pair,kind,sentence,canonicalText,previousText){
-  const original=pair.querySelector('.source-original > p, .source-original > pre'),translation=pair.querySelector('.source-translation > p, .source-translation > pre');
-  const candidates=[original,translation].filter(Boolean),matches=(node,values)=>values
-   .filter(value=>value!==undefined&&value!==null&&String(value).trim()).some(value=>normalizeText(node.textContent)===normalizeText(value));
-  if(kind==='translation'){
-   const chineseOriginal=sentenceHasChinese(sentence?.original)&&translation&&normalizeText(translation.textContent)===normalizeText(sentence.original)
-    &&normalizeText(sentence?.translation||sentence?.zh)!==normalizeText(sentence.original);
-   if(chineseOriginal)return null;
-   if(translation&&(!sentence||matches(translation,[sentence?.translation,sentence?.zh,canonicalText,previousText])))return translation;
-   return null;
-  }
-  const expected=sentence?.original||sentence?.english;
-  const matched=candidates.find(node=>normalizeText(node.textContent)===normalizeText(expected))||candidates.find(node=>matches(node,[canonicalText,previousText]));
-  if(matched)return matched;
-  if(!sentence)return original||translation||null;
-  return sentenceHasChinese(sentence.original)?translation||original||null:original||translation||null;
- }
- function applySourceArticle(row,previousRow){
-  if(!sourceContext||![sourceContext.originalId,sourceContext.translationId].includes(row.articleId))return;
-  const kind=row.articleId===sourceContext.translationId?'translation':'original';
-  const sentences=sourceSentences(),history=sourceTextHistory.get(row.articleId)||new Map(),nextHistory=new Map(),unmatched=[];
-  const previous=new Map(sourceBlocks(previousRow||{}).filter(node=>node.matches('p[data-lw-sentence]')).map(node=>[node.dataset.lwSentence,node.textContent]));
-  const pairs=new Map([...root.querySelectorAll('.source-sentence-pair[data-sentence-id]')].map(pair=>[pair.dataset.sentenceId,pair]));
-  for(const block of sourceBlocks(row)){
-   const sentenceId=block.matches('p[data-lw-sentence]')?block.dataset.lwSentence:null;
-   if(!sentenceId){unmatched.push(block);continue;}
-   const sentence=sentences.get(sentenceId),pair=pairs.get(sentenceId);
-   if(!sentence){unmatched.push(block);continue;}
-   if(!pair)continue;
-   const oldText=previous.get(sentenceId)||history.get(sentenceId)||'';
-   const target=sourceTarget(pair,kind,sentence,block.textContent,oldText);
-   if(!target){unmatched.push(block);continue;}
-   if(!row.deleted){target.hidden=false;target.innerHTML=block.innerHTML;}else target.hidden=true;
-   target.dataset.readweaveArticleId=row.articleId;target.dataset.readweaveContentRoot='readonly';target.dataset.readweaveSourceProjection=kind;
-   nextHistory.set(sentenceId,block.textContent);
-  }
-  for(const node of root.querySelectorAll('[data-readweave-source-projection]'))if(node.dataset.readweaveArticleId===row.articleId&&row.deleted)node.hidden=true;
-  for(const [sentenceId,text]of history)if(!nextHistory.has(sentenceId))nextHistory.set(sentenceId,text);
-  sourceTextHistory.set(row.articleId,nextHistory);
-  const additionsId='lw-shared-free-'+row.articleId;
-  let additions=[...root.querySelectorAll('[data-readweave-free-id]')].find(node=>node.dataset.readweaveFreeId===additionsId);
-  if(additions)additions.remove();
-  if(row.deleted){
-   additions=root.ownerDocument.createElement('section');additions.className='lw-shared-source-additions';additions.dataset.readweaveFreeId=additionsId;
-   const heading=root.ownerDocument.createElement('h3');heading.textContent=kind==='original'?'共享原文已删除':'共享译文已删除';
-   const restore=root.ownerDocument.createElement('button');restore.type='button';restore.textContent=kind==='original'?'恢复共享原文':'恢复共享译文';
-   restore.onclick=async()=>{restore.disabled=true;try{const result=await call('POST',entry(row.articleId)+'/restore',{expectedRevision:row.revision,operationId:crypto.randomUUID()});articleCache.delete(row.articleId);await refreshArticle(result.articleId,null,true);}catch(error){status(error.message);}finally{restore.disabled=false;}};
-   additions.append(heading,restore);(find('source-text-scroll')||find('demo-original'))?.append(additions);
-  }else if(unmatched.length){
-   additions=root.ownerDocument.createElement('section');additions.className='lw-shared-source-additions';additions.dataset.readweaveFreeId=additionsId;
-   const heading=root.ownerDocument.createElement('h3');heading.textContent=kind==='original'?'ReadWeave 原文补充':'ReadWeave 译文补充';additions.append(heading);
-   for(const block of unmatched){const copy=block.cloneNode(true);copy.dataset.readweaveArticleId=row.articleId;copy.dataset.readweaveContentRoot='readonly';copy.dataset.readweaveSourceProjection=kind;additions.append(copy);}
-   (find('source-text-scroll')||find('demo-original'))?.append(additions);
-  }
+ function renderSourceDocument(row,kind){
+  const cards=find('source-cards');if(!cards)return;
+  let documents=cards.querySelector(':scope > .lw-shared-source-documents');
+  if(!documents){documents=root.ownerDocument.createElement('div');documents.className='lw-shared-source-documents';cards.prepend(documents);}
+  let section=documents.querySelector('[data-shared-source-document="'+kind+'"]');
+  if(!section){section=root.ownerDocument.createElement('section');section.dataset.sharedSourceDocument=kind;section.className=kind==='original'?'source-original':'source-translation';const heading=root.ownerDocument.createElement('h3');heading.textContent=kind==='original'?'原文':'译文';const body=root.ownerDocument.createElement('div');section.append(heading,body);documents.append(section);}
+  const body=section.lastElementChild;if(body.dataset.readweaveArticleId===row.articleId&&body.dataset.sharedRevision===String(row.revision)&&body.dataset.sharedDeleted===String(row.deleted))return;
+  body.dataset.sharedRevision=String(row.revision);body.dataset.sharedDeleted=String(row.deleted);body.dataset.readweaveArticleId=row.articleId;body.dataset.readweaveContentRoot='readonly';body.dataset.readweaveMultiblock='true';
+  if(row.deleted)showDeleted(body,row);else body.innerHTML=sanitizeArticle(row.body||'');
+  const sentences=sourceSentences();for(const paragraph of body.querySelectorAll('[data-lw-sentence]')){const sentence=sentences.get(paragraph.dataset.lwSentence);paragraph.dataset.sentenceId=paragraph.dataset.lwSentence;paragraph.classList.add('source-sentence-pair');if(sentence)paragraph.dataset.sourceId=sentence.source_id;}
+  for(const pair of cards.querySelectorAll('.source-sentence-pair'))if(!documents.contains(pair)){pair.hidden=true;pair.dataset.sharedSourceHidden='true';}
+  options.hydrateText?.(body);
  }
  const showDeleted=(element,row)=>{element.replaceChildren();const box=document.createElement('div');box.className='lw-shared-deleted';box.textContent='这篇文章已在共享笔记库中删除，原始生成快照仍然保留';const restore=document.createElement('button');restore.textContent='恢复文章';restore.onclick=async()=>{try{const result=await call('POST',entry(row.articleId)+'/restore',{expectedRevision:row.revision,operationId:crypto.randomUUID()});articleCache.delete(row.articleId);await refreshArticle(result.articleId,element,true);}catch(error){status(error.message);}};box.append(document.createElement('br'),restore);element.append(box);};
  async function syncGlossary(row){
@@ -111,63 +68,95 @@ export function mountSharedReader(root,options){
    if(row.key?.startsWith('explanation:')&&row.key!=='explanation:'+options.bridge()?.doc?.section_id)return row;
    if(!element?.isConnected||element.dataset.readweaveArticleId!==id)return row;
    if(row.deleted)showDeleted(element,row);
-   else if(row.revision>1&&changed&&!(edit&&active?.articleId===id)){
+   else if(row.revision>1&&changed){
     element.innerHTML=sanitizeArticle(row.body||'');element.classList.add('lw-shared-body');
-    options.hydrateMedia?.(element);
+    options.hydrateMedia?.(element);options.hydrateText?.(element);
    }
    await syncGlossary(row);
-  }else if(row.kind==='original'||row.kind==='translation'){
+  }else if(row.kind==='original'||row.kind==='translation'||row.kind==='source'){
    if(changed)applySourceArticle(row,previous);
   }
-  if(active?.articleId===id){active=row;status(row.deleted?'已移入回收站':lease?'正在编辑，草稿会留在当前浏览器':'已同步 · 版本 '+row.revision);}
+  if(active?.articleId===id){active=row;status(row.deleted?'已移入回收站':'已同步 · 版本 '+row.revision);}
   return row;
  }
- function activate(row,element){if(!row||!element||edit&&active?.articleId!==row.articleId)return;active=row;activeRoot=element;element.dataset.readweaveContentRoot='readonly';element.dataset.readweaveArticleId=row.articleId;panel.update(row,element);status(row.deleted?'已移入回收站':'已同步 · 版本 '+row.revision);}
+ function activate(row,element){if(!row||!element)return;active=row;activeRoot=element;element.dataset.readweaveContentRoot='readonly';element.dataset.readweaveMultiblock='true';element.dataset.readweaveArticleId=row.articleId;panel.update(row,element);updateLinks();options.onActiveArticle?.({articleId:row.articleId,kind:row.kind,title:row.title});status(row.deleted?'已移入回收站':'已同步 · 版本 '+row.revision);}
+ function clearCurrentBindings(){
+  sourceContext=null;active=null;activeRoot=null;closeMenu();
+  const nodes=new Set([...root.querySelectorAll('[data-readweave-article-id]'),...externalSurfaces.keys()]);
+  for(const node of nodes){delete node.dataset.readweaveArticleId;delete node.dataset.readweaveContentRoot;delete node.dataset.readweaveMultiblock;}
+  clearSourceBindings();
+  const article=find('demo-content');
+  panel.update(null,article);updateLinks();options.onActiveArticle?.(null);
+  status('正在读取当前章节的共享文章');
+ }
+ function clearSectionContext(){++sectionToken;renderingSectionId=null;clearCurrentBindings();}
  async function loadSection(){
   const token=++sectionToken,state=options.bridge(),sid=state?.doc?.section_id;if(!sid)return;
-  if(edit){if(sid===sourceContext?.sectionId)return;await endEdit();}
+  const article=find('demo-content');
+  if(renderingSectionId!==sid){
+   renderingSectionId=sid;clearCurrentBindings();
+  }
   try{
    manifest=await options.manifest();if(disposed||token!==sectionToken)return;
-   const article=find('demo-content'),id=manifest.section_articles[sid];
+   const id=manifest.section_articles[sid];
    if(!id){status('当前小节尚未保存到共享笔记库');return;}
    clearSourceBindings();sourceContext={sectionId:sid,originalId:manifest.original_articles?.[sid]||null,translationId:manifest.translation_articles?.[sid]||null};
    article.dataset.readweaveArticleId=id;const row=await refreshArticle(id,article);if(disposed||token!==sectionToken)return;activate(row,article);
    for(const sourceId of [sourceContext.originalId,sourceContext.translationId])if(sourceId)refreshArticle(sourceId,null,true).catch(()=>{});
+   const surfaces=[...root.querySelectorAll('.locator-selectable-text')];try{const body=find('locator-dom')?.contentDocument?.body;if(body)surfaces.push(body);}catch{}
+   for(const element of surfaces)if(element.__lessonweaveSourceSurface)externalSurfaces.set(element,element.__lessonweaveSourceSurface);
+   for(const [element,detail]of externalSurfaces)if(element.isConnected)bindSourceSurface(detail).catch(()=>{});else externalSurfaces.delete(element);
    status('已同步 · 版本 '+row.revision);
   }catch(error){if(!disposed)status(error.message);}
  }
- async function release(){const owned=lease;lease=null;if(owned)try{await call('DELETE','lessonweave/edit-sessions/'+owned.leaseId,{token:owned.token,fence:owned.fence});}catch{}}
- async function endEdit(saved=false){edit?.remove();edit=null;await release();if(active&&activeRoot)await refreshArticle(active.articleId,activeRoot,true);status(saved?'修改已同步到 ReadWeave':'已退出编辑，未保存的草稿仍留在当前浏览器');}
- async function beginEdit(){
-  if(edit)return;
-  try{
-   const row=await refreshArticle(active.articleId,activeRoot);if(row.deleted)return;
-   lease=await call('POST','lessonweave/edit-sessions',{articleId:row.articleId,ownerId:'LessonWeave-'+owner});
-   leaseRenewedAt=Date.now();
-   edit=document.createElement('div');const textarea=document.createElement('div');textarea.className='lw-shared-edit';textarea.contentEditable='true';textarea.setAttribute('role','textbox');textarea.setAttribute('aria-multiline','true');textarea.setAttribute('aria-label','编辑共享文章');let draft;try{draft=localStorage.getItem(draftKey(row.articleId));}catch{}textarea.innerHTML=sanitizeArticle(draft??row.body);
-   textarea.oninput=()=>{try{localStorage.setItem(draftKey(row.articleId),textarea.innerHTML);}catch{}};
-   const save=document.createElement('button');save.textContent='保存并同步';save.onclick=async()=>{save.disabled=true;try{const result=await call('PUT',entry(row.articleId),{body:sanitizeArticle(textarea.innerHTML),expectedRevision:row.revision,operationId:crypto.randomUUID(),leaseToken:lease?.token,fence:lease?.fence});try{localStorage.removeItem(draftKey(row.articleId));}catch{}active=result;await endEdit(true);}catch(error){status(error.status===409?'另一处已更新，当前草稿已保留，请退出编辑后对照最新版本':error.message);}finally{save.disabled=false;}};
-   const cancel=document.createElement('button');cancel.textContent='退出编辑';cancel.onclick=()=>endEdit();edit.append(textarea,save,cancel);activeRoot.before(edit);status('正在编辑，另一处暂时无法覆盖这篇文章');textarea.focus();
-  }catch(error){status(error.status===423?'这篇文章正在另一处编辑，可以继续阅读，稍后再改':error.message);}
- }
- listen(tools,'click',async event=>{
-  const command=event.target.closest('[data-shared]')?.dataset.shared;if(!command||!active)return;
-  if(command==='edit')return beginEdit();
-  try{if(edit)await endEdit();const row=await call('GET',entry(active.articleId));await call('DELETE',entry(row.articleId),{expectedRevision:row.revision,operationId:crypto.randomUUID()});await refreshArticle(row.articleId,activeRoot,true);}catch(error){status(error.message);}
+ function nativeUrl(id){return options.nativeUrl?.(id)||('/p/'+encodeURIComponent(manifest?.project_id||options.projectId||'')+'/open-readweave?article='+encodeURIComponent(id));}
+ function updateLinks(){for(const link of tools.querySelectorAll('a[data-shared]')){if(active)link.href=nativeUrl(active.articleId);else link.removeAttribute('href');}}
+ function closeMenu(){menu?.remove();menu=null;}
+ listen(root,'contextmenu',event=>{
+  const element=event.target.closest?.('[data-readweave-article-id]');if(!element)return;
+  const selected=element.ownerDocument.defaultView.getSelection?.();
+  const shadowSelected=element.getRootNode().getSelection?.();if((shadowSelected||selected)?.toString().trim())return;
+  event.preventDefault();closeMenu();const articleId=element.dataset.readweaveArticleId;
+  menu=root.ownerDocument.createElement('div');menu.className='lw-shared-context-menu';menu.setAttribute('role','menu');
+  Object.assign(menu.style,{position:'fixed',left:event.clientX+'px',top:event.clientY+'px',zIndex:2000});
+  for(const [name,label]of [['open','在 ReadWeave 打开'],['edit','在 ReadWeave 编辑'],['delete','移入回收站']]){
+   const button=root.ownerDocument.createElement('button');button.type='button';button.textContent=label;button.setAttribute('role','menuitem');
+   button.onclick=async()=>{closeMenu();if(name!=='delete'){root.ownerDocument.defaultView.open(nativeUrl(articleId),'_blank','noopener');return;}
+    const target=articleCache.get(articleId),kind={explanation:'讲解',original:'原文',translation:'译文',source:'原文件'}[target?.kind]||'文章';
+    if(!root.ownerDocument.defaultView.confirm('将'+kind+'“'+(target?.title||'未命名文章')+'”移入回收站？原始生成快照会保留，可以恢复'))return;
+    try{const row=await call('GET',entry(articleId));await call('DELETE',entry(articleId),{expectedRevision:row.revision,operationId:crypto.randomUUID()});await refreshArticle(articleId,element,true);}catch(error){status(error.message);}
+   };menu.append(button);
+  }root.getRootNode().append(menu);
  });
- listen(root,'pointerdown',async event=>{const element=event.target.closest?.('[data-readweave-article-id]');if(element&&element!==activeRoot){const row=articleCache.get(element.dataset.readweaveArticleId)||await refreshArticle(element.dataset.readweaveArticleId,element);activate(row,element);}});
+ listen(root,'click',event=>{if(!event.target.closest?.('.lw-shared-context-menu'))closeMenu();});
+ listen(root,'keydown',event=>{if(event.key==='Escape')closeMenu();});
+ const externalSurfaces=new Map(),boundSurfaces=new WeakSet();
+ function surfaceId(detail){
+  if(!sourceContext||sourceContext.sectionId!==renderingSectionId||renderingSectionId!==options.bridge()?.doc?.section_id)return null;
+  const identity=[detail.materialRun||'',detail.materialPath||'',detail.pageId||''].join('\n');
+  return manifest?.page_articles?.[identity]||manifest?.page_articles?.[detail.pageId]||manifest?.source_articles?.[String(detail.filePath||'').replace(/^\//,'')]||sourceContext?.originalId;
+ }
+ async function bindSourceSurface(detail){
+  const element=detail.element,id=surfaceId(detail);if(!element||!id)return;
+  element.dataset.readweaveArticleId=id;element.dataset.readweaveContentRoot='readonly';element.dataset.readweaveMultiblock='true';
+  if(!articleCache.has(id))await refreshArticle(id,null);
+  if(boundSurfaces.has(element))return;boundSurfaces.add(element);
+  const select=()=>{if(!element.isConnected)return;const current=surfaceId(externalSurfaces.get(element)||detail),row=current&&articleCache.get(current);if(row&&sourceContext){sourceContext.displayOriginalId=row.articleId;renderSourceDocument(row,'original');activate(row,element);}};
+  element.addEventListener('pointerdown',select,{capture:true,signal:abort.signal});element.addEventListener('contextmenu',select,{capture:true,signal:abort.signal});
+ }
+ listen(root,'reading:source-surface',event=>{if(event.detail?.element){externalSurfaces.set(event.detail.element,event.detail);bindSourceSurface(event.detail).catch(error=>status(error.message));}});
+ listen(root,'pointerdown',async event=>{if(!sourceContext||sourceContext.sectionId!==options.bridge()?.doc?.section_id)return;const element=event.target.closest?.('[data-readweave-article-id]');if(element&&element!==activeRoot){const token=sectionToken,id=element.dataset.readweaveArticleId,row=articleCache.get(id)||await refreshArticle(id,element);if(token===sectionToken&&element.isConnected&&element.dataset.readweaveArticleId===id)activate(row,element);}});
  const sourceCards=find('source-cards'),sourceObserver=typeof MutationObserver==='function'&&sourceCards?new MutationObserver(()=>{if(!sourceContext)return;for(const id of [sourceContext.originalId,sourceContext.translationId]){const row=id&&articleCache.get(id);if(row)applySourceArticle(row,null);}}):null;
  sourceObserver?.observe(sourceCards,{childList:true});
  listen(root,'reading:document-ready',loadSection);
+ listen(root,'reading:document-changing',clearSectionContext);
  const timer=setInterval(async()=>{
   if(disposed||polling||!manifest)return;polling=true;
   try{
-   if(lease&&Date.now()-leaseRenewedAt>30000){lease=await call('PUT','lessonweave/edit-sessions/'+lease.leaseId,{token:lease.token,fence:lease.fence});leaseRenewedAt=Date.now();}
    const changes=await call('GET','lessonweave/changes?after='+cursor+'&editionId='+encodeURIComponent(manifest.editionId));cursor=changes.nextCursor;
    if(changes.changes?.some(item=>!item.kind.startsWith('edit-lease'))&&activeRoot&&active){
-    const sid=options.bridge()?.doc?.section_id,ids=[manifest.section_articles?.[sid],sourceContext?.originalId,sourceContext?.translationId].filter(Boolean);
+    const sid=options.bridge()?.doc?.section_id,ids=[manifest.section_articles?.[sid],sourceContext?.originalId,sourceContext?.translationId,sourceContext?.displayOriginalId,active?.articleId].filter(Boolean);
     for(const id of [...new Set(ids)]){
-     if(edit&&active.articleId===id)continue;
      const element=active.articleId===id?activeRoot:id===manifest.section_articles?.[sid]?find('demo-content'):null;
      const row=await refreshArticle(id,element);
      if(active?.articleId===id){active=row;panel.update(active,activeRoot);}
@@ -177,5 +166,5 @@ export function mountSharedReader(root,options){
   }catch(error){if(!disposed)status(error.message);}finally{polling=false;}
  },900);
  loadSection();
- return{unmount(){disposed=true;abort.abort();clearInterval(timer);sourceObserver?.disconnect();release();panel.unmount();style.remove();container.remove();tools.remove();}};
+ return{unmount(){disposed=true;abort.abort();clearInterval(timer);sourceObserver?.disconnect();closeMenu();panel.unmount();style.remove();container.remove();tools.remove();}};
 }

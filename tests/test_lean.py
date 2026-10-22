@@ -4,6 +4,7 @@ import json
 from lessonweave import pipeline, lean
 from lessonweave.storage import read,save
 import lean_contract as contract
+import bridge_batches
 
 
 def test_default_entry_uses_lean_once_and_does_not_start_legacy_rounds(tmp_path,monkeypatch):
@@ -80,6 +81,9 @@ def test_two_sections_use_c_units_one_translation_and_compact_bridge_batch(tmp_p
                 return {'translations':[{'resource_id':'n1.s1','translation':'缓存保留数据'}]}
             if name=='c_bridges':
                 assert 'explanation' not in prompt
+                assert data['boundaries'][0]['prior_actual_results'] is None
+                assert data['boundaries'][0]['is_first_main_body'] is True
+                assert any('首个正文节' in rule for rule in data['rules'])
                 assert data['boundaries'][1]['prior_actual_results']['answers']==['缓存保留常用数据']
                 return {'bridges':[{'section_id':c['section_id'],'carryover':'程序需要取得数据','premise':'缓存保留常用数据，','question':'加载怎样利用它？'} for c in contexts]}
             assert '-c-' in name
@@ -104,4 +108,61 @@ def test_two_sections_use_c_units_one_translation_and_compact_bridge_batch(tmp_p
     lean.write_sections(tmp_path,Fake())
     assert len(calls)==before
     assert read(tmp_path/'05_writing/work/sections/s1/checks.json')['semantic_review']=='not_run'
+
+
+def test_first_main_body_uses_book_context_and_later_body_uses_previous_body_result():
+    contexts = [
+        {'section_id': 'ch0-s3', 'chapter_id': 'ch0', 'section_number': '0.3',
+         'title': '导读', 'core_questions': [{'question_id': 'q0', 'text': '导读问题？'}]},
+        {'section_id': 'ch1-s1', 'chapter_id': 'ch1', 'section_number': '1.1',
+         'title': '首个正文问题', 'core_questions': [{'question_id': 'q1', 'text': '正文先问什么？'}]},
+        {'section_id': 'ch1-s2', 'chapter_id': 'ch1', 'section_number': '1.2',
+         'title': '后续正文问题', 'core_questions': [{'question_id': 'q2', 'text': '下一步问什么？'}]},
+    ]
+    values = [
+        [{'result': {'answer': '导读提出的旧承接'}}],
+        [{'result': {'answer': '首个正文得到的结果'}}],
+        [{'result': {'answer': '后续正文得到的结果'}}],
+    ]
+    chapters = {'tree': {'title': '全书标题', 'question_ids': ['root-q']}}
+    questions = {'root-q': {'premise': '研究者要解决的问题是', 'question': '怎样确认核心条件？'}}
+
+    boundaries = lean.build_bridge_boundaries(list(zip(contexts, values)), chapters, questions)
+
+    assert boundaries[0]['is_preface'] is True
+    first_body = boundaries[1]
+    assert first_body['prior_actual_results'] is None
+    assert first_body['project_background'] == {
+        'title': '全书标题',
+        'root_questions': [{'question_id': 'root-q', 'text': '研究者要解决的问题是怎样确认核心条件？'}],
+    }
+    assert first_body['current']['questions'] == contexts[1]['core_questions']
+    assert boundaries[2]['prior_actual_results']['answers'] == ['首个正文得到的结果']
+    assert 'project_background' not in boundaries[2]
+
+
+def test_targeted_opening_tool_calls_only_first_main_body_and_returns_proposal(monkeypatch):
+    boundaries = [
+        {'section_id': 'ch0-s3', 'is_preface': True},
+        {'section_id': 'ch1-s1', 'is_first_main_body': True, 'project_background': {'root_questions': []}},
+        {'section_id': 'ch1-s2'},
+    ]
+    calls = []
+
+    def generate(backend, selected):
+        calls.append(selected)
+        return {'bridges': [{'section_id': 'ch1-s1', 'carryover': '承接候选',
+                             'premise': '引出前提', 'question': '继续问什么？'}],
+                'records': [{'status': 'completed'}]}
+
+    monkeypatch.setattr(bridge_batches, 'generate', generate)
+    result = lean.generate_first_opening_candidate(object(), boundaries)
+
+    assert len(calls) == 1 and [row['section_id'] for row in calls[0]] == ['ch1-s1']
+    assert result == {
+        'status': 'proposed_only',
+        'candidate': {'section_id': 'ch1-s1', 'carryover': '承接候选',
+                      'premise': '引出前提', 'question': '继续问什么？'},
+        'records': [{'status': 'completed'}],
+    }
 
