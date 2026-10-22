@@ -257,23 +257,33 @@
 
   // 原图、图容器与图注共用一个阅读视图，各自的来源 ID 和原始文字仍然保留
   function mergeSourceViews(sources) {
-    const groups = [];
+    const groups = [], bySource = new Map(), states = new WeakMap(), removed = new Set();
     for (const source of sources) {
       const ids = sourceIds(source);
-      const related = groups.filter(group => [...sourceIds(group)].some(id => ids.has(id)));
+      const related = [...new Set([...ids].map(id => bySource.get(id)).filter(Boolean))]
+        .sort((a,b) => states.get(a).order - states.get(b).order);
       if (!related.length) {
-        groups.push({ ...source, source_ids: [...ids], sentences: [...(source.sentences || [])], scope_notes: source.scope_note ? [source.scope_note] : [] });
+        const group = { ...source, sentences: [...(source.sentences || [])] };
+        states.set(group, {ids, sentences: new Set(group.sentences.map(sentence => sentence.id)),
+          notes: new Set(source.scope_note ? [source.scope_note] : []), order: groups.length});
+        groups.push(group);
+        for (const id of ids) bySource.set(id, group);
         continue;
       }
       const group = related[0];
+      const state = states.get(group);
       const members = [...related.slice(1), source];
       for (const member of members) {
-        group.source_ids = [...new Set([...group.source_ids, ...sourceIds(member)])];
+        const memberState = states.get(member);
+        for (const id of memberState?.ids || sourceIds(member)) {
+          state.ids.add(id); bySource.set(id, group);
+        }
         for (const sentence of member.sentences || []) {
-          if (!group.sentences.some(existing => existing.id === sentence.id)) group.sentences.push(sentence);
+          if (!state.sentences.has(sentence.id)) {state.sentences.add(sentence.id);group.sentences.push(sentence);}
         }
         group.original_texts = { ...(group.original_texts || {}), ...(member.original_texts || {}) };
-        group.scope_notes = [...new Set([...group.scope_notes, ...(member.scope_notes || []), ...(member.scope_note ? [member.scope_note] : [])])];
+        for (const note of memberState?.notes || member.scope_notes || []) state.notes.add(note);
+        if (member.scope_note) state.notes.add(member.scope_note);
         if (!group.asset && member.asset) group.asset = member.asset;
         if (!group.caption && member.caption) group.caption = member.caption;
         if (!group.chart_data && member.chart_data) group.chart_data = member.chart_data;
@@ -282,9 +292,10 @@
           group.type = member.type;
         }
       }
-      for (const duplicate of related.slice(1)) groups.splice(groups.indexOf(duplicate), 1);
+      for (const duplicate of related.slice(1)) removed.add(duplicate);
     }
-    return groups;
+    return groups.filter(group => !removed.has(group)).map(group => ({...group,
+      source_ids: [...states.get(group).ids], scope_notes: [...states.get(group).notes]}));
   }
 
   function hasReadingMaterial(source, selection = null) {

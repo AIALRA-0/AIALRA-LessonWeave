@@ -165,3 +165,75 @@ def test_chapter_switch_does_not_keep_previous_article_while_manifest_waits():
         assert page.locator('[data-shared=edit]').get_attribute('href')=='/native/new'
         assert not any(method not in('GET','HEAD')for method,path in calls)
         browser.close()
+
+
+@pytest.mark.parametrize('new_section_state', ['pending', 'ready'])
+def test_old_poll_cannot_outlive_chapter_scope(new_section_state):
+    html='''<!doctype html><meta charset="utf-8"><button id="next">下一节</button><div id="host"></div><script type="module">
+    import {mountSharedReader} from '/integrations/readweave/shared-reader.js';
+    const shadow=document.querySelector('#host').attachShadow({mode:'open'}),root=document.createElement('main');
+    root.className='lw-reader-root';root.innerHTML='<article id="demo-content"><p>旧章节正文</p></article><aside id="glossary-result"><div id="glossary-list"></div></aside><div id="source-cards"></div>';shadow.append(root);
+    window.state={doc:{section_id:'s1',glossary:[]}};window.root=root;window.sharedEvents=[];window.statuses=[];
+    window.addEventListener('readweave:shared-change',event=>sharedEvents.push(event.detail));
+    const request=async(path,init={})=>{const url=path.startsWith('lessonweave/')?'/api/shared/'+path.slice(12):'/api/'+path;const response=await fetch(url,init),value=await response.json();if(path==='lessonweave/articles/old'&&value.revision===2)window.oldResponseReturned=true;return value};
+    mountSharedReader(root,{bridge:()=>state,nativeUrl:id=>'/native/'+id,request,manifest:()=>fetch('/manifest?section='+state.doc.section_id).then(response=>response.json())});
+    new MutationObserver(()=>statuses.push(root.querySelector('.lw-shared-state').textContent)).observe(root.querySelector('.lw-shared-state'),{childList:true,subtree:true});
+    document.querySelector('#next').onclick=()=>{root.dispatchEvent(new CustomEvent('reading:document-changing'));state.doc={section_id:'s2',glossary:[]};root.querySelector('#demo-content').innerHTML='<p>新章节正文</p>';root.dispatchEvent(new CustomEvent('reading:document-ready'));};
+    </script>'''
+    manifest={'editionId':'e','section_articles':{'s1':'old','s2':'new'},'original_articles':{'s1':'old-source','s2':'new-source'}}
+    delayed_old,delayed_manifest,calls,errors=[],[],[],[]
+    armed={'value':False,'feed':False}
+    def article(id,revision=1):
+        source=id.endswith('-source')
+        return {'articleId':id,'editionId':'e','key':('original:'if source else'explanation:')+('s1'if id.startswith('old')else's2'),'kind':'original'if source else'explanation','title':id,'body':'<p>'+id+'</p>','revision':revision,'deleted':False,'readweave':{'objects':[],'links':[]}}
+    with sync_playwright()as p:
+        browser=p.chromium.launch();page=browser.new_page()
+        page.on('pageerror',lambda error:errors.append(str(error)))
+        def route(r):
+            path=urlsplit(r.request.url).path;calls.append((r.request.method,path))
+            if path=='/':r.fulfill(body=html,content_type='text/html');return
+            if path=='/manifest':
+                if armed['value']:delayed_manifest.append(r)
+                else:r.fulfill(json=manifest)
+                return
+            if path.startswith('/api/shared/articles/'):
+                id=path.rsplit('/',1)[-1]
+                if id=='old'and armed['value']:delayed_old.append(r)
+                else:r.fulfill(json=article(id))
+                return
+            if path=='/api/shared/changes':
+                changed=armed['value']and not armed['feed'];armed['feed']|=changed
+                r.fulfill(json={'changes':[{'kind':'article-updated','articleId':'old'}]if changed else[],'nextCursor':1 if changed else 0});return
+            if path.startswith('/api/'):
+                r.fulfill(json={'anchors':[],'entries':[],'jobs':[],'removedJobIds':[]});return
+            file=(ROOT/path.lstrip('/')).resolve()
+            if file.is_relative_to(ROOT)and file.is_file():r.fulfill(path=str(file));return
+            r.fulfill(status=404,body='Not found')
+        page.route('http://127.0.0.1:19876/**',route);page.goto('http://127.0.0.1:19876/')
+        page.wait_for_function("root.querySelector('[data-shared=edit]').getAttribute('href')==='/native/old'")
+        armed['value']=True
+        for _ in range(100):
+            if delayed_old:break
+            page.wait_for_timeout(25)
+        assert delayed_old
+        page.get_by_role('button',name='下一节',exact=True).click()
+        for _ in range(100):
+            if delayed_manifest:break
+            page.wait_for_timeout(25)
+        assert delayed_manifest
+        if new_section_state=='ready':
+            delayed_manifest.pop().fulfill(json=manifest)
+            page.wait_for_function("root.querySelector('[data-shared=edit]').getAttribute('href')==='/native/new'")
+        delayed_old.pop().fulfill(json=article('old',2))
+        page.wait_for_function('window.oldResponseReturned===true');page.wait_for_timeout(100)
+        assert not any('Cannot read' in text for text in page.evaluate('statuses'))
+        assert not any('old'in event.get('articleIds',[])or'old-source'in event.get('articleIds',[])for event in page.evaluate('sharedEvents'))
+        if new_section_state=='pending':
+            assert page.locator('[data-shared=edit]').get_attribute('href')is None
+            delayed_manifest.pop().fulfill(json=manifest)
+            page.wait_for_function("root.querySelector('[data-shared=edit]').getAttribute('href')==='/native/new'")
+        assert page.locator('#demo-content').get_attribute('data-readweave-article-id')=='new'
+        assert page.locator('[data-shared=edit]').get_attribute('href')=='/native/new'
+        assert not any(method not in('GET','HEAD')for method,path in calls)
+        assert errors==[]
+        browser.close()

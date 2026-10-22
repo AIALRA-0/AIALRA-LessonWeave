@@ -48,7 +48,7 @@ export function mountSharedReader(root,options){
   options.hydrateText?.(body);
  }
  const showDeleted=(element,row)=>{element.replaceChildren();const box=document.createElement('div');box.className='lw-shared-deleted';box.textContent='这篇文章已在共享笔记库中删除，原始生成快照仍然保留';const restore=document.createElement('button');restore.textContent='恢复文章';restore.onclick=async()=>{try{const result=await call('POST',entry(row.articleId)+'/restore',{expectedRevision:row.revision,operationId:crypto.randomUUID()});articleCache.delete(row.articleId);await refreshArticle(result.articleId,element,true);}catch(error){status(error.message);}};box.append(document.createElement('br'),restore);element.append(box);};
- async function syncGlossary(row){
+ async function syncGlossary(row,token=sectionToken){
   const bridge=options.bridge(),doc=bridge?.doc,sectionId=row.source?.section_id||doc?.section_id;
   if(row.kind!=='explanation'||!row.readweave||!Array.isArray(doc?.glossary)||!sectionId)return;
   if(!glossaryBaseline.has(sectionId))glossaryBaseline.set(sectionId,doc.glossary.map(term=>({...term,explanation:[...(term.explanation||[])]})));
@@ -58,10 +58,10 @@ export function mountSharedReader(root,options){
   const mapped=new Map();for(const link of row.readweave.links||[]){const item={...objects.get(link.objectId),...link};if(link.articleId===row.articleId&&item.contentType==='definition')mapped.set(link.anchorId,item);}
   const updated=[];
   for(const term of terms){const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(term.id||term.display))),b=>b.toString(16).padStart(2,'0')).join('').slice(0,24);const item=mapped.get('lwdef_'+hash);if(!item){if(!baselineKeys.has(key(term)))updated.push(term);continue;}const paragraphs=(item.displayBody??item.body??'').split(/\n\s*\n/);updated.push({...term,display:item.displayTitle||item.title||term.display,definition:paragraphs.shift()||'',explanation:paragraphs});}
-  options.updateGlossary?.(updated);
+  if(!disposed&&token===sectionToken&&doc===options.bridge()?.doc)options.updateGlossary?.(updated);
  }
- async function refreshArticle(id,element,force=false){
-  const row=await call('GET',entry(id));if(disposed)return row;
+ async function refreshArticle(id,element,force=false,token=sectionToken){
+  const row=await call('GET',entry(id));if(disposed||token!==sectionToken)return row;
   const previous=articleCache.get(id);articleCache.set(id,row);
   const changed=force||!previous||previous.revision!==row.revision;
   if(row.kind==='explanation'){
@@ -72,11 +72,11 @@ export function mountSharedReader(root,options){
     element.innerHTML=sanitizeArticle(row.body||'');element.classList.add('lw-shared-body');
     options.hydrateMedia?.(element);options.hydrateText?.(element);
    }
-   await syncGlossary(row);
+   await syncGlossary(row,token);
   }else if(row.kind==='original'||row.kind==='translation'||row.kind==='source'){
    if(changed)applySourceArticle(row,previous);
   }
-  if(active?.articleId===id){active=row;status(row.deleted?'已移入回收站':'已同步 · 版本 '+row.revision);}
+  if(!disposed&&token===sectionToken&&active?.articleId===id){active=row;status(row.deleted?'已移入回收站':'已同步 · 版本 '+row.revision);}
   return row;
  }
  function activate(row,element){if(!row||!element)return;active=row;activeRoot=element;element.dataset.readweaveContentRoot='readonly';element.dataset.readweaveMultiblock='true';element.dataset.readweaveArticleId=row.articleId;panel.update(row,element);updateLinks();options.onActiveArticle?.({articleId:row.articleId,kind:row.kind,title:row.title});status(row.deleted?'已移入回收站':'已同步 · 版本 '+row.revision);}
@@ -151,19 +151,25 @@ export function mountSharedReader(root,options){
  listen(root,'reading:document-ready',loadSection);
  listen(root,'reading:document-changing',clearSectionContext);
  const timer=setInterval(async()=>{
-  if(disposed||polling||!manifest)return;polling=true;
+  if(disposed||polling||!manifest)return;const token=sectionToken,editionId=manifest.editionId;polling=true;
   try{
-   const changes=await call('GET','lessonweave/changes?after='+cursor+'&editionId='+encodeURIComponent(manifest.editionId));cursor=changes.nextCursor;
+   const changes=await call('GET','lessonweave/changes?after='+cursor+'&editionId='+encodeURIComponent(editionId));
+   if(disposed||token!==sectionToken||manifest?.editionId!==editionId)return;
    if(changes.changes?.some(item=>!item.kind.startsWith('edit-lease'))&&activeRoot&&active){
-    const sid=options.bridge()?.doc?.section_id,ids=[manifest.section_articles?.[sid],sourceContext?.originalId,sourceContext?.translationId,sourceContext?.displayOriginalId,active?.articleId].filter(Boolean);
+    const articleId=active.articleId,surface=activeRoot,sid=options.bridge()?.doc?.section_id,explanationId=manifest.section_articles?.[sid];
+    const current=()=>!disposed&&token===sectionToken&&active?.articleId===articleId&&activeRoot===surface;
+    const ids=[explanationId,sourceContext?.originalId,sourceContext?.translationId,sourceContext?.displayOriginalId,articleId].filter(Boolean);
     for(const id of [...new Set(ids)]){
-     const element=active.articleId===id?activeRoot:id===manifest.section_articles?.[sid]?find('demo-content'):null;
-     const row=await refreshArticle(id,element);
-     if(active?.articleId===id){active=row;panel.update(active,activeRoot);}
+     if(!current())return;
+     const element=articleId===id?surface:id===explanationId?find('demo-content'):null;
+     const row=await refreshArticle(id,element,false,token);
+     if(!current())return;
+     if(articleId===id){active=row;panel.update(row,surface);}
     }
-    window.dispatchEvent(new CustomEvent('readweave:shared-change',{detail:{articleId:active.articleId,articleIds:[...new Set(ids)]}}));
+    window.dispatchEvent(new CustomEvent('readweave:shared-change',{detail:{articleId,articleIds:[...new Set(ids)]}}));
    }
-  }catch(error){if(!disposed)status(error.message);}finally{polling=false;}
+   cursor=changes.nextCursor;
+  }catch(error){if(!disposed&&token===sectionToken)status(error.message);}finally{polling=false;}
  },900);
  loadSection();
  return{unmount(){disposed=true;abort.abort();clearInterval(timer);sourceObserver?.disconnect();closeMenu();panel.unmount();style.remove();container.remove();tools.remove();}};
