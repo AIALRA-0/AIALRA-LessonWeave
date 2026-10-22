@@ -112,7 +112,7 @@ window.LessonMedia=(()=>{
  }
  function render(resource,settings={}){const r=resource,options={prefix:'1',index:1,path:x=>x,...settings},root=make('section',undefined,'lw-media '+(r.kind==='code'?'lw-media-code':''));root.dataset.mediaId=r.id;root.dataset.mediaNumber=(assetLabel[r.kind]||'素材')+' '+options.prefix+'-'+options.index;
    if(r.attachment_role==='system_metadata'){root.classList.add('debug-only');const link=make('a','系统元数据：'+r.rows[0][0]);link.href=options.path(r.attachment_asset);root.append(link);return root;}
-  const v=viewer(r,options,r.kind==='code'?codeBody(r):genericBody(r,options));root.append(v.fig);
+  const v=viewer(r,options,options.body??(r.kind==='code'?codeBody(r):genericBody(r,options)));root.append(v.fig);
   if(r.kind==='code'){
    const intro=section('综合综述',root);par(r.guide.overview,intro);
    if(r.runs.length)section('实际运行',root).append(table(['输入','输出'],r.runs.map(run=>[run.inputs,run.outputs])));

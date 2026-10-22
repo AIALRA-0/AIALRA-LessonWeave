@@ -66,20 +66,71 @@
     if (!data || !window.LessonMedia) return;
     const blocks = data.units.flatMap(unit => unit.explanation);
     for (const holder of element.querySelectorAll('[data-shared-media]')) {
+      if (holder.__lessonMediaHydrated) continue;
       const original = blocks.find(block => block.id === holder.dataset.sharedMedia);
       if (!original || !original.guide) continue;
       const resource = {...original};
-      const image = holder.querySelector('img');
-      if (image) resource.asset = new URL(image.getAttribute('src'), location.href).href;
-      const code = holder.querySelector('pre code');
-      if (code && resource.kind === 'code') resource.text = code.textContent;
+      const caption = holder.querySelector('figcaption') || holder.querySelector(':scope > p:last-of-type');
+      resource.caption = caption ? (window.ReaderText?.plain(caption) ?? caption.textContent) : '';
+      let body, visual;
+      if (resource.kind === 'table') {
+        visual = holder.querySelector('table');
+        if (!visual) continue;
+        body = make('div', undefined, 'lw-media-table');
+      } else if (resource.kind === 'formula') {
+        visual = holder.querySelector('.math-tex,[data-lw-formula],[data-math-source],math,pre');
+        if (!visual) continue;
+        resource.text = visual.dataset.mathSource ?? visual.querySelector('annotation[encoding="application/x-tex"]')?.textContent ?? visual.textContent;
+        if (!resource.text.trim()) continue;
+        if (visual.matches('pre')) {
+          const formula = make('div', resource.text, 'math-tex');
+          for (const attribute of visual.attributes) if (attribute.name !== 'class') formula.setAttribute(attribute.name, attribute.value);
+          formula.dataset.lwFormula = 'true';visual.replaceWith(formula);visual = formula;
+        }
+        body = visual;
+        if (!visual.querySelector('.katex') && window.ReaderText) visual.mediaReady = ReaderText.math(visual, resource.text, true);
+      } else if (resource.kind === 'mermaid') {
+        visual = holder.querySelector('pre,.lw-media-mermaid,svg');
+        if (!visual) continue;
+        resource.text = visual.dataset.mermaidSource ?? (visual.matches('pre') ? visual.textContent : '');
+        if (!resource.text.trim()) body = visual;
+      } else if (resource.kind === 'image') {
+        visual = holder.querySelector('img,svg');
+        if (!visual) continue;
+        body = visual;
+        if (visual.matches('img')) {resource.asset = visual.src;resource.alt = visual.getAttribute('alt') ?? '';}
+      } else if (resource.kind === 'code') {
+        visual = holder.querySelector('pre code');
+        if (!visual) continue;
+        resource.text = visual.textContent;
+      } else {
+        visual = holder.querySelector('audio,video,iframe,canvas,svg,a[href]');
+        if (!visual) continue;
+        const asset = visual.getAttribute('src') ?? visual.getAttribute('href');
+        if (asset) resource.asset = new URL(asset, location.href).href;
+        if (!visual.matches('a')) body = visual;
+      }
+      // 只补工具框，图注和视觉内容以共享文章为准，已删除的内容不从旧稿补回
+      const extras = [...holder.childNodes].filter(node => node !== visual && !node.contains(visual) && node !== caption && !(caption && node.contains(caption)));
+      if (resource.kind === 'table') body.append(visual);
       const placement = mediaPlacement(resource);
       const rendered = window.LessonMedia.render(resource, {
-        prefix: placement.prefix, index: placement.index, path: projectPath,
+        prefix: placement.prefix, index: placement.index, path: projectPath, body,
         image: item => sourceImage(item.asset, item.alt || item.caption, imageRegion(item.source_id, item.source_region))
       });
       const figure = rendered.querySelector('.lw-media-figure');
-      if (figure) holder.replaceChildren(figure);
+      if (figure) {
+        const target = figure.querySelector('figcaption');
+        if (caption) {
+          const numbered = /^(?:图|表|式|代码|模型|视频|音频|交互)\s*\d/.test(resource.caption.trim());
+          const prefix = caption.closest('.lw-media-figure') || numbered ? '' : window.LessonMedia.label(resource.kind)+' '+placement.prefix+'-'+placement.index+'. ';
+          target.replaceChildren(document.createTextNode(prefix), ...caption.childNodes);
+        } else target.remove();
+        const diagram = figure.querySelector('.lw-media-mermaid');
+        if (diagram && resource.kind === 'mermaid' && resource.text) diagram.dataset.mermaidSource = resource.text;
+        holder.replaceChildren(figure, ...extras);
+        holder.__lessonMediaHydrated = true;
+      }
     }
   }
 
