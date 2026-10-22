@@ -1,0 +1,285 @@
+tests/test_question_first_pass.py
+  s_bd317cec756d17::t_22eafe66f24ae6 332-333
+integrations/readweave/build_component.py
+  s_bd317cec756d17::t_8b994a14e8a2a8 59
+  s_bd317cec756d17::t_442afa9be5ee93 63,88
+README.md
+  s_bd317cec756d17::t_816301ea7f15b1 14-17
+  s_bd317cec756d17::t_676f261cac0802 13,18,26-28
+  s_4552c046844e7c::t_f340a9d71cbd74 29
+tests/test_term_case_exceptions.py
+  s_bd317cec756d17::t_2c670fb83ddda1 105,113
+  s_bd317cec756d17::t_1d22ef3fbb936d 103,112,114
+  s_bd317cec756d17::t_ca2eec6bf284a1 3-4,17,72-88,101-102,104,106-111,115-131,163-225,246-249,289,299-305,313-315,320-440
+integrations/readweave/host/entry.tsx
+  s_bd317cec756d17::t_32f13fb06f7444 14,25,41
+  s_bd317cec756d17::t_2f53afe74c4918 30-40,42-43
+tests/test_pdf_selectable_text.py
+  s_bd317cec756d17::t_21d28b251af3bc 7,29-54
+  s_bd317cec756d17::t_278cfc3b8f4aa6 6
+  s_bd317cec756d17::t_f412416c9b249b 1-5,8-28
+framework/05_writing/book_sources.py
+  s_bd317cec756d17::t_3bf8d79e474e9c 191
+  s_bd317cec756d17::t_ff3384a095b6bb 194-195
+  s_bd317cec756d17::t_84d5194af516c4 140,147-173
+  s_bd317cec756d17::t_d8a6ef95ff995c 178-190,192-193,196-209
+  s_bd317cec756d17::t_9832195eed06a3 139
+  s_bd317cec756d17::t_014e6b26b874f5 125,128,130,133-135,141,739
+  s_bd317cec756d17::t_9a5ca107acaa7c 122,124,129,136,142-146,174-177,738,740
+lessonweave/shared_html.py
+  s_bd317cec756d17::t_4271b3f3ff57bd 49-51
+tests/test_worker_lock_recovery.py
+  s_bd317cec756d17::t_8020cb84d6ffcb 1-20
+tests/test_lean.py
+  s_bd317cec756d17::t_b3961dc0d44983 7,112-168
+  s_bd317cec756d17::t_210a655513c82d 84-86
+framework/05_writing/repair_batches.py
+  s_bd317cec756d17::t_93c25ca2c6c5cb 9
+  s_bd317cec756d17::t_2c8faaec0ce483 22-27,30-34,36
+AGENTS.md
+  s_bd317cec756d17::t_d164eb72eacf57 7,45
+integrations/readweave/package_source.py
+  s_bd317cec756d17::t_0a2a0aae37d989 312
+framework/05_writing/book_terminology.py
+  s_bd317cec756d17::t_6dc6be2251da0f 148-149,155-156,167,176
+  s_bd317cec756d17::t_3696c0e1976d41 142-143
+  s_bd317cec756d17::t_0a756d7d3314d1 139-141,144-147,150-154,157-159,165-166,168-175,182-186,242-245,250,256-276,278-293,295-307,309,312-315,318-361,365-367,370-372,378,387,389-396,400,404-405
+  s_bd317cec756d17::t_d252bee14fa9ff 177,181
+tests/test_source_selection_browser.py
+  s_bd317cec756d17::t_6152169f53d59d 86-88
+  s_bd317cec756d17::t_58db5bb78f99d0 116
+  s_bd317cec756d17::t_24eea9d3352b87 1-53,55,57,59-62,64-80,85,89-100,106-109,111-115,133,139-140
+  s_bd317cec756d17::t_26cb8a7bd02b35 56,81-84
+  s_bd317cec756d17::t_fdf4b63b8a30ae 117,123-132,134
+  s_bd317cec756d17::t_b0eea0b073229f 54,101-105
+  s_bd317cec756d17::t_d8800e244b8327 58,138
+  s_bd317cec756d17::t_1a221fd0c5d980 118,120-121
+  s_bd317cec756d17::t_517a713c1151dd 122
+  s_bd317cec756d17::t_de1efefdc76ae6 119
+  s_bd317cec756d17::t_649ea7d08b7e7b 135-137
+  s_bd317cec756d17::t_32f13fb06f7444 63,110
+docs/usage.md
+  s_bd317cec756d17::t_54318b6652ab49 18
+tests/test_source_text_coverage.py
+  s_bd317cec756d17::t_1903875817ef37 15,30-31,69-76
+  s_bd317cec756d17::t_eb7a18de3ad17f 35,40-41
+  s_bd317cec756d17::t_53a39be0def65d 1-14,16-29,32-34,38-39,42-46,50-68
+  s_bd317cec756d17::t_ecc11d5e9c104e 36-37,47-49
+lessonweave/readweave_backfill.py
+  s_bd317cec756d17::t_b95e041afc724c 32,40-42,46,48-51
+  s_bd317cec756d17::t_95fa12afe7dd4c 47
+  s_bd317cec756d17::t_b9d58cd9e8a487 1-31,33-39,43-45,52-74
+lessonweave/agents.py
+  s_bd317cec756d17::t_22eafe66f24ae6 75,86-87,126-127,248
+tests/test_readweave_package_source.py
+  s_bd317cec756d17::t_0a2a0aae37d989 200
+  s_bd317cec756d17::t_0d5991968025f0 199,201-206
+  s_bd317cec756d17::t_10b7eed7b5d0f6 207
+framework/05_writing/bridge_batches.py
+  s_bd317cec756d17::t_1b47eeaf960dd3 15
+tests/test_media_pin.py
+  s_bd317cec756d17::t_3dfa9fb3d96f18 140,143
+  s_bd317cec756d17::t_3ded9ac4db394b 141
+  s_bd317cec756d17::t_4271b3f3ff57bd 54,108
+  s_bd317cec756d17::t_1278d9699f2726 109-110,137-139,142,144-152
+  s_bd317cec756d17::t_3f2aa397eff192 111-136
+framework/05_writing/math_syntax.cjs
+  s_bd317cec756d17::t_9e9051fc591fcb 4,9-10
+  s_bd317cec756d17::t_3acbee4623f6f1 7,11
+  s_bd317cec756d17::t_f48de9bc83dccb 8,14
+  s_bd317cec756d17::t_350f0cc93d68b3 12-13
+web/theme.css
+  s_bd317cec756d17::t_f10f5a8c768f7d 2-3
+framework/reader/media-renderer.css
+  s_bd317cec756d17::t_4271b3f3ff57bd 28
+  s_bd317cec756d17::t_7d96e173906847 7,10,15,25,31-32
+  s_bd317cec756d17::t_128429d04e79b4 1
+framework/reader/source-locator.js
+  s_bd317cec756d17::t_32f13fb06f7444 9-10,27,583,585
+  s_bd317cec756d17::t_de1efefdc76ae6 584
+  s_bd317cec756d17::t_2f30ffaa41c74e 8,11-26,28-29,102,167,558-560,580,586
+  s_bd317cec756d17::t_482f51501ea98e 581-582
+framework/reader/reading-ui.js
+  s_bd317cec756d17::t_602eab41a6432b 105
+  s_bd317cec756d17::t_2fa990299bb327 16
+  s_bd317cec756d17::t_94084b52757471 12
+  s_bd317cec756d17::t_d5442fe62af560 106-111,114,116
+  s_bd317cec756d17::t_9b62d8aee45c83 112,115,123
+  s_bd317cec756d17::t_8e0dcb292f6e06 4-11,13,54,113,118-119,121,124-125,267
+  s_bd317cec756d17::t_1bed82ac7b704f 117,120,122
+docs/readweave-validation.md
+  s_bd317cec756d17::t_cdb49c5bd82ab7 3-9,11-14,19-24
+  s_bd317cec756d17::t_7df01b48f754a7 10,15-18
+  s_bd317cec756d17::t_31f07835ed49b7 25-27
+framework/05_writing/prepare_source_locations.py
+  s_bd317cec756d17::t_1ed6837abcb859 237,239
+  s_bd317cec756d17::t_1a62ded587c0cc 153-209,238
+docs/deployment.md
+  s_bd317cec756d17::t_cdb49c5bd82ab7 40
+framework/05_writing/lean_contract.py
+  s_bd317cec756d17::t_f3b766d1bf86ab 63,80,104-105
+tests/test_readweave_host.py
+  s_bd317cec756d17::t_cfa017e2346bac 120,143-144,147-149
+  s_bd317cec756d17::t_6152169f53d59d 78-79,81,86-87
+  s_bd317cec756d17::t_568a8527684848 13,17-18,26,46,54-57,72,74-77,80,82-85,88-92,95-111
+  s_bd317cec756d17::t_62672c8713a574 112-119,121,123-142,146,150-155,158-167
+  s_bd317cec756d17::t_d6ab0879753c6d 122
+  s_bd317cec756d17::t_7af4c8d1cc3730 145,156-157
+framework/05_writing/migrate_term_names.py
+  s_bd317cec756d17::t_f6ff1f1edef1ee 1-24,26-87
+  s_bd317cec756d17::t_ab6fe62444c7a9 25
+  s_bd317cec756d17::t_fac691285aedf8 88-187
+tests/test_reader_ui_polish.py
+  s_bd317cec756d17::t_909241dcde2143 17,20,38-43,45,50-52,65-67
+  s_bd317cec756d17::t_09178b343c60fb 34,56,71
+  s_bd317cec756d17::t_2e62d0402e09df 55
+  s_bd317cec756d17::t_03392189128c72 1-16,18-19,21-33,35-37,44,46-49,53-54,57-64,68-70,72-81,85-92
+  s_bd317cec756d17::t_5125272530e423 130-170
+  s_bd317cec756d17::t_843aa47c6882cd 82-84
+  s_bd317cec756d17::t_a2d26ea5e1ec29 96-99
+  s_bd317cec756d17::t_9426a7ff521346 93-95,100-129
+tests/test_readweave_shared_reader_browser.py
+  s_bd317cec756d17::t_702e205ab12392 62
+  s_bd317cec756d17::t_517a713c1151dd 217,224-228
+  s_bd317cec756d17::t_568a8527684848 49,72,88-89,141,146,148-159,180,195,199,207-208
+  s_bd317cec756d17::t_649ea7d08b7e7b 209-216,218-223,229-232
+tests/test_reader_math.py
+  s_bd317cec756d17::t_15800f9ab4c680 1-8,10-103
+  s_bd317cec756d17::t_3acbee4623f6f1 104-105,122,124-127
+  s_bd317cec756d17::t_d51129fb35300c 106-121
+  s_bd317cec756d17::t_754b2288c585d5 9
+  s_bd317cec756d17::t_f48de9bc83dccb 135-141
+  s_bd317cec756d17::t_da64f89a4a3053 123,128-134
+lessonweave/readweave.py
+  s_bd317cec756d17::t_7ee13b962655b2 114-115,117-118,193-194
+  s_bd317cec756d17::t_b2e218bd690fca 60,121,153-174,207
+lessonweave/server.py
+  s_bd317cec756d17::t_cb39a350a0a49d 9,31-38
+  s_bd317cec756d17::t_b9d58cd9e8a487 455-456
+  s_bd317cec756d17::t_b2e218bd690fca 220-221
+  s_bd317cec756d17::t_7f0597ae990839 171
+integrations/readweave/HANDOFF.md
+  s_bd317cec756d17::t_cdb49c5bd82ab7 58,69-74
+framework/05_writing/math_syntax.py
+  s_bd317cec756d17::t_9e9051fc591fcb 12,19-20,31-42,48-49,53-54,57
+  s_bd317cec756d17::t_d51129fb35300c 11
+framework/reader/book.html
+  s_bd317cec756d17::t_ce4b5db251c36a 2,9,17,67,84
+  s_bd317cec756d17::t_0761dea8d6c229 20,23-25,27
+  s_bd317cec756d17::t_70283de52edba4 8
+lessonweave/lean.py
+  s_bd317cec756d17::t_d0c3122aff0153 374,377-378
+  s_bd317cec756d17::t_917f9e0e810e86 84-151
+  s_bd317cec756d17::t_313a3262ab0017 152-170
+framework/architecture/index.html
+  s_bd317cec756d17::t_63ffa4d963706c 7
+  s_bd317cec756d17::t_7746985a266b13 2,8,10
+framework/architecture/compact.css
+  s_bd317cec756d17::t_7fdc8f66c64e6c 1-2
+framework/architecture/flow.js
+  s_bd317cec756d17::t_5b0456b67d9aef 7-13,64-66,118
+framework/reader/reader-text.js
+  s_bd317cec756d17::t_350f0cc93d68b3 26-29
+  s_bd317cec756d17::t_4271b3f3ff57bd 18,34-47,49,51,53,55-59,61-63,65-75,77-87,102
+  s_bd317cec756d17::t_3acbee4623f6f1 21,25,50
+  s_bd317cec756d17::t_1278d9699f2726 60,76
+docs/architecture.md
+  s_bd317cec756d17::t_11eb44efc46735 23,43,47,61,73-76
+  s_bd317cec756d17::t_54318b6652ab49 77
+web/workspace.html
+  s_bd317cec756d17::t_32eb7d2765393d 2
+  s_bd317cec756d17::t_e9209fa162faa9 3-5
+docs/security/publication-risk-notes.md
+  s_bd317cec756d17::t_0f034b2ca0f37c 25-32
+framework/reader/reading-ui.css
+  s_bd317cec756d17::t_b851140951e384 2,17-20,29-31,85-87,94,149-150
+  s_bd317cec756d17::t_048c10c2c14887 67,70,72,115,152
+  s_bd317cec756d17::t_e8848ebf4a55f5 82-84
+framework/05_writing/writing_input.py
+  s_bd317cec756d17::t_22eafe66f24ae6 54
+framework/reader/math-text.js
+  s_bd317cec756d17::t_350f0cc93d68b3 43-47,49-53
+  s_bd317cec756d17::t_4bce93ecc5f349 1-14,18-20,22-28,32,38-42,54,57-83,85
+  s_bd317cec756d17::t_91445e8c9c9815 15-17,30,55-56
+  s_bd317cec756d17::t_3acbee4623f6f1 33-34,37,84
+  s_bd317cec756d17::t_da64f89a4a3053 21,29,31,35-36,48
+framework/reader/media-renderer.js
+  s_bd317cec756d17::t_4271b3f3ff57bd 45
+framework/reader/reader-polish.css
+  s_bd317cec756d17::t_9040b485248275 153-165
+  s_bd317cec756d17::t_70b1a099852c98 111
+  s_bd317cec756d17::t_190ef019e972a8 152
+  s_bd317cec756d17::t_31804c7c55bc81 121-122,125
+web/workspace.js
+  s_bd317cec756d17::t_22b076074985bb 13,121,124
+  s_bd317cec756d17::t_43b32b65b7531d 63-64
+  s_bd317cec756d17::t_3756db605d5170 68,126
+README.en.md
+  s_bd317cec756d17::t_676f261cac0802 13,18,26-28
+  s_bd317cec756d17::t_816301ea7f15b1 14-17
+  s_4552c046844e7c::t_941b0dfeee18d1 29
+web/workspace.css
+  s_bd317cec756d17::t_6c805d18ca1380 38-43
+framework/05_writing/c-unit.schema.json
+  s_bd317cec756d17::t_fa4767e46b38d6 1949-1952,1955-1956,1985-1988,1991-1992
+integrations/readweave/host/host.css
+  s_bd317cec756d17::t_d8800e244b8327 11-13,16-20
+lessonweave/trilium.py
+  s_bd317cec756d17::t_b2e218bd690fca 36,43-51
+integrations/readweave/shared-reader.js
+  s_bd317cec756d17::t_1550793ca39121 16,95-96,98,101
+  s_bd317cec756d17::t_e7e0e261aa3480 82
+  s_bd317cec756d17::t_ad646153b086ce 89-91,152
+  s_bd317cec756d17::t_31528f2a0cf9c8 83-88,92,97,135,144,148
+  s_bd317cec756d17::t_d8800e244b8327 17-18,125-126
+  s_bd317cec756d17::t_3cf3067304bc2b 22,25,29-30,32-35,37-41,43-48,71,73,76,79,106-108,112-124,127-129,131-134,136-143,145-147,158,169
+  s_bd317cec756d17::t_8db7a38927aeb9 42
+tests/test_readweave_backfill.py
+  s_bd317cec756d17::t_03c3fcb3c84a26 1-11,14-19,22-43,45-63
+  s_bd317cec756d17::t_dd970fbf72a193 12-13,20-21,44
+framework/reader/writing-demo.js
+  s_bd317cec756d17::t_4271b3f3ff57bd 62,1582
+  s_bd317cec756d17::t_1278d9699f2726 1107
+  s_bd317cec756d17::t_a093213d05b04b 587-588
+  s_bd317cec756d17::t_3a85ddd74a2b2c 585,589-592,595-597,601,603-605,608-609,611-618,645,647-648,658-660,662-664
+  s_bd317cec756d17::t_eabe85531a742b 1382
+  s_bd317cec756d17::t_8fa22ef5f7b2d9 599-600,602,606-607,610
+  s_bd317cec756d17::t_8b994a14e8a2a8 50-61,63,891,924,932,936,943,972-973,1002,1004,1022,1096-1097
+  s_bd317cec756d17::t_79baac6f8134bf 649
+  s_bd317cec756d17::t_2a471f45ae47e7 593-594
+  s_bd317cec756d17::t_997c5ce3ea16ab 598,646
+integrations/readweave/backend-source-manifest.json
+  s_bd317cec756d17::t_7fef480b1e8492 13-22,33-42,48-52,55,59-90,98-102,123-127,134-135,139-141,144-145,149-150,154-155,164-165,174-175
+integrations/readweave/native-build.json
+  s_bd317cec756d17::t_66763b502e31d8 5-6,9-842,859-888,902-903,910,925-991,993-3030,3032,3034-3035,3046-3103,3109-3114,3119,3214,3243,3320
+integrations/readweave/native-panel.css
+  s_bd317cec756d17::t_5c14b2e2c5b9c4 1
+integrations/readweave/native-panel.js
+  s_bd317cec756d17::t_9490a615a68754 1-3,5,59,61-62,64,67-71,73-75,81,83,85-96,98-99,112-114,130-131,133-141
+integrations/readweave/reader-component.js
+  s_bd317cec756d17::t_260b3d6846bea1 102-103,175-260,278,281,285-289,294-307,309-311,313,315-323,325-347,362,410,607-620,1142,1144-1175,1202-1206,1215-1217,1219-1221,1448,1481,1489,1493,1500,1529-1530,1559,1561,1579,1653-1654,1664,1939,2139,2155-2164,2167,2205,2256-2276,2418,2436-2457,2530,2595,2986-2988,3008-3014,3166,3191
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0cb05951b9f78d869f51a61ceb5d8b55704e7896",
+  "prompts": {},
+  "sessions": {
+    "s_4552c046844e7c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14919-891d-7b32-9e12-b2bf212304ff",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <71060413+AIALRA-0@users.noreply.github.com>"
+    },
+    "s_bd317cec756d17": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b69-207f-7e61-ba85-f7edc501349a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <71060413+AIALRA-0@users.noreply.github.com>"
+    }
+  }
+}
