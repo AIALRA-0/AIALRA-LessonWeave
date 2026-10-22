@@ -4,11 +4,22 @@ import {mountReadWeave,sanitizeArticle} from './native-panel.js';
 export function mountSharedReader(root,options){
  const find=id=>root.querySelector('#'+CSS.escape(id)),abort=new AbortController();
  const listen=(node,type,fn)=>node?.addEventListener(type,fn,{signal:abort.signal});
- const request=options.request??(async(path,init={})=>{
+ const rawRequest=options.request??(async(path,init={})=>{
   const url=path.startsWith('lessonweave/')?'/api/shared/'+path.slice(12):'/api/'+path;
   const response=await fetch(url,{...init,credentials:'same-origin'});const value=await response.json();
   if(!response.ok){const error=Error(value.error||value.message||value.code||'这次修改没有保存，请保留输入后重试');error.status=response.status;error.data=value;throw error;}return value;
  });
+ const pendingGets=new Map();
+ const request=(path,init={})=>{
+  const method=(init.method||'GET').toUpperCase();
+  if(method!=='GET'){
+   if(method==='HEAD'||method==='OPTIONS')return rawRequest(path,init);
+   pendingGets.clear();return Promise.resolve().then(()=>rawRequest(path,init)).finally(()=>pendingGets.clear());
+  }
+  if(pendingGets.has(path))return pendingGets.get(path);
+  const pending=Promise.resolve().then(()=>rawRequest(path,init)).finally(()=>{if(pendingGets.get(path)===pending)pendingGets.delete(path);});
+  pendingGets.set(path,pending);return pending;
+ };
  const call=(method,path,payload)=>request(path,{method,headers:{'Content-Type':'application/json'},...(payload!==undefined?{body:JSON.stringify(payload)}:{})});
  const style=document.createElement('link');style.rel='stylesheet';style.href=options.styleUrl??'/integrations/readweave/native-panel.css';const surface=root.getRootNode();(surface.nodeType===9?surface.head:surface).append(style);
  const container=document.createElement('div');container.className='lw-readweave-host';find('glossary-result').append(container);

@@ -44,4 +44,6 @@ python -m lessonweave run --input examples/pdf.input.json --name "鸟类调查�
 
 从 CLI 导出阅读包时，把 `python -m lessonweave export <项目目录>` 中的 `<项目目录>` 换成当前项目的数据目录；导出的包包含读本、原件和来源映射，不包含个人学习笔记；工作台或已经配置的笔记库会继续保存这些笔记。
 
+工作台导出的 ZIP 保存项目数据，阅读页由网站的统一阅读组件提供；更新阅读器后，已有项目和导入的数据都使用当前组件。ZIP 没有内嵌独立的 LessonWeave 阅读器脚本；公开案例包另附的离线 `index.html` 见[案例包说明](examples.md)。
+
 升级前先备份 LessonWeave 数据目录、数据库和仓库外的配置文件。VPS 服务、身份验证和反向代理的安装步骤见[部署指南](deployment.md)；如果由 Agent 协助部署，可以从[基础部署提示词](agent-deployment.md)开始。ReadWeave 目前支持的功能和已完成的检查见[交接说明](../integrations/readweave/HANDOFF.md)；公开离线读本案例的来源与下载状态见[案例包说明](examples.md)。
