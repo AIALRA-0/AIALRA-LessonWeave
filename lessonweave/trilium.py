@@ -38,6 +38,10 @@ def reading_link(project,root,section=None):
     if not public_url or not configured():
         raise ValueError('正式 ReadWeave 尚未关联，导入完成后可直达对应笔记')
     mapping=read(Path(root)/'runtime/trilium/current.json',{})
+    from .readweave import current,configured as shared_configured
+    shared=current(root) if shared_configured()else{}
+    if section and shared.get('sections',{}).get(section):
+        return public_note_url(Client(),shared['sections'][section],public_url)
     target=mapping.get('sections',{}).get(section) if section else project.get('native_note_id') or mapping.get('project_note_id')
     if not target:
         raise ValueError('当前小节尚未导入 ReadWeave，已保留生成结果')
@@ -135,12 +139,16 @@ def create_folder(store,name,parent):
 
 def change(store,kind,key,action,values):
     row=store.validate_library_change(kind,key,action,values)
+    if kind=='project' and action=='trash':
+        from .readweave import library_action
+        library_action(row,action)
     if configured() and row.get('native_note_id'):
         client=Client();nid=row['native_note_id']
         previous_key=row['parent_id' if kind=='folder' else 'folder_id']
         previous=native_parent(store,previous_key) if not row['deleted'] else client.trash
         if action=='rename':
-            client.call('PATCH','notes/'+nid,{'title':store.clean_name(values['name'])})
+            # 网站文件名和原生文章名分别保存，身份、正文与笔记继续共享
+            pass
         elif action=='move':
             client.move(nid,previous,native_parent(store,values['parent_id']))
         elif action=='trash':
@@ -148,6 +156,9 @@ def change(store,kind,key,action,values):
         elif action=='restore':
             parent=next((f for f in store.folders() if f['id']==previous_key and not f['deleted']),None)
             client.move(nid,client.trash,native_parent(store,parent['id'] if parent else 'root'))
+    if kind=='project' and action=='restore':
+        from .readweave import library_action
+        library_action(row,action)
     return store.library_change(kind,key,action,values)
 
 
@@ -185,6 +196,14 @@ def svg_preview(content):
         return page.get_pixmap(matrix=fitz.Matrix(scale,scale),alpha=True).tobytes('png')
 
 
+def resolve_resource_html(text,resources):
+    def replace(match):
+        name=html.unescape(match.group(1)).lstrip('/')
+        target=resources.get(name)
+        return 'src="'+html.escape(target,quote=True)+'"' if target else match.group(0)
+    return re.sub(r'data-resource="([^"]*)"',replace,text)
+
+
 def section_html(doc,resources):
     questions={row['question_id']:row['text'] for row in doc['core_questions']}
     text='<h2>承上启下</h2>'
@@ -211,12 +230,10 @@ def section_html(doc,resources):
     text+='<h2>术语表</h2>'
     for term in doc.get('glossary',[]):
         text+='<h3>'+html.escape(term['display'])+'</h3><p>'+html.escape(term['definition'])+'</p>'+''.join('<p>'+html.escape(item)+'</p>' for item in term.get('explanation',[]))
-    for path,url in resources.items():
-        text=text.replace('data-resource="'+html.escape('/'+path)+'"','src="'+url+'"').replace('data-resource="'+html.escape(path)+'"','src="'+url+'"')
-    return text
+    return resolve_resource_html(text,resources)
 
 
-def sync_project(store,project,root):
+def sync_project(store,project,root,package_manifest=None):
     """在原生笔记树中追加版本，原有版本与用户笔记继续保留"""
     from .package import export_package
     from .progress import begin,tick
@@ -224,14 +241,14 @@ def sync_project(store,project,root):
     project_nid=project.get('native_note_id') or ensure_project(store,pid,project['name'],project.get('folder_id','root'))
     with store.connect() as db:
         db.execute('UPDATE projects SET native_note_id=? WHERE id=?',(project_nid,pid))
-    manifest=export_package(root)
+    manifest=package_manifest if package_manifest is not None else export_package(root)
     version=manifest['version']
     owner=client.note('edition:'+pid+':'+version,project_nid,'版本 '+version)['noteId']
     mapping_path=root/'runtime/trilium'/version/'mapping.json'
     mapping=read(mapping_path,{'project_note_id':project_nid,'edition_note_id':owner,'version':version,'attachments':{},'uploaded':[],'sections':{}})
     save(mapping_path,mapping)
     paths=manifest['files']
-    begin(root,'保存到 Trilium 笔记树',['attachment:'+path for path in paths])
+    begin(root,'保存到 Trilium 笔记树',['attachment:'+path for path in paths],reused=['attachment:'+path for path in mapping['uploaded']])
     for path in paths:
         if path not in mapping['attachments']:
             mapping['attachments'][path]=client.attachment(owner,path,None)
@@ -247,7 +264,7 @@ def sync_project(store,project,root):
             resources[path]='/api/attachments/'+previews[path]+'/open'
     for path in paths:
         if path in mapping['uploaded']:
-            tick(root,'attachment:'+path,'reused');continue
+            continue
         tick(root,'attachment:'+path,'running')
         content=(root/path).read_bytes()
         mime=mimetypes.guess_type(path)[0] or 'application/octet-stream'
@@ -296,4 +313,6 @@ def sync_project(store,project,root):
     mapping['render_note_id']=render['noteId']
     save(mapping_path,mapping)
     save(root/'runtime/trilium/current.json',mapping)
+    from .readweave import publish_project
+    publish_project(store,project,root,mapping)
     return mapping

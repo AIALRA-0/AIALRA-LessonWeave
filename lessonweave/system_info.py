@@ -25,7 +25,7 @@ def snapshot(data_root):
         try:packages[name]=version(name)
         except PackageNotFoundError:packages[name]=None
     disk=shutil.disk_usage(data_root)
-    return {'observed_at':time.time(),'workflow':'lean-c-1.0','platform':platform.system(),'python':platform.python_version(),
+    return {'observed_at':time.time(),'workflow':'continuous-unit-2.0','platform':platform.system(),'python':platform.python_version(),
         'cpu_count':os.cpu_count(),'load_average':list(os.getloadavg()) if hasattr(os,'getloadavg') else None,
         'memory':memory,'disk':{'total_bytes':disk.total,'free_bytes':disk.free},'profile':options(),
         'models':{'writing':{'model':os.environ.get('LESSONWEAVE_MODEL','gpt-6.1-sol'),'effort':os.environ.get('LESSONWEAVE_EFFORT','high')},

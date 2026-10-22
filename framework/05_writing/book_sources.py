@@ -66,6 +66,15 @@ def planned_question_owners(question_doc, material, qnodes):
             owners[row['material_node']] = sorted(requested & set(row.get('question_ids', [])))
     return owners
 
+def complete_metadata(nodes, selected, owners, required):
+    """标题被选中时同时带入其实际页头字段，不把整篇正文扩给引用问题"""
+    for nid,node in nodes.items():
+        anchor=node.get('content',{}).get('metadata_for')
+        if anchor in selected:
+            selected.add(nid);owners[nid]=list(owners[anchor])
+            if nid not in required:required.append(nid)
+
+
 def _local(root, value):
     value = str(value).replace("\\", "/")
     path = Path(value)
@@ -595,8 +604,9 @@ def _prepare_sources(root: Path, section_id: str, work: Path, persist: bool, leg
     for nid in required:
         if nodes[nid]["type"] in {"figure", "list", "table"}:
             selected.update(child["id"] for child in _walk(nodes[nid]))
-    ordered = [nid for nid in nodes if nid in selected]
     owners = modern_owners if modern_owners is not None else question_owners(qnodes,nodes,questions)
+    complete_metadata(nodes,selected,owners,required)
+    ordered = [nid for nid in nodes if nid in selected]
     sources, manifest, images, deferred, visual_assets = [], [], [], [], []
     visual_cache = {}
     families = defaultdict(list)

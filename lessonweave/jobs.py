@@ -112,7 +112,7 @@ def main():
                     from .pipeline import update_state
                     update_state(root,stage='library/sync')
                     with span(root,'library','phase'):
-                        sync_project(store,project,root)
+                        sync_project(store,project,root,package_manifest=read(root/'05_writing/reading-package.json'))
                     result.update(library_sync='completed')
                 except Exception as error:
                     result.update(status='interrupted',library_sync='failed',library_issue=str(error),issues=result.get('issues',[])+['书稿已经保存，笔记树保存遇到问题：'+str(error)])

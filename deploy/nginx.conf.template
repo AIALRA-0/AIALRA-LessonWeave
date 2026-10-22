@@ -19,6 +19,8 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-Proto https;
         proxy_set_header X-Real-IP $remote_addr;
+        # 替换成现有可信 SSO 在认证成功后提供的用户名变量，不能透传客户端同名请求头
+        proxy_set_header X-Aialra-User __TRUSTED_SSO_USERNAME_VARIABLE__;
         proxy_read_timeout 60s;
     }
 }

@@ -27,8 +27,8 @@ export function mountReader(container, options) {
   const native=globalThis.window;
   const tracked=kind=>class extends native[kind] {constructor(...args){super(...args);observers.add(this)}disconnect(){super.disconnect();observers.delete(this)}};
   const MutationObserver=tracked('MutationObserver'), ResizeObserver=tracked('ResizeObserver'), IntersectionObserver=tracked('IntersectionObserver');
-  const config={project_id:options.projectId,base:options.base,readweave_demo:true,legacy:!!options.legacy,sidebarWidth:options.sidebarWidth};
-  const path=value=>{let text=String(value||'');const resolved=options.resolveResource?.(text);if(resolved)return resolved;if(/^(https?:|data:|blob:|#)/.test(text))return text;if(text.startsWith(config.base+'/'))return text;if(text.startsWith('/book.html')||text.startsWith('book.html'))text=text.replace('book.html','readweave.html');return config.base+'/'+text.replace(/^\\/+/,'')};
+  const config={project_id:options.projectId,base:options.base,legacy:!!options.legacy,sidebarWidth:options.sidebarWidth};
+  const path=value=>{let text=String(value||'');const resolved=options.resolveResource?.(text);if(resolved)return resolved;if(/^(https?:|data:|blob:|#)/.test(text))return text;if(text.startsWith(config.base+'/'))return text;return config.base+'/'+text.replace(/^\\/+/,'')};
   const fetch=(value, init)=>value==='/design-tokens.json'?Promise.resolve(new Response(JSON.stringify(DESIGN_TOKENS),{headers:{'Content-Type':'application/json'}})):options.fetch?options.fetch(value,init):native.fetch(typeof value==='string'&&/^\\/(0[0-5]_)/.test(value)?path(value):value,init);
   const location={pathname:'readweave/book.html',search:options.search??'?preview=true',hash:'',get href(){return native.location.origin+config.base+'/book.html'+this.search},set href(value){options.onNavigate?.(new URL(value,native.location.href).search)}};
   const owned={LESSONWEAVE:config,LWPath:path,LESSONWEAVE_THEME:root.dataset.theme};
@@ -58,6 +58,10 @@ export function mountReader(container, options) {
 '''
     scripts=(READER/'reading-icons.js').read_text('utf-8')+'\nconst uiIcon=window.uiIcon;\n'+(READER/'reader-text.js').read_text('utf8')+'\nconst ReaderText=window.ReaderText;\n'+(READER/'media-renderer.js').read_text('utf8')+'\n'+ '\n\n'.join((READER/name).read_text('utf-8') for name in ['reader-search.js','writing-demo.js','reading-ui.js','source-locator.js','source-split.js','generation-settings.js'])
     tail='''
+  let shared=null;
+  if(options.shared){
+    import('./shared-reader.js').then(({mountSharedReader})=>{if(disposed)return;shared=mountSharedReader(root,{...options.shared,bridge:()=>owned.ReaderSourceBridge?.getState(),updateGlossary:terms=>owned.ReaderSourceBridge?.updateGlossary(terms),hydrateMedia:element=>owned.ReaderSourceBridge?.hydrateSharedMedia(element)});}).catch(error=>{if(!disposed)console.error('ReadWeave component',error);});
+  }
   if(options.embedded){
     root.querySelector('#toggle-theme').hidden=true;
     const actions=globalThis.document.createElement('div');actions.className='control-group workspace-reader-actions';actions.setAttribute('role','group');actions.setAttribute('aria-label','读本操作');
@@ -67,19 +71,24 @@ export function mountReader(container, options) {
   listen(root,'reading:layout-reset',()=>options.onResetLayout?.());
   listen(root,'reading:source-selection',event=>options.onSourceSelection?.(event.detail));
   if(options.onNavigate)listen(root,'click',event=>{const link=event.target.closest?.('a[href]');if(!link||event.ctrlKey||event.metaKey||event.shiftKey||link.target==='_blank')return;const url=new URL(link.href,native.location.href);if(/\\/(?:book|readweave)\\.html$/.test(url.pathname)&&url.pathname.startsWith(config.base+'/')){event.preventDefault();options.onNavigate(url.search)}},true);
-  const bound=new WeakSet();
+  const bound=new WeakSet(), noteBindings=new Map();
+  const refreshNotes=()=>{for(const [box,binding]of noteBindings){
+    if(!box.isConnected){noteBindings.delete(box);continue;}const {input,key}=binding,snapshot=input.value;
+    Promise.resolve(options.loadNote?.(key)).then(reply=>{const value=reply&&typeof reply==='object'?reply.value:reply;if(!disposed&&value!==undefined&&!input.hasAttribute('data-note-draft')&&input.value===snapshot&&(options.shared||!input.value)){input.value=value??'';binding.version=reply&&typeof reply==='object'?{revision:reply.revision,linkRevision:reply.linkRevision}:{};}}).catch(()=>{});
+  }};
   const connectNotes=()=>root.querySelectorAll('.writing-note').forEach(box=>{
     if(bound.has(box))return;const state=owned.ReaderSourceBridge?.getState();if(!state?.doc)return;
     bound.add(box);const input=box.querySelector('textarea'),button=box.querySelector('button');
     const key=state.doc.section_id+':'+box.dataset.noteId;
-    Promise.resolve(options.loadNote?.(key)).then(value=>{if(!disposed&&!input.value&&!input.hasAttribute('data-note-draft')&&value)input.value=value});
-    listen(button,'click',async()=>{await options.saveNote?.(key,input.value);const status=box.querySelector('.help');if(status)status.textContent='已保存到个人笔记'});
+    const binding={input,key,version:{}};noteBindings.set(box,binding);refreshNotes();
+    listen(button,'click',async()=>{const status=box.querySelector('.help');try{const reply=await options.saveNote?.(key,input.value,binding.version);if(reply&&typeof reply==='object')binding.version={revision:reply.revision,linkRevision:reply.linkRevision};if(status)status.textContent=options.shared?'已保存到共享学习笔记':'已保存到个人笔记';}catch(error){input.dataset.noteDraft='true';if(status)status.textContent=error.message||'笔记暂时没有保存，当前输入仍然保留';}});
   });
+  if(options.shared)listen(native,'readweave:shared-change',refreshNotes);
   const observer=new MutationObserver(connectNotes);observer.observe(root,{childList:true,subtree:true});connectNotes();
   return {root, navigate:search=>owned.ReaderSourceBridge.navigate(search), setTheme:name=>owned.ReaderUI?.setTheme(name), getState:()=>owned.ReaderSourceBridge?.getState(),
     focusNotes:()=>root.querySelector('.writing-note textarea')?.focus(),
     toggleGlossary:()=>root.querySelector('[data-toggle-pane="glossary"]')?.click(),
-    unmount(){disposed=true;abort.abort();for(const item of [...observers])item.disconnect();for(const id of timers){native.clearTimeout(id);native.clearInterval(id)}for(const id of frames)native.cancelAnimationFrame(id);shadow.replaceChildren();}
+    unmount(){disposed=true;shared?.unmount();abort.abort();for(const item of [...observers])item.disconnect();for(const id of timers){native.clearTimeout(id);native.clearInterval(id)}for(const id of frames)native.cancelAnimationFrame(id);shadow.replaceChildren();}
   };
 }
 '''

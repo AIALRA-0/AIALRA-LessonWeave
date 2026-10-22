@@ -121,9 +121,12 @@ class Handler(SimpleHTTPRequestHandler):
         if not self.allowed():
             return
         route = unquote(urlsplit(self.path).path)
+        if self.shared_request('GET',route):
+            return
         try:
             if route == '/api/health':
-                self.json({'service': 'LessonWeave', 'version': '0.1.0', 'backend': os.environ.get('LESSONWEAVE_BACKEND', 'codex'), 'model': os.environ.get('LESSONWEAVE_MODEL', 'gpt-6.1-sol')})
+                from . import __version__
+                self.json({'service': 'LessonWeave', 'version': __version__, 'backend': os.environ.get('LESSONWEAVE_BACKEND', 'codex'), 'model': os.environ.get('LESSONWEAVE_MODEL', 'gpt-6.1-sol')})
             elif route == '/api/system':
                 from .system_info import snapshot
                 self.json(snapshot(self.store.root))
@@ -156,7 +159,8 @@ class Handler(SimpleHTTPRequestHandler):
                 for project in self.store.projects():
                     root = Path(project['path'])
                     book = read(root/'05_writing/preview-book.json', read(root/'05_writing/book.json', {}))
-                    result.append(dict(public_project(project), state=public_state(read(root/'runtime/state.json', {'status':'existing'})), title=book.get('title'), ready=bool(book) and (root/'05_writing/source-location/index.json').is_file(),readweave_available=bool(os.environ.get('LESSONWEAVE_TRILIUM_PUBLIC_URL') and project.get('native_note_id'))))
+                    from .readweave import current,configured as shared_configured
+                    result.append(dict(public_project(project), state=public_state(read(root/'runtime/state.json', {'status':'existing'})), title=book.get('title'), ready=bool(book) and (root/'05_writing/source-location/index.json').is_file(),readweave_available=bool(os.environ.get('LESSONWEAVE_TRILIUM_PUBLIC_URL') and project.get('native_note_id')),readweave_shared=shared_configured() and bool(current(root).get('edition_id'))))
                 self.json(result)
             elif route.startswith('/framework-example/'):
                 from .architecture import EXAMPLE
@@ -173,6 +177,8 @@ class Handler(SimpleHTTPRequestHandler):
                         self.file(path)
             elif route == '/api/library':
                 from .trilium import configured
+                from .readweave import reconcile_library
+                reconcile_library(self.store)
                 self.json({'folders':self.store.folders(),'projects':[public_project(p) for p in self.store.projects(include_deleted=True)],'storage':'trilium' if configured() else 'local','native_root':os.environ.get('LESSONWEAVE_TRILIUM_ROOT')})
             elif route == '/api/jobs':
                 from .progress import view
@@ -189,7 +195,8 @@ class Handler(SimpleHTTPRequestHandler):
                 self.json(job)
             elif route.startswith('/api/notes/'):
                 parts = route.split('/')
-                self.json({'value': self.store.note(parts[3], '/'.join(parts[4:]))})
+                from .readweave import note,UpstreamError
+                self.json(note(self.store,self.store.project(parts[3]),'/'.join(parts[4:]),details=True))
             elif route.startswith('/api/artifacts/'):
                 parts = route.split('/')
                 root = Path(self.store.project(parts[3])['path'])
@@ -219,11 +226,18 @@ class Handler(SimpleHTTPRequestHandler):
                     html=(READER/'archive/index.html').read_text('utf-8').replace('<head>','<head><script>window.LESSONWEAVE_ARCHIVE='+json.dumps(config).replace('<','\\u003c')+';</script>')
                     self.file(Path('archive.html'),html.encode('utf-8'),'text/html')
                 elif name in {'book.html', 'readweave.html'}:
-                    html = (REPO/'integrations/readweave/demo.html' if name=='readweave.html' else READER/'book.html').read_text('utf-8')
-                    config = {'project_id': parts[2], 'base': '/p/'+parts[2], 'readweave_demo': name=='readweave.html', 'legacy': bool(project['legacy'])}
+                    if name=='readweave.html':
+                        self.send_response(302)
+                        self.send_header('Location','/p/'+parts[2]+'/book.html'+('?' +urlsplit(self.path).query if urlsplit(self.path).query else''))
+                        self.send_header('Cache-Control','no-store')
+                        self.end_headers()
+                        return
+                    html = (READER/'book.html').read_text('utf-8')
+                    from .readweave import current,configured as shared_configured
+                    config = {'project_id': parts[2], 'base': '/p/'+parts[2], 'legacy': bool(project['legacy']),'readweave_shared':shared_configured() and bool(current(root).get('edition_id'))}
                     html = html.replace('<head>', '<head><script>window.LESSONWEAVE='+json.dumps(config)+';</script><script src="/reader-mount.js"></script>')
                     if name=='book.html':
-                        html = html.replace('</body>', '<script src="/reader-integration.js"></script></body>')
+                        html = html.replace('</body>', '<script src="/shared-reader-entry.js"></script></body>')
                     self.file(Path(name), html.encode('utf-8'), 'text/html')
                 else:
                     path = (root/name).resolve()
@@ -235,7 +249,7 @@ class Handler(SimpleHTTPRequestHandler):
                         self.file(path, html.encode(), 'text/html')
                     else:
                         self.file(path)
-            elif route in {'/', '/index.html', '/app.js', '/app.css', '/reader-mount.js', '/reader-integration.js', '/inspect.html', '/inspect.js','/workspace','/workspace.html','/workspace.js','/metrics.js','/workspace.css','/theme.css','/generation-progress.js','/icons.js'}:
+            elif route in {'/', '/index.html', '/app.js', '/app.css', '/reader-mount.js', '/shared-reader-entry.js', '/inspect.html', '/inspect.js','/workspace','/workspace.html','/workspace.js','/metrics.js','/workspace.css','/theme.css','/generation-progress.js','/icons.js'}:
                 self.file(REPO/'web'/('index.html' if route=='/' else 'workspace.html' if route=='/workspace' else route.lstrip('/')))
             elif route.startswith('/docs/assets/'):
                 path = (REPO/route.lstrip('/')).resolve()
@@ -245,7 +259,7 @@ class Handler(SimpleHTTPRequestHandler):
                     self.send_error(404)
             elif route.startswith('/integrations/readweave/'):
                 path=(REPO/route.lstrip('/')).resolve()
-                if path.is_relative_to(REPO/'integrations/readweave') and path.suffix in {'.js','.css'}:
+                if path.is_relative_to(REPO/'integrations/readweave') and path.suffix in {'.js','.css','.woff2','.woff','.ttf','.eot','.svg'}:
                     self.file(path)
                 else:
                     self.send_error(404)
@@ -276,6 +290,8 @@ class Handler(SimpleHTTPRequestHandler):
             self.json({'error': '提交来源与当前网站不同'}, 403)
             return
         route = unquote(urlsplit(self.path).path)
+        if self.shared_request('POST',route):
+            return
         try:
             if route == '/api/uploads':
                 name = Path(self.headers.get('X-Filename', 'material.pdf')).name
@@ -313,7 +329,7 @@ class Handler(SimpleHTTPRequestHandler):
                     scaffold(root)
                     from .trilium import ensure_project
                     name=self.store.clean_name(payload.get('name','新的学习项目'))
-                    folder_id=payload.get('folder_id','root')
+                    folder_id=payload.get('folder_id') or 'root'
                     native_note_id=ensure_project(self.store,pid,name,folder_id)
                     project = self.store.register(pid,name,root,folder_id=folder_id,native_note_id=native_note_id)
                 kind = payload['kind']
@@ -347,7 +363,9 @@ class Handler(SimpleHTTPRequestHandler):
                 self.json(self.store.cancel(route.split('/')[3]))
             elif route.startswith('/api/notes/'):
                 parts = route.split('/')
-                self.json({'value': self.store.note(parts[3], '/'.join(parts[4:]), payload['value'])})
+                from .readweave import note,UpstreamError
+                try:self.json(note(self.store,self.store.project(parts[3]),'/'.join(parts[4:]),payload['value'],details=True,expected_revision=payload.get('revision'),expected_link_revision=payload.get('linkRevision')))
+                except UpstreamError as error:self.json(error.payload,error.status)
             elif route.startswith('/api/qa/'):
                 project = route.split('/')[3]
                 self.store.project(project)
@@ -359,6 +377,64 @@ class Handler(SimpleHTTPRequestHandler):
                 self.send_error(404)
         except (ValueError, KeyError, OSError) as error:
             self.json({'error': str(error)}, 400)
+
+    def shared_request(self,method,route):
+        """浏览器沿用网站登录，服务端用私有凭据访问同一个 ReadWeave"""
+        from .readweave import proxy,publication,UpstreamError
+        import re
+        attachment=re.fullmatch(r'/api/attachments/([A-Za-z0-9_-]+)/open',route)
+        if attachment and method=='GET':
+            from .readweave import Client,configured
+            if not configured():self.send_error(404);return True
+            client=Client();key=attachment.group(1)
+            meta=client.session.get(client.url+'/etapi/attachments/'+key,timeout=20)
+            if not meta.ok:self.send_error(meta.status_code);return True
+            mime=meta.json().get('mime','application/octet-stream')
+            headers={'Range':self.headers['Range']} if self.headers.get('Range') else {}
+            with client.session.get(client.url+'/etapi/attachments/'+key+'/content',headers=headers,stream=True,timeout=(10,90)) as response:
+                self.send_response(response.status_code)
+                self.send_header('Content-Type',mime)
+                self.send_header('X-Content-Type-Options','nosniff')
+                self.send_header('Content-Security-Policy',"sandbox; default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'")
+                for header in ['Content-Length','Content-Range','Accept-Ranges']:
+                    if header in response.headers:self.send_header(header,response.headers[header])
+                self.end_headers()
+                for chunk in response.iter_content(128*1024):self.wfile.write(chunk)
+            return True
+        paths={'/api/readweave/':'readweave/','/api/shared/':'lessonweave/'}
+        prefix=next((p for p in paths if route.startswith(p)),None)
+        if not prefix and not route.startswith('/api/readweave-projects/'):
+            return False
+        origin=self.headers.get('Origin')
+        if method!='GET' and origin and urlsplit(origin).netloc!=self.headers.get('Host'):
+            self.json({'error':'提交来源与当前网站不同'},403);return True
+        try:
+            if route.startswith('/api/readweave-projects/'):
+                if method!='GET':self.send_error(405);return True
+                project=self.store.project(route.split('/')[3])
+                self.json(publication(self.store,project,Path(project['path'])))
+            else:
+                path=paths[prefix]+route[len(prefix):]
+                if '..'in path.split('/') or path.startswith('readweave/settings') or path.startswith('readweave/harness'):
+                    self.json({'error':'这个入口不提供服务配置'},403);return True
+                query=urlsplit(self.path).query
+                if query:path+='?'+query
+                payload=json.loads(self.body() or '{}') if method not in {'GET','HEAD'} else None
+                self.json(proxy(method,path,payload))
+        except UpstreamError as error:
+            self.json(error.payload,error.status)
+        except (ValueError,KeyError,OSError) as error:
+            self.json({'error':str(error)},400)
+        return True
+
+    def shared_write(self,method):
+        if not self.allowed():return
+        route=unquote(urlsplit(self.path).path)
+        if not self.shared_request(method,route):self.send_error(404)
+
+    def do_PUT(self):self.shared_write('PUT')
+    def do_PATCH(self):self.shared_write('PATCH')
+    def do_DELETE(self):self.shared_write('DELETE')
 
 
 def serve(host='127.0.0.1', port=8960):

@@ -10,7 +10,9 @@ _format = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_format)
 
 CANONICAL_FIELDS = ['id', 'abbreviation', 'chinese', 'english', 'kind', 'components',
-                    'display', 'official_spelling', 'case_source']
+                    'display', 'official_spelling', 'case_source',
+                    'abbreviation_case_exception', 'english_case_exception']
+CASE_FLAGS = ('abbreviation_case_exception', 'english_case_exception')
 
 
 def _key(value):
@@ -19,9 +21,14 @@ def _key(value):
 
 def _valid(entry):
     try:
-        return (all(isinstance(entry.get(key), str) and entry[key].strip() for key in ['id', 'chinese', 'english'])
-                and entry.get('kind') in {'concept', 'initialism', 'unit', 'official_name'}
-                and not _format.check_terminology(entry))
+        if (not all(isinstance(entry.get(key), str) and entry[key].strip()
+                    for key in ['id', 'chinese', 'english'])
+                or entry.get('kind') not in {'concept', 'initialism', 'unit', 'official_name'}
+                or term_name_findings(entry)):
+            return False
+        return (entry['kind'] != 'official_name'
+                or entry.get('official_spelling') == entry.get('english')
+                and isinstance(entry.get('case_source'), str) and bool(entry['case_source'].strip()))
     except (KeyError, TypeError, AttributeError):
         return False
 
@@ -132,10 +139,6 @@ _SMALL_WORDS = {'of', 'and', 'the', 'in', 'to', 'for', 'on', 'at', 'a', 'an', 'p
 
 
 def _ordinary_title(english):
-    words = list(_ENGLISH_WORD.finditer(english))
-    # 连续大写和品牌式混合大小写需要真实名称来源，脚本保留原词交给作者确认
-    if any(len(match[0]) > 1 and any(letter.isupper() for letter in match[0][1:]) for match in words):
-        return None
     position = 0
 
     def replace(match):
@@ -181,6 +184,12 @@ def _component_format(term):
             return False
         if any(len(part['symbol']) != 1 and not part['symbol'].isdigit() for part in components):
             return False
+        if term['kind'] == 'initialism' and any(
+                len(part['symbol']) == 1 and part['symbol'].isalpha()
+                and part['word'][0].isalpha()
+                and part['symbol'].casefold() != part['word'][0].casefold()
+                for part in components):
+            return False
     offset = 0
     for part in components:
         end = offset + len(part['symbol'])
@@ -189,61 +198,111 @@ def _component_format(term):
     return True
 
 
+def _same_name(left, right):
+    return (isinstance(left, str) and isinstance(right, str) and bool(left.strip()) and bool(right.strip())
+            and re.sub(r'\s+', '', left).casefold() == re.sub(r'\s+', '', right).casefold())
+
+
+def _case_flag(term, field):
+    value = term.get(field, 0)
+    return value if type(value) is int and value in (0, 1) else None
+
+
+def _normalize_term_names(term):
+    """返回整理后的名称、副本差异和需要统一修复处理的问题，不改定义正文"""
+    original = copy.deepcopy(term)
+    if not isinstance(original, dict):
+        return original, [], [('entry', '术语记录需要是对象')]
+    flags = {field: _case_flag(original, field) for field in CASE_FLAGS}
+    invalid_flags = [field for field, value in flags.items() if value is None]
+    if invalid_flags:
+        return original, [], [(field, '大小写例外位只能是整数 0 或 1') for field in invalid_flags]
+    if (original.get('kind') not in {'concept', 'initialism', 'unit', 'official_name'}
+            or not isinstance(original.get('english'), str) or not original['english'].strip()
+            or not isinstance(original.get('chinese'), str)
+            or (original.get('abbreviation') is not None and not isinstance(original.get('abbreviation'), str))
+            or not isinstance(original.get('components'), list)
+            or not isinstance(original.get('aliases'), list)
+            or any(not isinstance(alias, str) for alias in original.get('aliases', []))):
+        return original, [], [('term', '名称或拆解字段不完整，需要交统一修复处理')]
+
+    current = copy.deepcopy(original)
+    old_english = original['english']
+    old_abbreviation = original.get('abbreviation')
+    if original['kind'] == 'official_name':
+        official = original.get('official_spelling')
+        if not isinstance(official, str) or not _key(official) or not _same_name(official, old_english):
+            return original, [], [('official_spelling', '正式名称需要与英文全称对应，并保留来源')]
+
+    if flags['abbreviation_case_exception'] == 0 and isinstance(old_abbreviation, str):
+        current['abbreviation'] = old_abbreviation.upper()
+    if flags['english_case_exception'] == 0:
+        current['english'] = _ordinary_title(old_english)
+        if current['kind'] == 'official_name':
+            current['official_spelling'] = current['english']
+
+    redundant_abbreviation = _same_name(current.get('abbreviation'), current['english'])
+    if redundant_abbreviation:
+        current['abbreviation'] = None
+        current['components'] = []
+
+    aliases = []
+    for alias in original['aliases']:
+        value = alias
+        if old_english and _key(alias) == _key(old_english):
+            value = current['english']
+        if old_abbreviation and _key(alias) == _key(old_abbreviation):
+            value = current['english'] if redundant_abbreviation else current['abbreviation']
+        if _key(value) not in {_key(item) for item in aliases}:
+            aliases.append(value)
+    current['aliases'] = aliases
+
+    if not _component_format(current):
+        return original, [], [('components', '缩写拆解无法与整理后的名称对应，需要交统一修复处理')]
+    current['display'] = ((current['abbreviation'] + ' ') if current.get('abbreviation') else '')
+    current['display'] += current['chinese'] + '（' + current['english'] + '）'
+
+    changed = []
+    for field in ['english', 'official_spelling', 'display', 'aliases', 'abbreviation', 'components']:
+        if current.get(field) != original.get(field):
+            changed.append({'field': field, 'before': copy.deepcopy(original.get(field)),
+                            'after': copy.deepcopy(current.get(field))})
+    for index, (before, after) in enumerate(zip(original['components'], current['components'])):
+        for field in ['word', 'symbol']:
+            if before.get(field) != after.get(field):
+                changed.append({'field': f'components.{index}.{field}',
+                                'before': copy.deepcopy(before.get(field)),
+                                'after': copy.deepcopy(after.get(field))})
+    return current, changed, []
+
+
+def normalize_term_names(term):
+    """按两个例外位整理一个术语的名称与展示字段，返回副本供 ReadWeave 等调用者复用"""
+    return _normalize_term_names(term)[0]
+
+
+def term_name_findings(term):
+    """给现有独立检查返回应进入统一修复的名称问题，不抛异常"""
+    current, changes, issues = _normalize_term_names(term)
+    if issues:
+        return [{'field': field, 'message': message} for field, message in issues]
+    if changes:
+        return [{'field': change['field'], 'message': '术语名称、拆解、显示或别名需要按例外位同步'}
+                for change in changes]
+    if current.get('kind') == 'official_name' and not str(current.get('case_source') or '').strip():
+        return [{'field': 'case_source', 'message': '正式名称需要记录原材料中的拼写来源'}]
+    return []
+
+
 def format_term_metadata(terms):
     """只调整可逐字确认的格式，返回副本和实际改动，含义与原始模型记录保持原样"""
     result, changes = [], []
     for authored in terms:
         original = copy.deepcopy(authored)
-        if isinstance(original, dict) and isinstance(original.get('aliases'), list) and all(isinstance(alias, str) for alias in original['aliases']):
-            unique = list(dict.fromkeys(original['aliases']))
-            if unique != original['aliases']:
-                changes.append({'term_id': original.get('id'), 'field': 'aliases',
-                                'before': copy.deepcopy(original['aliases']), 'after': unique})
-                original['aliases'] = unique
-        current = copy.deepcopy(original)
-        try:
-            if (not isinstance(current, dict)
-                    or current.get('kind') not in {'concept', 'initialism', 'unit', 'official_name'}
-                    or not isinstance(current.get('english'), str) or not current['english']
-                    or not isinstance(current.get('chinese'), str)
-                    or current.get('abbreviation') is not None and not isinstance(current['abbreviation'], str)):
-                result.append(current)
-                continue
-            if current['kind'] != 'official_name':
-                english = _ordinary_title(current['english'])
-                if english is None:
-                    result.append(current)
-                    continue
-                current['english'] = english
-            if current['kind']=='unit' and current.get('abbreviation'):
-                words=lambda value:[word.rstrip('s') for word in re.findall(r'[a-z]+',value.casefold())]
-                if words(current['abbreviation'])==words(current['english']):
-                    current['aliases']=list(dict.fromkeys([*current.get('aliases',[]),current['abbreviation']]))
-                    current['abbreviation']=None
-                    current['components']=[]
-            if not _component_format(current):
-                result.append(copy.deepcopy(original))
-                continue
-            current['display'] = ((current.get('abbreviation') + ' ') if current.get('abbreviation') else '')
-            current['display'] += current['chinese'] + '（' + current['english'] + '）'
-            if _format.check_terminology(current):
-                result.append(copy.deepcopy(original))
-                continue
-            if isinstance(current.get('aliases'), list):
-                current['aliases'] = list(dict.fromkeys(current['english'] if isinstance(value, str)
-                                      and value.lower() == original['english'].lower() else value
-                                      for value in current['aliases']))
-            for field in ['english', 'display', 'aliases', 'abbreviation', 'components']:
-                if current.get(field) != original.get(field):
-                    changes.append({'term_id': current['id'], 'field': field,
-                                    'before': copy.deepcopy(original.get(field)),
-                                    'after': copy.deepcopy(current.get(field))})
-            for index, (before, after) in enumerate(zip(original['components'], current['components'])):
-                for field in ['word', 'symbol']:
-                    if before[field] != after[field]:
-                        changes.append({'term_id': current['id'], 'field': f'components.{index}.{field}',
-                                        'before': before[field], 'after': after[field]})
-            result.append(current)
-        except (KeyError, TypeError, AttributeError):
-            result.append(copy.deepcopy(original))
+        current, updates, issues = _normalize_term_names(original)
+        if not issues:
+            for update in updates:
+                changes.append({'term_id': original.get('id') if isinstance(original, dict) else None,
+                                **copy.deepcopy(update)})
+        result.append(current)
     return result, changes

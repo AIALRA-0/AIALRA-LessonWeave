@@ -194,6 +194,11 @@ def evaluate(document, material):
 
     for sid in links:
         link(sid, set())
+    for sid,node in nodes.items():
+        if node.get('content',{}).get('reading_role')=='hidden_control':
+            routes[sid]={'role':'structure','question_ids':sorted(owners[sid]),
+                         'destination':'网页后台控件与原件定位',
+                         'reason':'解析器确认这是没有文字或可访问标签的零尺寸框架，原始标签与归档继续保留'}
     missing = sorted(sid for sid in required if sid not in routes or
                      routes[sid]['role'] in {'teach', 'preface', 'reference'} and not routes[sid]['question_ids'])
     teaching = {sid for sid in required if routes.get(sid, {}).get('role') in {'teach', 'preface'}}

@@ -5,6 +5,33 @@ import lean_contract as contract
 import media_contract
 
 
+def format_document_terms(document, include_legacy=False):
+    """整理文档中的术语名称，旧记录默认不重写，并返回可保存的变更记录。"""
+    candidate = copy.deepcopy(document)
+    appendix = candidate.get('appendix') if isinstance(candidate, dict) else None
+    terms = appendix.get('terms') if isinstance(appendix, dict) else None
+    if not isinstance(terms, list):
+        return candidate, [], []
+
+    import book_terminology
+    selected = [index for index, term in enumerate(terms)
+                if include_legacy or (isinstance(term, dict) and any(
+                    field in term for field in book_terminology.CASE_FLAGS))]
+    if not selected:
+        return candidate, [], []
+    try:
+        formatted_terms = copy.deepcopy(terms)
+        changes = []
+        for index in selected:
+            formatted, term_changes = book_terminology.format_term_metadata([terms[index]])
+            formatted_terms[index] = formatted[0]
+            changes.extend(dict(change, term_index=index) for change in term_changes)
+    except Exception as error:
+        return candidate, [], [str(error)]
+    appendix['terms'] = formatted_terms
+    return candidate, changes, []
+
+
 def pack(tasks,rules):
     pool={};prepared=[]
     for task in tasks:

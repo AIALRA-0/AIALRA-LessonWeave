@@ -28,6 +28,55 @@
                   "type": "string",
                   "minLength": 1
                 }
+              },
+              "explain": {
+                "type": "object",
+                "properties": {
+                  "point": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "steps": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "detail": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "resource_ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "detail",
+                        "resource_ids"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "point",
+                  "steps"
+                ],
+                "additionalProperties": false
+              },
+              "next": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
@@ -37,6 +86,10 @@
             ],
             "additionalProperties": false
           }
+        },
+        "route": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "required": [
@@ -67,14 +120,6 @@
             "minLength": 1
           },
           "claim": {
-            "type": "string",
-            "minLength": 1
-          },
-          "reasoning": {
-            "type": "string",
-            "minLength": 1
-          },
-          "grounding": {
             "type": "string",
             "minLength": 1
           },
@@ -1618,6 +1663,18 @@
                 }
               ]
             }
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reasoning": {
+            "type": "string",
+            "minLength": 1
+          },
+          "grounding": {
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [
@@ -1625,14 +1682,25 @@
           "title_premise",
           "title_question",
           "claim",
-          "reasoning",
-          "grounding",
           "supplement",
           "resource_ids",
           "plan_ids",
           "resources"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "body"
+            ]
+          },
+          {
+            "required": [
+              "reasoning",
+              "grounding"
+            ]
+          }
+        ]
       }
     },
     "result": {
@@ -1877,6 +1945,14 @@
                   }
                 ]
               },
+              "abbreviation_case_exception": {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1
+                ],
+                "default": 0
+              },
               "chinese": {
                 "type": "string",
                 "minLength": 1,
@@ -1900,6 +1976,14 @@
                     }
                   }
                 ]
+              },
+              "english_case_exception": {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1
+                ],
+                "default": 0
               },
               "professional_definition": {
                 "type": "object",
@@ -2236,6 +2320,10 @@
         "local_notations"
       ],
       "additionalProperties": false
+    },
+    "reader_title": {
+      "type": "string",
+      "minLength": 1
     }
   },
   "required": [

@@ -3,6 +3,9 @@ __pycache__/
 .pytest_cache/
 *.pyc
 .env
+.env.*
+!.env.example
+*.env
 *.env.local
 runtime/
 !framework/examples/minimal-web/runtime/

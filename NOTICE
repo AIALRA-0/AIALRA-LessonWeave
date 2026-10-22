@@ -1,8 +1,17 @@
 LessonWeave
 Copyright 2026 LessonWeave contributors
 
-The Trilium ETAPI adapter and independent ReadWeave integration are maintained here.
-The production ReadWeave project is maintained separately.
+This repository includes a shared native-panel integration for ReadWeave. It reuses
+the upstream ReadWeave Panel and distributes its built panel, chunks, styles and
+assets with LessonWeave. ReadWeave is maintained separately upstream.
+
+`integrations/readweave/native-licenses/INDEX.md` maps the packages used by the
+native bundle to their original license and notice files. That directory also
+contains ReadWeave's AGPL license and the dependency notices. The package list is
+derived from `integrations/readweave/native-build.json`.
+
+The public ReadWeave source snapshot used to build the shared panel is available
+with the [LessonWeave v0.2.0 Release](https://github.com/AIALRA-0/AIALRA-LessonWeave/releases/tag/v0.2.0).
 
 Runtime dependencies retain their respective licenses, including PyMuPDF,
 Playwright, Beautiful Soup, Requests, jsonschema, markdown-it-py, Pillow,

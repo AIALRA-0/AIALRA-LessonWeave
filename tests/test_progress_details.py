@@ -2,6 +2,25 @@ from lessonweave.storage import save
 from lessonweave.progress import begin,tick,view,stage_times
 from lessonweave.system_info import snapshot
 import time
+import pytest
+
+
+@pytest.mark.parametrize('workflow',['continuous-unit-2.0','lean-c-1.0',None])
+def test_active_versions_use_actual_stage_progress(tmp_path,workflow,monkeypatch):
+    monkeypatch.delenv('LESSONWEAVE_TRILIUM_URL',raising=False)
+    save(tmp_path/'runtime/state.json',{'workflow':workflow,'stage':'00_source'})
+    value=view(tmp_path,{'status':'running','created':time.time()-1,'updated':time.time()})
+    assert len(value['stages'])==12 and value['stages'][0]['status']=='running'
+
+
+def test_saved_attachments_are_marked_reused_in_one_snapshot(tmp_path):
+    names=['attachment:'+str(i) for i in range(3000)]
+    begin(tmp_path,'保存材料',names,reused=names[:-1])
+    from lessonweave.storage import read
+    value=read(tmp_path/'runtime/progress.json')
+    assert sum(s=='reused' for s in value['tasks'].values())==2999
+    assert value['tasks'][names[-1]]=='waiting'
+    assert all(t['ended']==t['started'] for t in value['task_times'].values())
 
 
 def test_first_question_does_not_complete_writing_stage(tmp_path):

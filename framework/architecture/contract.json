@@ -28,7 +28,7 @@
     "surface_check_is_grammar_proof": false,
     "generation_prompt": "写作前先在内部明确每个核心命题的主体、行为或状态、对象和成立条件，再写成自然语言；切换主体时写明新主体，同一主体可共享主语；操作步骤、因果解释与普遍规律分层分句；正文只引用材料内容，内部编号留在映射中；正常输出只保留既定字段和正文"
   },
-  "status": "正式调度使用逐问生成流程，正文与阅读组件同次生成，末尾执行独立脚本检查，有问题时只做一轮批量修复，保留实际结果",
+  "status": "正式调度使用逐问生成流程；每个问题在一次写作调用中先生成短骨架，再写连续正文、媒体和附加内容；脚本检查字段、格式与引用，有具体问题时只做一轮批量修复，并保留实际结果",
   "stages": [
     {
       "id": "00",
@@ -96,7 +96,100 @@
       "artifact": "library"
     }
   ],
-  "workflow": "lean-c-1.0",
+  "workflow": "continuous-unit-2.0",
+  "stage_count": 13,
+  "library_delivery": {
+    "stage": "12",
+    "configured_flow": [
+      "trilium.sync_project 保存阅读包、材料树、章节与附件",
+      "readweave.publish_project 分别登记正文、原文、译文与术语定义"
+    ],
+    "local_fallback": "没有配置笔记库时，读本仍可在 LessonWeave 阅读或导出",
+    "runtime_records": ["runtime/trilium/current.json", "runtime/readweave/current.json"],
+    "validation_boundary": "服务健康和桥接版本检查只说明接口可用；它们不能代替完整生成、发布与回读的端到端验证"
+  },
+  "writing_contract": {
+    "version": "continuous-unit-2.0",
+    "model_calls_per_question": 1,
+    "same_call_outputs": [
+      "short_plan",
+      "continuous_body",
+      "media",
+      "answer",
+      "exercises",
+      "pitfalls",
+      "terms"
+    ],
+    "term_name_formatting": {
+      "case_exception_flags": ["abbreviation_case_exception", "english_case_exception"],
+      "flag_values": [0, 1],
+      "after_write_artifact": "05_writing/work/sections/<section>/term-format-<question_id>.json",
+      "script_fields": ["abbreviation", "english", "components", "display", "aliases"],
+      "extra_model_calls": 0,
+      "format_errors": "记录在本问检查中并交给现有批量修复；修复结果落盘前再次幂等整理；整理错误保留记录且不终止任务",
+      "legacy_terms_without_flags": "保留原名称，不自动改名"
+    },
+    "existing_term_definitions": "如果已有完整定义、直观解释和实例，写作时沿用；脚本只整理显示名称与重复记录，不另发术语生成请求"
+  },
+  "runtime_defaults": {
+    "writing": {
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "high",
+      "concurrency": 144
+    },
+    "translation": {
+      "model": "deepseek-flash",
+      "reasoning_effort": "off",
+      "concurrency": 12,
+      "batch_target_utf8_bytes": 24000
+    },
+    "bridges": {
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "high",
+      "concurrency": 7,
+      "batch_sections": 16
+    },
+    "repair": {
+      "max_batch_rounds": 1,
+      "concurrency": 3
+    },
+    "note": "这些是默认值；环境变量和项目已保存的模型设置可以覆盖它们"
+  },
+  "coverage_semantics": [
+    {
+      "id": "material-preservation",
+      "stages": ["00", "01.1"],
+      "meaning": "记录原件是否保存、材料文字是否提取以及引用对象是否可读取；保存与内容提取分开显示"
+    },
+    {
+      "id": "material-disposition",
+      "stage": "02",
+      "numerator": "coverage.covered",
+      "denominator": "coverage.total",
+      "meaning": "材料树节点是否已有明确用途，例如进入问题、作为结构定位、供查阅或被排除并说明原因"
+    },
+    {
+      "id": "teaching-assignment",
+      "stage": "02",
+      "numerator": "coverage.teaching_assigned",
+      "denominator": "coverage.teaching_nodes",
+      "meaning": "应讲解材料是否由具体问题负责；容器与导航用途不计为讲解分配"
+    },
+    {
+      "id": "chapter-assignment",
+      "stage": "03",
+      "numerator": "coverage.assigned_questions",
+      "denominator": "coverage.question_nodes",
+      "meaning": "每个问题是否分配到章节；脚本另核对问题在目录中的分配次数恰好一次"
+    },
+    {
+      "id": "explanation-source-mapping",
+      "stage": "07",
+      "numerator": "coverage.covered",
+      "denominator": "coverage.expected",
+      "meaning": "已生成正文是否引用本问分配的材料；引用映射率不表示事实正确或讲解充分"
+    }
+  ],
   "independent_check": {
     "implementation": "05_writing/independent_checks.py",
     "semantic_quality_review": false,

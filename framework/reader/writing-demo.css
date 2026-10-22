@@ -170,6 +170,10 @@
 .inline-term{border-bottom:1px dotted #8b9e7b;cursor:help;border-radius:2px}
 .inline-term:hover,.inline-term:focus-visible,.inline-term.is-term-active{background:#e9efdc;color:#274c34;outline:0;border-bottom-color:#52794e}
 .inline-term:focus-visible{box-shadow:0 0 0 2px #88a078}
+.glossary-inline-term{cursor:help}
+.glossary-term-popover{position:fixed;z-index:1400;max-width:min(340px,calc(100vw - 20px));padding:11px 14px;border:1px solid var(--line,#d8dfd2);border-radius:7px;background:var(--paper,#fff);color:var(--text,#252a24);box-shadow:0 8px 24px rgba(22,32,22,.2);font-size:13px;line-height:1.8;pointer-events:auto}
+.glossary-term-popover strong{display:block;margin-bottom:4px;color:var(--accent,#315239);font-size:14px}
+.glossary-term-popover p{margin:0;font-size:13px;line-height:1.8}
 .has-source-marker{position:relative;padding-left:23px}
 .writing-page button.source-marker{position:absolute;left:-6px;top:3px;width:25px;min-height:28px;padding:1px 3px;border:0;background:none;border-radius:3px;font-size:17px;font-weight:500;line-height:1.5;color:#6d8168;cursor:help}
 .writing-page button.source-marker:hover,.writing-page button.source-marker:focus-visible,.writing-page button.source-marker[aria-pressed=true]{color:#2e553a;background:#edf0df;outline:1px solid #b9c5ac}

@@ -121,7 +121,7 @@ def namespace_blocks(root):
         raw_media={}
         for response in sorted((root/'runtime/calls'/task).glob('*/response.json'),key=lambda p:p.stat().st_mtime):
             raw=read(response,{})
-            if raw.get('question_id')==qid:
+            if (raw.get('question_id')==qid or 'p' in raw):
                 raw_media.update({m['id']:m for g in raw.get('explanation',[]) for m in g.get('resources',[])})
         known={r['id'] for r in resources};by_source={}
         for resource in resources:by_source.setdefault(resource['source_id'],[]).append(resource['id'])
@@ -169,7 +169,7 @@ def namespace_blocks(root):
                 if key in references:
                     if node in renames:return renames[node]
                     for old,new in renames.items():
-                        if any(node==old+'-'+role for role in ('claim','reasoning','grounding','supplement','heading')):
+                        if any(node==old+'-'+role for role in ('claim','body','reasoning','grounding','supplement','heading')):
                             return new+node[len(old):]
                     return node
                 for old,new in renames.items():node=node.replace('{{media:'+old+'}}','{{media:'+new+'}}')
@@ -196,8 +196,6 @@ def repair(root,report,backend):
         elif row['rule']=='question_title':
             previous=get(value,row['path']);put(value,row['path'],previous.rstrip('？?')+'？')
             conversions.append({'document':name,'path':row['path'],'action':'补齐标题问号'})
-        elif row['rule']=='term_name':
-            put(value,row['path'],None);conversions.append({'document':name,'path':row['path'],'action':'缩写与英文全称重复时清空缩写'})
     for name,value in documents.items():
         if value is not None:save(root/name,value)
     converted={(row['document'],row['path']) for row in conversions}
@@ -376,6 +374,14 @@ def repair(root,report,backend):
                         errors.append('补译同时缺少两个显示字段：'+str(rid));continue
                     for field in ('chinese','english'):
                         if row.get(field) is None and rid in originals:row[field]=originals[rid]
+            if '/unit-' in name:
+                formatted,term_changes,term_errors=repair_batches.format_document_terms(candidate)
+                if term_changes:
+                    candidate=formatted
+                    conversions.append({'document':name,'path':'/appendix/terms',
+                        'action':'按术语例外位同步名称、拆解、显示和别名','changes':term_changes})
+                for error in term_errors:
+                    errors.append(name+' 的术语名称整理失败，已保留本次修复结果：'+error)
             save(root/name,candidate)
     return {'rounds':int(bool(report['findings'])),'model_calls':model_calls,'translation_calls':translation_calls,'content_calls':content_calls,
         'script_conversions':conversions,'applied':applied,'patch_errors':errors,'input_adaptations':input_adaptations,'requests':request_records}

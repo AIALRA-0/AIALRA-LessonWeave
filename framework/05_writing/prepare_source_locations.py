@@ -569,6 +569,8 @@ def prepare_locations(root,pack_paths,out=None):
                     result['original_variants']=sentence['original_variants']
                     if sentence.get('location_conflict'):
                         result.update(status='ambiguous',rects=[],reason='同一旧编号保留了不同原文，保留各原始片段及原页，不冒充唯一定位')
+        from raster_tiles import prepare_tiles
+        prepare_tiles(root,manifest)
         counts=Counter(s["status"] for source in manifest["sources"].values() for s in source["sentences"].values())
         manifest["summary"]={"source_count":len(manifest["sources"]),"sentence_statuses":dict(counts),"page_count":len(manifest["pages"]),"file_count":len(manifest["files"])}
         save(version_out/"manifest.json",manifest)

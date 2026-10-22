@@ -52,7 +52,7 @@ with sync_playwright() as playwright:
                 if not project['legacy']:
                     page.screenshot(path=str(OUT/(project['id']+'-'+view+'.png')))
                 if view=='readweave.html':
-                    record(project['id']+'-native-component',page.locator('#reader').evaluate('(host)=>!!host.shadowRoot && !host.shadowRoot.querySelector("iframe.reader-frame")'))
+                    record(project['id']+'-single-reader-route','/book.html' in page.url and page.locator('#demo-content').count()==1)
                 toggle=page.get_by_role('button',name='切换深色主题')
                 if toggle.count():
                     toggle.click()

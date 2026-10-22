@@ -27,12 +27,16 @@ def stage_times(root,job,rows,state):
     return {'stage_execution_seconds':round(sum(r['execution_seconds'] or 0 for r in rows),3),
             'execution_seconds':union_seconds(elapsed,end) if elapsed else None}
 
-def begin(root,label,names):
+def begin(root,label,names,reused=()):
+    reused=set(reused)
     with WRITE_LOCK:
         value=read(root/'runtime/progress.json',{})
         history=value.setdefault('all_tasks',{})
         history.update(value.get('tasks',{}))
-        tasks={name:history.get(name,'waiting') for name in names}
+        tasks={name:'reused' if name in reused else history.get(name,'waiting') for name in names}
+        if reused:
+            now=time.time();times=value.setdefault('task_times',{})
+            for name in reused & tasks.keys():times[name]={'started':now,'ended':now}
         history.update(tasks)
         value.update(label=label,tasks=tasks,updated=time.time())
         save(root/'runtime/progress.json',value)
@@ -54,7 +58,7 @@ def tick(root,name,status):
 def view(root,job):
     root=Path(root)
     state=read(root/'runtime/state.json',{})
-    if state.get('workflow') == 'lean-c-1.0':
+    if state.get('workflow') in {'lean-c-1.0','continuous-unit-2.0'} or job['status'] in {'queued','running','cancelling'}:
         return lean_view(root,job,state)
     # 旧项目只展示已有产物，继续执行时仍使用当前的逐问生成流程
     return {'stages':[],'completed_stages':0,'stage_total':0,'phase':'历史任务，原有产物与笔记继续保留','done':0,'total':0,'active':0,'round':state.get('round',0),'maximum':0,'elapsed_seconds':round(max(0,job['updated']-job['created'])),'updated':job['updated'],'issues':state.get('issues',[]),'output_ready':(root/'05_writing/book.json').is_file() or (root/'05_writing/preview-book.json').is_file(),'workflow':'legacy_read_only'}
@@ -101,9 +105,11 @@ def detailed_view(root,job,state):
     add('10','准备原文定位',(root/'05_writing/source-location/index.json').is_file(),detail='保留精确、歧义和未定位的实际统计',running=stage=='05_writing/locations')
     add('11','导出完整阅读包',(root/'05_writing/reading-package.zip').is_file(),detail='读本、原件与来源映射一起打包',running=stage=='05_writing/package')
     if os.environ.get('LESSONWEAVE_TRILIUM_URL'):
-        attachments={name:status for name,status in work.get('tasks',{}).items() if name.startswith('attachment:')}
+        attachments={name:status for name,status in tasks.items() if name.startswith(('attachment:','shared:'))}
         library_done=bool(read(root/'runtime/trilium/current.json',{}).get('render_note_id')) and not (active and stage=='library/sync')
-        add('12','保存到笔记库',library_done,len(attachments) or None,sum(v in {'completed','reused'} for v in attachments.values()),detail='沿用已配置的笔记库和原有笔记位置',running=stage=='library/sync')
+        from .readweave import configured as shared_configured,current as shared_current
+        if shared_configured():library_done=library_done and bool(shared_current(root).get('edition_id'))
+        add('12','保存到笔记库',library_done,len(attachments) or None,sum(v in {'completed','reused'} for v in attachments.values()),detail='保存原件与版本，再同步正文、原文、译文和术语',running=stage=='library/sync')
     if active and not any(r['status']=='running' for r in rows):
         pending=next((r for r in rows if r['status']=='waiting'),None)
         if pending:pending['status']='running'
@@ -120,7 +126,7 @@ def detailed_view(root,job,state):
         row['groups']=sorted(STAGE_GROUPS[row['id']])
     for name,status in tasks.items():
         t=times.get(name,{})
-        detail.append({'name':name,'stage':'library' if name.startswith('attachment:') else task_stage(name),'status':status,'elapsed_seconds':round(max(0,t.get('ended',now)-t.get('started',now))),**t})
+        detail.append({'name':name,'stage':'library' if name.startswith(('attachment:','shared:')) else task_stage(name),'status':status,'elapsed_seconds':round(max(0,t.get('ended',now)-t.get('started',now))),**t})
     current=[r['label'] for r in rows if r['status']=='running']
     result=job.get('result') or {}
     if isinstance(result,str):
@@ -134,4 +140,4 @@ def detailed_view(root,job,state):
         'elapsed_seconds':round(max(0,end-job['created'])),'updated':work.get('updated',state.get('updated_at',job['updated'])),
         'observed_at':now,'tasks':detail,'coverage':qcoverage,'pricing':PRICING,'issues':state.get('issues',[]) or (result.get('issues',[]) if not active else []),
         'output_ready':(root/'05_writing/book.json').is_file() and (root/'05_writing/source-location/index.json').is_file(),
-        'diagnosis':{},'workflow':'lean-c-1.0',**timing}
+        'diagnosis':{},'workflow':state.get('workflow','continuous-unit-2.0'),**timing}

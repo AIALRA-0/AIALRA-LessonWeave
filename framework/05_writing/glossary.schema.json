@@ -19,6 +19,14 @@
               }
             ]
           },
+          "abbreviation_case_exception": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ],
+            "default": 0
+          },
           "chinese": {
             "type": "string",
             "minLength": 1,
@@ -42,6 +50,14 @@
                 }
               }
             ]
+          },
+          "english_case_exception": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ],
+            "default": 0
           },
           "professional_definition": {
             "type": "object",

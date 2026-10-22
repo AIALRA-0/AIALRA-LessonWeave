@@ -18,7 +18,7 @@ import book_sources
 from .concurrency import options
 
 
-def catalog(pack):
+def catalog(pack, root=None):
     rows = {}
     visuals={v['source_id']:v for v in pack.get('visual_assets',[])}
     for source in pack['sources']:
@@ -26,6 +26,10 @@ def catalog(pack):
             continue
         if source.get('evidence_kind') == 'material_index':
             continue
+        if source.get('raw_content',{}).get('reading_role')=='hidden_control':continue
+        if source.get('asset'):
+            from reader_repairs import file_role
+            if file_role(source['asset'])=='system_metadata':continue
         if source.get('coverage_scope')=='file_role':
             key=source['id']+'.file'
             rows[key]={'id':key,'source_id':source['id'],'kind':'file','scope':'file_role',
@@ -37,6 +41,8 @@ def catalog(pack):
                 continue
             rows[sentence['id']] = {'id':sentence['id'],'source_id':source['id'],'kind':'code' if source.get('verbatim_code') or sentence.get('verbatim_code') or source.get('type')=='code' else 'text',
                 'original':sentence['original'],'question_ids':sentence.get('question_ids',source.get('question_ids',[]))}
+            if source.get('raw_content',{}).get('field'):rows[sentence['id']]['metadata_field']=source['raw_content']['field']
+            if source.get('dependency_definition'):rows[sentence['id']]['dependency_definition']=True
             if source.get('source',{}).get('kind')=='code':
                 rows[sentence['id']]['source_path']=source['source']['path']
                 for field in ['start_line','end_line']:
@@ -46,6 +52,14 @@ def catalog(pack):
             rows[key]={'id':key,'source_id':source['id'],'kind':'image','asset':source['asset'],'question_ids':source.get('question_ids',[])}
             preview=visuals.get(source['id'],{}).get('model_path') or source.get('image_preview',{}).get('path')
             if preview:rows[key]['model_asset']=preview
+        elif source.get('asset') and not any(s.get('evidence_kind')!='material_index' for s in source.get('sentences',[])) and not source.get('file_fragments'):
+            import mimetypes
+            asset=source['asset'];details={'path':asset,'format':Path(asset).suffix,'role':'original_attachment'}
+            if root is not None:
+                path=(Path(root)/asset.lstrip('/')).resolve()
+                if path.is_relative_to(Path(root).resolve()) and path.is_file():details.update(bytes=path.stat().st_size,mime=mimetypes.guess_type(path)[0]or'application/octet-stream')
+            rows[source['id']+'.file']={'id':source['id']+'.file','source_id':source['id'],'kind':'file','scope':'file_role',
+                                      'original':contract.dumps(details),'question_ids':source.get('question_ids',[])}
         for file_index,fragment in enumerate(source.get('file_fragments',[]),1):
             if fragment.get('role') not in book_sources.TEXT_ROLES or fragment.get('read_policy')=='original_attachment':
                 from reader_repairs import file_role
@@ -77,7 +91,7 @@ def reader_unit(value):
     for group in value['explanation']:
         blocks.append({'id':group['id']+'-heading','kind':'heading',
             'text':group['title_premise'].rstrip('，,；;？? ')+'，'+group['title_question']})
-        for role in ['claim','reasoning','grounding','supplement']:
+        for role in (['claim','body','supplement'] if 'body' in group else ['claim','reasoning','grounding','supplement']):
             if group.get(role):blocks.append(authoring.paragraph(group['id']+'-'+role,group[role]))
         for resource in group['resources']:
             item=copy.deepcopy(resource)
@@ -108,7 +122,7 @@ def coverage(units, resources):
                 ref=refs.setdefault(row['source_id'],{'source_id':row['source_id'],'sentence_ids':[],'region_ids':[]})
                 if row['kind'] in {'text','code'}:ref['sentence_ids'].append(rid)
             # 讲解组保存组级对应，原始生成结果没有逐自然段证据时，不伪造更细的来源精度
-            for block_id in [group['id']+'-'+role for role in ['claim','reasoning','grounding','supplement'] if group.get(role)]:
+            for block_id in [group['id']+'-'+role for role in (['claim','body','supplement'] if 'body' in group else ['claim','reasoning','grounding','supplement']) if group.get(role)]:
                 links[block_id]=list(copy.deepcopy(refs).values())
             for media in group['resources']:
                 own={}
@@ -168,6 +182,12 @@ def assemble(root, context, folder, pack, units, appendix, bridge, resources=Non
         'opening':authoring.paragraph(context['section_id']+'-opening',bridge['carryover']),
         'opening_forward':authoring.paragraph(context['section_id']+'-forward',bridge['premise'].rstrip('，,；;：:？? ')+'，'+bridge['question'].lstrip('，,；; '))}
     context=copy.deepcopy(context);context['opening_title']=''
+    for spec in context['units']:
+        generated=next((u for u in units if u['question_id']==spec['question_id']),{})
+        if generated.get('reader_title'):
+            spec['title']=generated['reader_title']
+            for core in context['core_questions']:
+                if core['question_id']==spec['question_id']:core['text']=generated['reader_title']
     doc,_,catalog_doc=flow.generation.assemble_section(context,pack,{'points':[]},rendered,extras)
     specs={u['question_id']:u for u in context['units']}
     for unit in doc['units']:
@@ -217,7 +237,7 @@ def write_sections(root,backend,reuse_only=False,inspect=False):
         pack_path=folder/'source-pack.json'
         pack=read(pack_path) if pack_path.exists() else book_sources.prepare_sources(root,context['section_id'],folder,**({'session':source_session}if source_session is not None else{}))
         resource_path=folder/'resources.json'
-        resources=read(resource_path) if reuse_only and resource_path.exists() else catalog(pack)
+        resources=read(resource_path) if reuse_only and resource_path.exists() else catalog(pack,root)
         if not reuse_only or not resource_path.exists():save(resource_path,resources)
         prepared.append((context,folder,pack,resources))
     save(root/'runtime/writing-preparation.json',{'seconds':time.perf_counter()-prepare_started,'sections':len(prepared),'model_calls':0})
@@ -237,16 +257,23 @@ def write_sections(root,backend,reuse_only=False,inspect=False):
         prompt,read_tools,input_mode=writing_input.prepare(root,folder,qid,prompt,getattr(backend,'model','gpt-6.1-sol'))
         save(folder/('input-mode-'+qid+'.json'),input_mode)
         call_options={'read_only_tools':True}if read_tools else{}
-        value=contract.reader_quiz(backend._call_once(context['section_id']+'-c-'+qid,prompt,wire_schema,images,**call_options))
+        value=contract.reader_quiz(backend._call_once(context['section_id']+'-c-'+qid,prompt,wire_schema,images,**call_options),qid)
         value,hits=glossary_reuse.expand(value,shared)
+        import repair_batches
+        value,term_changes,term_errors=repair_batches.format_document_terms(value,include_legacy=True)
         value,shared_format=flow.author_format(value)
+        save(folder/('term-format-'+qid+'.json'),{
+            'scope':'按术语例外位整理本次新生成的名称，并同步展示字段，不改定义内容',
+            'changes':term_changes,'errors':term_errors})
+        if term_errors:
+            record(root,qid,['术语名称整理失败，已保留生成内容并交独立检查：'+error for error in term_errors])
         save(folder/('glossary-reuse-'+qid+'.json'),{'hits':hits,'available':len(shared),'special_senses':'完整新词条保留在本问正文产物中'})
         record(root,qid,contract.findings(value,'c-unit'));save(path,value);return value
     all_resources=list({r['id']:r for row in prepared for r in row[3]}.values())
     writing_started=time.time()
     with futures.ThreadPoolExecutor(max_workers=options()['writing_calls']+1) as pool:
         translation=pool.submit(translate,root,None if reuse_only else Backend(root,role='lean_translation'),all_resources,[row[2] for row in prepared])
-        pending=[pool.submit(write,job) for job in jobs]
+        pending=[pool.submit(write,job) for job in sorted(jobs,key=lambda task:sum(len(r.get('original','')) for r in task[0][3] if task[0][0]['units'][task[1]]['question_id'] in r.get('question_ids',[])),reverse=True)]
         for result in pending:
             try:result.result()
             except Exception as error:

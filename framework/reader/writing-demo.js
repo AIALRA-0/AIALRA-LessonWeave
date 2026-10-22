@@ -26,6 +26,13 @@
   let sourceTimer;
   let glossaryTimer;
   let glossaryRestoreTimer;
+  let glossaryTermPopover = null;
+  let glossaryTermPopoverTrigger = null;
+  let glossaryTermPopoverTimer;
+  let glossaryTermPopoverHideTimer = null;
+  let glossaryTermPopoverPinned = false;
+  let glossaryTermPopoverBound = false;
+  let glossaryTermPopoverId = 0;
   let sourceRestoreTimer;
   let sourceLanguage = 'both';
   let originalSourcePack = null;
@@ -40,7 +47,43 @@
   const readingState = () => ({ doc: data, sourcePack: originalSourcePack, coverage: explanationCoverage,
     document_path: documentPath, source_pack_path: data?.grounding?.source_pack_path,
     preview: isPreview, ready: readerReady, selection: currentSourceSelection() });
-  window.ReaderSourceBridge = { getState: readingState, navigate };
+  window.ReaderSourceBridge = { getState: readingState, navigate, updateGlossary, hydrateSharedMedia };
+
+  function hydrateSharedMedia(element) {
+    if (!data || !window.LessonMedia) return;
+    const blocks = data.units.flatMap(unit => unit.explanation);
+    for (const holder of element.querySelectorAll('[data-shared-media]')) {
+      const original = blocks.find(block => block.id === holder.dataset.sharedMedia);
+      if (!original || !original.guide) continue;
+      const resource = {...original};
+      const image = holder.querySelector('img');
+      if (image) resource.asset = new URL(image.getAttribute('src'), location.href).href;
+      const code = holder.querySelector('pre code');
+      if (code && resource.kind === 'code') resource.text = code.textContent;
+      const placement = mediaPlacement(resource);
+      const rendered = window.LessonMedia.render(resource, {
+        prefix: placement.prefix, index: placement.index, path: projectPath,
+        image: item => sourceImage(item.asset, item.alt || item.caption, imageRegion(item.source_id, item.source_region))
+      });
+      const figure = rendered.querySelector('.lw-media-figure');
+      if (figure) holder.replaceChildren(figure);
+    }
+  }
+
+  function updateGlossary(terms) {
+    if (!data || !Array.isArray(terms) || !get('glossary-list')) return false;
+    restoreGlossary();
+    const openIds = new Set([...get('glossary-list').children]
+      .filter(card => card.open).map(card => card.dataset.termId));
+    data.glossary = terms;
+    renderGlossary();
+    for (const card of get('glossary-list').children) {
+      card.open = openIds.has(card.dataset.termId);
+    }
+    get('glossary-count').textContent = `${data.glossary.length} 个术语，展开名称可查看解释`;
+    markInlineTerms();
+    return true;
+  }
 
   function currentSourceSelection() {
     if (!sourcePack) return null;
@@ -818,6 +861,7 @@
   function block(b, role) {
     const box = make('div', undefined, 'writing-block');
     box.dataset.blockId = b.id;
+    if (['image','table','formula','code','mermaid','model','video','audio','interactive'].includes(b.kind)) box.dataset.mediaKind=b.kind;
     box.id = 'block-' + b.id;
     if (role) box.append(make('span', role, 'writing-role'));
     if (b.guide && window.LessonMedia) {
@@ -918,6 +962,7 @@
   }
 
   function renderGlossary() {
+    hideGlossaryTermPopover();
     const list = get('glossary-list');
     list.replaceChildren();
     for (const term of data.glossary) {
@@ -932,6 +977,198 @@
       list.append(card);
     }
     filterGlossary();
+    markGlossaryTerms();
+  }
+
+  function glossaryDefinition(term) {
+    if (typeof term.definition === 'string' && term.definition.trim()) return term.definition;
+    const definition = term.professional_definition;
+    if (definition && typeof definition === 'object') {
+      return ['genus','differentia','boundary','extension'].map(key => definition[key])
+        .filter(value => typeof value === 'string' && value.trim()).join(' ');
+    }
+    return '';
+  }
+
+  function hideGlossaryTermPopover() {
+    clearTimeout(glossaryTermPopoverTimer);
+    glossaryTermPopoverTimer = null;
+    clearTimeout(glossaryTermPopoverHideTimer);
+    glossaryTermPopoverHideTimer = null;
+    if (glossaryTermPopoverTrigger) {
+      glossaryTermPopoverTrigger.removeAttribute('aria-describedby');
+      glossaryTermPopoverTrigger.setAttribute('aria-expanded', 'false');
+    }
+    glossaryTermPopover?.remove();
+    glossaryTermPopover = null;
+    glossaryTermPopoverTrigger = null;
+    glossaryTermPopoverPinned = false;
+  }
+
+  function positionGlossaryTermPopover(trigger) {
+    if (!glossaryTermPopover) return;
+    const anchor = trigger.getBoundingClientRect();
+    const card = glossaryTermPopover.getBoundingClientRect();
+    const gap = 8;
+    const edge = 10;
+    let left = Math.max(edge, Math.min(anchor.left, window.innerWidth - card.width - edge));
+    let top = anchor.bottom + gap;
+    if (top + card.height > window.innerHeight - edge) top = anchor.top - card.height - gap;
+    top = Math.max(edge, Math.min(top, window.innerHeight - card.height - edge));
+    left = Math.max(edge, Math.min(left, window.innerWidth - card.width - edge));
+    glossaryTermPopover.style.left = `${left}px`;
+    glossaryTermPopover.style.top = `${top}px`;
+  }
+
+  function scheduleHideGlossaryTermPopover() {
+    clearTimeout(glossaryTermPopoverHideTimer);
+    glossaryTermPopoverHideTimer = setTimeout(() => {
+      if (glossaryTermPopoverPinned) return;
+      const triggerFocused = glossaryTermPopoverTrigger?.matches(':focus-visible');
+      if (glossaryTermPopover?.matches(':hover') || triggerFocused) return;
+      hideGlossaryTermPopover();
+    }, 160);
+  }
+
+  function showGlossaryTermPopover(trigger, term, pinned = false) {
+    clearTimeout(glossaryTermPopoverHideTimer);
+    if (glossaryTermPopoverTrigger === trigger && glossaryTermPopover) {
+      glossaryTermPopoverPinned ||= pinned;
+      positionGlossaryTermPopover(trigger);
+      return;
+    }
+    hideGlossaryTermPopover();
+    const definition = glossaryDefinition(term);
+    if (!definition) return;
+    const card = make('div', undefined, 'glossary-term-popover');
+    card.id = `glossary-term-definition-${++glossaryTermPopoverId}`;
+    card.setAttribute('role', 'tooltip');
+    card.append(make('strong', term.display || `${term.chinese || ''}（${term.english || ''}）`));
+    card.append(make('p', definition));
+    card.addEventListener('pointerenter', () => clearTimeout(glossaryTermPopoverHideTimer));
+    card.addEventListener('pointerleave', scheduleHideGlossaryTermPopover);
+    document.body.append(card);
+    glossaryTermPopover = card;
+    glossaryTermPopoverTrigger = trigger;
+    glossaryTermPopoverPinned = pinned;
+    trigger.setAttribute('aria-describedby', card.id);
+    trigger.setAttribute('aria-expanded', 'true');
+    positionGlossaryTermPopover(trigger);
+  }
+
+  function glossaryTermCandidates() {
+    const records = new Map();
+    const add = (term, value, kind) => {
+      if (typeof value !== 'string' || !value.trim() || !glossaryDefinition(term)) return;
+      const alias = value.trim();
+      const key = alias.toLocaleLowerCase();
+      if (!records.has(key)) records.set(key, { alias, terms: new Map() });
+      const record = records.get(key);
+      if (!record.terms.has(term.id)) record.terms.set(term.id, { term, kinds: new Set() });
+      record.terms.get(term.id).kinds.add(kind);
+    };
+    for (const term of data.glossary || []) {
+      add(term, term.chinese, 'chinese');
+      add(term, term.english, 'english');
+      add(term, term.abbreviation, 'abbreviation');
+      for (const alias of Array.isArray(term.aliases) ? term.aliases : []) {
+        const compact = /^[A-Za-z0-9]{1,8}$/.test(alias);
+        const looksAbbreviated = compact && (alias === alias.toUpperCase() || /[a-z][A-Z]/.test(alias));
+        add(term, alias, looksAbbreviated ? 'abbreviation' : 'alias');
+      }
+    }
+    return [...records.values()].map(record => ({
+      ...record,
+      owners: [...record.terms.values()],
+      abbreviation: [...record.terms.values()].some(owner => owner.kinds.has('abbreviation')),
+      english: [...record.terms.values()].some(owner => owner.kinds.has('english') || owner.kinds.has('alias'))
+    })).sort((left, right) => right.alias.length - left.alias.length);
+  }
+
+  function markGlossaryTerms() {
+    const candidates = glossaryTermCandidates();
+    if (!candidates.length) return;
+    if (!glossaryTermPopoverBound) {
+      document.addEventListener('pointerdown', event => {
+        if (glossaryTermPopoverTrigger?.contains(event.target) || glossaryTermPopover?.contains(event.target)) return;
+        hideGlossaryTermPopover();
+      }, true);
+      window.addEventListener('resize', () => {
+        if (glossaryTermPopoverTrigger) positionGlossaryTermPopover(glossaryTermPopoverTrigger);
+      });
+      glossaryTermPopoverBound = true;
+    }
+    const pattern = new RegExp(candidates.map(item => item.alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'giu');
+    const skip = 'a,button,pre,code,svg,math,input,textarea,select,[contenteditable="true"],.writing-role,.writing-note,.inline-term,.glossary-term-popover,.reader-math,.katex,.lw-media-mermaid,.lw-media-math';
+    const proseNodes = get('glossary-list').querySelectorAll('.glossary-prose');
+    for (const prose of proseNodes) {
+      const ownId = prose.closest('.glossary-entry')?.dataset.termId;
+      const walker = document.createTreeWalker(prose, NodeFilter.SHOW_TEXT, {
+        acceptNode: node => node.parentElement.closest(skip) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+      });
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      for (const node of nodes) {
+        const text = node.nodeValue;
+        const fragment = document.createDocumentFragment();
+        let end = 0;
+        pattern.lastIndex = 0;
+        for (const match of text.matchAll(pattern)) {
+          const value = match[0];
+          const start = match.index;
+          const after = start + value.length;
+          const candidate = candidates.find(item => item.alias.toLocaleLowerCase() === value.toLocaleLowerCase());
+          if (!candidate || candidate.owners.length !== 1) continue;
+          const owner = candidate.owners[0].term;
+          if (owner.id === ownId) continue;
+          if (candidate.abbreviation) {
+            if (!/\s/.test(text[start - 1] || '') || !/\s/.test(text[after] || '')) continue;
+          } else if (candidate.english
+              && (/[A-Za-z0-9_]/.test(text[start - 1] || '') || /[A-Za-z0-9_]/.test(text[after] || ''))) continue;
+          fragment.append(document.createTextNode(text.slice(end, start)));
+          const span = make('span', value, 'inline-term glossary-inline-term');
+          span.dataset.termId = owner.id;
+          span.tabIndex = 0;
+          span.setAttribute('role', 'button');
+          span.setAttribute('aria-label', '查看术语定义：' + value);
+          span.setAttribute('aria-haspopup', 'tooltip');
+          span.setAttribute('aria-expanded', 'false');
+          span.addEventListener('pointerenter', () => {
+            clearTimeout(glossaryTermPopoverHideTimer);
+            clearTimeout(glossaryTermPopoverTimer);
+            glossaryTermPopoverTimer = setTimeout(() => showGlossaryTermPopover(span, owner), 90);
+          });
+          span.addEventListener('pointerleave', () => {
+            clearTimeout(glossaryTermPopoverTimer);
+            scheduleHideGlossaryTermPopover();
+          });
+          span.addEventListener('focus', () => showGlossaryTermPopover(span, owner));
+          span.addEventListener('blur', scheduleHideGlossaryTermPopover);
+          span.addEventListener('click', event => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (glossaryTermPopoverTrigger === span && glossaryTermPopoverPinned) hideGlossaryTermPopover();
+            else showGlossaryTermPopover(span, owner, true);
+          });
+          span.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              showGlossaryTermPopover(span, owner, true);
+            } else if (event.key === 'Escape') {
+              event.preventDefault();
+              hideGlossaryTermPopover();
+              span.blur();
+            }
+          });
+          fragment.append(span);
+          end = after;
+        }
+        if (end) {
+          fragment.append(document.createTextNode(text.slice(end)));
+          node.replaceWith(fragment);
+        }
+      }
+    }
   }
 
   function filterGlossary() {
@@ -994,6 +1231,13 @@
   }
 
   function markInlineTerms() {
+    const markedParents = new Set();
+    for (const span of get('demo-content').querySelectorAll('.glossary-body-inline-term')) {
+      const parent = span.parentNode;
+      markedParents.add(parent);
+      span.replaceWith(document.createTextNode(span.textContent));
+    }
+    for (const parent of markedParents) parent.normalize();
     const localSymbols = new Map();
     for (const notation of data.local_notations || []) {
       for (const blockId of notation.scope_block_ids || []) {
@@ -1040,7 +1284,7 @@
         const term = aliases.get(value.toLocaleLowerCase());
         if (!term) continue;
         fragment.append(document.createTextNode(text.slice(end, start)));
-        const span = make('span', value, 'inline-term');
+        const span = make('span', value, 'inline-term glossary-body-inline-term');
         span.dataset.termId = term.id;
         span.tabIndex = 0;
         span.setAttribute('role', 'button');
@@ -1073,7 +1317,7 @@
     if (get('glossary-preview-back')) get('glossary-preview-back').onclick = restoreGlossary;
   }
 
-  document.addEventListener('keydown',event=>{if(event.key==='Escape'){restoreSources();restoreGlossary();}});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'){hideGlossaryTermPopover();restoreSources();restoreGlossary();}});
   function navigate(search){
     pendingNavigation=search;
     if(loading)return loading;
@@ -1153,6 +1397,7 @@
       }
       const incoming = await response.json();
       if(pendingNavigation!==null)return;
+      hideGlossaryTermPopover();
       for(const timer of [sourceTimer,glossaryTimer,glossaryRestoreTimer,sourceRestoreTimer])clearTimeout(timer);
       sourceObserver?.disconnect();sourceObserver=null;sourcePreview=null;glossaryPreview=null;
       sourcePack=null;originalSourcePack=null;explanationCoverage=null;sourceLinks={};readerRepairs={};activeQuestion=null;

@@ -1,6 +1,31 @@
 #!/usr/bin/env bash
 set -euo pipefail
 # 在已下载的仓库中安装依赖和系统服务，账号登录继续由官方 CLI 处理
+readweave_source=""
+readweave_port="18961"
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --readweave-source)
+      [ "$#" -ge 2 ] || { echo '缺少 --readweave-source 的归档路径'; exit 2; }
+      readweave_source="$2"
+      shift 2
+      ;;
+    --readweave-port)
+      [ "$#" -ge 2 ] || { echo '缺少 --readweave-port 的端口号'; exit 2; }
+      readweave_port="$2"
+      shift 2
+      ;;
+    --help|-h)
+      printf '%s\n' '用法：sudo bash deploy/install-vps.sh [--readweave-source 源码归档] [--readweave-port 18961]'
+      printf '%s\n' 'ReadWeave 只在显式提供公开源码归档时部署，并绑定本机回环地址'
+      exit 0
+      ;;
+    *)
+      printf '未知参数：%s\n' "$1" >&2
+      exit 2
+      ;;
+  esac
+done
 cd "$(dirname "$0")/.."
 root="$(pwd)"
 if [ "$(id -u)" -ne 0 ]; then echo '请使用 sudo bash deploy/install-vps.sh'; exit 1; fi
@@ -43,5 +68,11 @@ if [ -z "$codex_bin" ]; then codex_bin="$root/.tools/node_modules/.bin/codex"; f
 grep -q '^LESSONWEAVE_CODEX=' /etc/lessonweave.env || printf 'LESSONWEAVE_CODEX=%s\n' "$codex_bin" >> /etc/lessonweave.env
 sed "s|/srv/lessonweave/current|$root|g;s|/srv/lessonweave/venv|$root/.venv|g" deploy/lessonweave.service > /etc/systemd/system/lessonweave.service
 systemctl daemon-reload
+if [ -n "$readweave_source" ]; then
+  python3 deploy/readweave_bootstrap.py --source "$readweave_source" --port "$readweave_port" --env-file /etc/lessonweave.env
+elif grep -Eq '^[[:space:]]*(export[[:space:]]+)?LESSONWEAVE_(READWEAVE|TRILIUM)_(URL|TOKEN)=.+$' /etc/lessonweave.env; then
+  # 已有完整实例配置时验证桥接，并幂等确认生成端需要的根目录与回收站
+  python3 deploy/readweave_bootstrap.py --port "$readweave_port" --env-file /etc/lessonweave.env
+fi
 systemctl enable --now lessonweave.service
 echo '服务已启动并监听 127.0.0.1:18960；请完成 Codex 登录，配置翻译凭据、所有者和现有认证反向代理'

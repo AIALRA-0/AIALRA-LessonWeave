@@ -20,6 +20,17 @@ def unit():
 RESOURCES=[{'id':'r1','source_id':'n1','kind':'text','original':'Cache retains data','question_ids':['q1']}]
 
 
+def test_original_punctuation_rule_still_applies_to_conversational_writing():
+    from lessonweave.legacy import author_format
+    value=unit();value['explanation'][0]['reasoning']='核心先查找缓存。找到数据后，就可以继续执行。'
+    value['reader_title']='缓存能让程序少等多久？'
+    assert any(f['rule']=='lint' for f in rules.unit_findings(value,RESOURCES,{},'q1'))
+    result,_=author_format(value)
+    assert result['explanation'][0]['reasoning']=='核心先查找缓存；找到数据后，就可以继续执行'
+    assert result['reader_title']==value['reader_title']
+    assert not [f for f in rules.unit_findings(result,RESOURCES,{},'q1')if f['rule']in {'schema','lint'}]
+
+
 def test_script_detects_missing_actual_mapping_and_invalid_schema():
     # 删除映射或必填的因果展开字段时，检查器指出实际缺漏
     value=unit();value['explanation'][0]['resource_ids']=[]

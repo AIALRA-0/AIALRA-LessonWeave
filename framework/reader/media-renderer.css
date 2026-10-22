@@ -23,3 +23,13 @@
 .lw-media-visual .lw-media-math .katex-display{margin:4px 0}
 @media(max-width:520px){.lw-media-toolbar{gap:4px}.reader-ui .lesson-content .lw-media h4{font-size:calc(var(--body-size) + 3px)}}
 
+/* 图钉只固定当前素材，文字和后面的素材继续沿原来的位置排版 */
+.lw-media-figure{position:relative;top:auto}
+.lw-media-figure.is-pinned{position:fixed;z-index:6;box-sizing:border-box;box-shadow:0 5px 18px #0002;max-height:60dvh}
+.lw-media-pin-placeholder{margin-bottom:18px;flex:none;pointer-events:none}
+.lw-media .lw-media-action,.lw-media-dialog .lw-media-action{display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;min-width:28px;height:26px;min-height:26px;padding:4px;border:0;border-radius:4px;background:transparent;color:var(--secondary,inherit);text-decoration:none}
+.lw-media-action svg{display:block;width:18px;height:18px;flex:none}
+.lw-media .lw-media-action:hover,.lw-media-dialog .lw-media-action:hover,.lw-media .lw-media-action[aria-pressed=true]{background:var(--hover,#eeefe9);color:var(--text,inherit)}
+.lw-media .lw-media-action:focus-visible,.lw-media-dialog .lw-media-action:focus-visible{outline:2px solid var(--accent,#4c6a77);outline-offset:1px}
+.lw-media-action[hidden]{display:none!important}
+

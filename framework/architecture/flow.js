@@ -7,7 +7,6 @@
   let dark = false;
   try { dark = (localStorage.getItem('lessonweave:theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')) === 'dark'; } catch {}
   document.body.classList.toggle('dark', dark);
-  const labels = {'opening_title':'承上启下','problem.text':'问题段','explanation':'讲解段','synthesis.text':'升华段','glossary':'术语表','core_questions':'核心问题','premise':'前提','question':'问题','title':'标题','content':'材料','source':'来源位置','description':'应讲信息点','checks':'需要讲清的细节','explained':'已讲清标记','block_ids':'对应正文位置'};
   async function api(url) {
     const response = await fetch(url, {cache:'no-store'});
     if (!response.headers.get('content-type')?.includes('application/json')) throw Error('请重新登录后查看流程与架构');
@@ -41,8 +40,14 @@
     const fields = stage.fields;
     if (stage.id === '09') {
       const get = (sid, ending) => data.stages.find(s=>s.id===sid)?.fields.find(f=>f.key.endsWith(':'+ending));
-      const columns = [['目录',get('03','title')],['原文与译文',get('01.1','content')],['讲解',get('04','explanation[0].claim')],['术语表',get('06','professional_definition.genus')]];
-      return '<div class="reader-wrap"><div class="render-label">当前数据在四栏阅读器中的位置</div><div class="reader-grid">'+columns.map(([name,f])=>'<div class="reader-cell"><h4>'+fixed(name)+'</h4>'+(f?part(f):'<span class="muted">尚未生成</span>')+'</div>').join('')+'</div></div>'+(data.reader_url?'<p class="reader-link"><a href="'+esc(data.reader_url)+'" target="_blank" rel="noopener">打开这个版本的完整读本 ↗</a></p>':'');
+      const columns = [
+        ['目录', [['章节标题',get('03','title')]]],
+        ['原文与译文', [['原文',get('01.1','content')],['中文译文',get('05','translation')]]],
+        ['连续讲解', [['正文',get('04','explanation[0].body')]]],
+        ['术语解释', [['同次生成的术语',get('04','appendix.terms[0]')]]]
+      ];
+      const cell = ([label, field]) => '<p><strong>'+esc(label)+'：</strong>'+(field?part(field):'<span class="muted">尚未生成</span>')+'</p>';
+      return '<div class="reader-wrap"><div class="render-label">目录、原文、译文、连续讲解和术语解释在同一读本中并排查看</div><div class="reader-grid">'+columns.map(([name,entries])=>'<div class="reader-cell"><h4>'+fixed(name)+'</h4>'+entries.map(cell).join('')+'</div>').join('')+'</div></div>'+(data.reader_url?'<p class="reader-link"><a href="'+esc(data.reader_url)+'" target="_blank" rel="noopener">打开这个版本的完整读本 ↗</a></p>':'');
     }
     return '<div class="render-row">'+['输入','输出'].map(side=>'<div class="render-box"><div class="render-label" tabindex="0" data-group="'+side+'">'+side+'怎样显示</div><div class="render-body">'+fields.filter(f=>f.side===side).map(f=>'<div class="preview-field" data-side="'+side+'"><h4>'+fixed(f.label)+'</h4>'+part(f)+'</div>').join('')+'</div></div>').join('')+'</div>'+(stage.id==='01.1'&&data.material_image?'<img class="live-material" loading="lazy" src="'+esc(data.material_image)+'" alt="当前项目保存的原材料预览">':'')+(stage.id==='04'&&data.legacy_unit?'<p class="legacy-notice">当前书稿使用旧结构，正文没有重写，新字段保留未生成状态，可在阅读入口审核现有正文</p>':'');
   }

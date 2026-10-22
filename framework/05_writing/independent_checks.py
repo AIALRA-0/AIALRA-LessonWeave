@@ -5,6 +5,7 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 import lean_contract as contract
 import media_contract
+import book_terminology as term_names
 from positive_writing import FORBIDDEN
 
 LINT=re.compile(FORBIDDEN.pattern+r'|。|原文概括|\bn\d{6}(?:\.[\w-]+)*\b')
@@ -32,7 +33,7 @@ def prose(value):
         last=parts[-1] if parts else ''
         if parts and parts[0]=='premise':yield parts,text;continue
         if parts and parts[0]=='explanation':
-            if len(parts)==3 and last in {'title_premise','title_question','claim','reasoning','grounding','supplement'}:
+            if len(parts)==3 and last in {'title_premise','title_question','claim','body','reasoning','grounding','supplement'}:
                 if text:yield parts,text
             elif 'resources' in parts and ('guide' in parts or last=='caption'):
                 if last not in {'id','type','language','math_label','formula','label','owner','name'}:yield parts,text
@@ -55,6 +56,8 @@ def unit_findings(value,resources,quota,question_id,root=None):
     if findings:return findings
     if value['question_id']!=question_id:
         findings.append(issue('question_owner','/question_id','讲解所属问题与分配的问题不同'))
+    if value.get('reader_title') and not value['reader_title'].rstrip().endswith('？'):
+        findings.append(issue('question_title','/reader_title','阅读标题需要以中文问号结束'))
     known={r['id'] for r in resources};expected={r['id'] for r in resources if question_id in r.get('question_ids',[])}
     mapped=contract.mappings(value,expected)
     missing=expected-{r for g in value['explanation'] for r in g['resource_ids']}
@@ -84,6 +87,11 @@ def unit_findings(value,resources,quota,question_id,root=None):
         if q['kind']=='single_choice' and not 0<=q['answer']<len(q['options']):
             findings.append(issue('quiz_answer',f'/appendix/quiz/{i}/answer','答案索引超出实际选项'))
     for i,term in enumerate(value['appendix']['terms']):
+        # 旧读本没有例外位时继续按旧数据读取；新写作响应带位后，名称问题进入现有统一修复
+        if any(field in term for field in term_names.CASE_FLAGS):
+            for finding in term_names.term_name_findings(term):
+                path=pointer(('appendix','terms',i,*finding['field'].split('.')))
+                findings.append(issue('term_name',path,finding['message']))
         a=(term['abbreviation'] or '').strip();english=term['english']
         normalize=lambda s:re.sub(r'\s+','',s).casefold()
         if a and normalize(a)==normalize(english):

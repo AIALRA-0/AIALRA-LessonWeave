@@ -4,6 +4,27 @@
   const surface = $('locator-surface'), viewport = $('locator-viewport'), image = $('locator-image'), iframe = $('locator-dom');
   if (!surface || !viewport || !iframe) return;
   image.hidden = true;
+  let tileLayer=null,tileObserver=null,tileKey=null;
+  function showRaster(page) {
+    const key=page?.tiles?.length?page.image:null;
+    if(key&&key===tileKey){image.hidden=true;tileLayer.setAttribute('aria-label',image.alt);return;}
+    tileObserver?.disconnect();tileObserver=null;tileLayer?.remove();tileLayer=null;tileKey=key;
+    if(!key)return;
+    image.removeAttribute('src');image.hidden=true;
+    tileLayer=make('div');tileLayer.setAttribute('role','img');tileLayer.setAttribute('aria-label',image.alt);
+    Object.assign(tileLayer.style,{position:'relative',width:'100%',aspectRatio:page.width+' / '+page.height});
+    tileObserver=new IntersectionObserver((entries,observer)=>{
+      for(const entry of entries)if(entry.isIntersecting){const el=entry.target;if(el.isConnected)el.src=el.dataset.tile;observer.unobserve(el);}
+    },{root:viewport,rootMargin:'64px'});
+    for(const tile of page.tiles){
+      const el=make('img'),[left,top,right,bottom]=tile.bbox;el.alt='';el.draggable=false;el.decoding='async';
+      el.dataset.tile=window.LWPath?window.LWPath(tile.image):tile.image;
+      Object.assign(el.style,{position:'absolute',left:left/page.width*100+'%',top:top/page.height*100+'%',
+        width:(right-left)/page.width*100+'%',height:(bottom-top)/page.height*100+'%',maxWidth:'none',margin:'0'});
+      tileLayer.append(el);tileObserver.observe(el);
+    }
+    image.after(tileLayer);
+  }
   let manifest, sourcePack, pending, selection, selectedId, normalId, normalSentenceId, savedView;
   let mode = 'page', fit = 'highlight', positions = [], currentPage, currentSource, currentRefs = [], currentFile;
   let domLoaded = false, activeSentenceId = null, eligibleSentences = [], hoverTimer, documentGeneration = 0, currentPageId;
@@ -70,10 +91,13 @@
     if (currentPage) {
       image.style.aspectRatio = currentPage.width + ' / ' + currentPage.height;
       image.alt = (currentPage.number ? 'PDF 第 ' + currentPage.number + ' 页' : currentPage.kind === 'image' ? '原始图片' : '当前离线网页的原页') + '，来源 ' + selectedId;
-      image.onload = () => scheduleRecenter(false);
-      const imagePath = window.LWPath ? window.LWPath(currentPage.image) : currentPage.image; if (image.getAttribute('src') !== imagePath) image.src = imagePath;
-      image.hidden = false;
-    } else { image.removeAttribute('src'); image.hidden = true; }
+      showRaster(currentPage);
+      if(!currentPage.tiles?.length){
+        image.onload = () => scheduleRecenter(false);
+        const imagePath = window.LWPath ? window.LWPath(currentPage.image) : currentPage.image; if (image.getAttribute('src') !== imagePath) image.src = imagePath;
+        image.hidden = false;
+      }
+    } else { showRaster(null);image.removeAttribute('src'); image.hidden = true; }
     scheduleRecenter();
   }
   function union(boxes) {

@@ -11,7 +11,7 @@ from .pricing import usage_totals,PRICING
 LABELS={'acquire':'获取材料','parse':'解析材料','input_check':'检查输入','questions':'生成问题',
         'chapters':'规划章节','transitions':'规划承接','inventory':'清点材料','translation':'翻译材料',
         'writing':'生成讲解','extras':'生成练习与术语','overview':'汇总章节与全书',
-        'glossary':'整理术语表','review':'独立审查','locations':'准备原文定位','package':'导出阅读包','library':'导入笔记库','qa':'阅读追问','other':'其他处理'}
+        'glossary':'整理术语表','review':'脚本检查','locations':'准备原文定位','package':'导出阅读包','library':'导入笔记库','qa':'阅读追问','other':'其他处理'}
 LABELS['repair']='批量修复'
 
 

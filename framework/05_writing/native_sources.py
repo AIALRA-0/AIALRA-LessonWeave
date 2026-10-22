@@ -4,6 +4,7 @@ from collections import defaultdict
 import hashlib
 import io
 import json
+import re
 from pathlib import Path
 import shutil
 from urllib.parse import urlsplit, unquote
@@ -22,6 +23,18 @@ class NativeSources:
         self.questions = sources._read(self.root / self.plan['question_tree'])
         self.chapters = sources._read(self.root / self.plan['chapters_path'])
         self.nodes = {n['id']: n for n in sources._walk(material['tree'])}
+        self.node_order={nid:i for i,nid in enumerate(self.nodes)}
+        self.definitions=[]
+        ordered=list(self.nodes.values())
+        for index,node in enumerate(ordered):
+            heading=re.match(r'\s*(?:Definition|定义)\s*(\d+(?:\.\d+)*)',node.get('text',''),re.I)
+            if not heading or node.get('type') in {'source_text','page_header','page_footer'}:continue
+            block=[node]
+            for later in ordered[index+1:]:
+                if later.get('type') not in {'list','list_item','formula','equation'}:break
+                block.append(later)
+            subjects=[n.get('text','')[:120] for n in block[1:] if n.get('text')] or [node.get('text','')]
+            self.definitions.append((index,heading[1],block,subjects))
         self.qnodes = {n['id']: n for n in sources._walk(self.questions['tree'])}
         self.sections = {n['id']: n for n in sources._walk(self.chapters['tree']) if n['kind'] == 'section'}
         self.by_question = defaultdict(list)
@@ -160,6 +173,23 @@ class NativeSources:
         qnodes = [self.qnodes[qid] for qid in section['question_ids'] if not self.qnodes[qid]['children']]
         requested = {q['id'] for q in qnodes}
         required = set(nid for qid in requested for nid in self.by_question[qid])
+        dependency_owners=defaultdict(set)
+        for q in qnodes:
+            assigned=self.by_question[q['id']]
+            first=min((self.node_order[nid] for nid in assigned),default=len(self.nodes))
+            title=' '.join(str(q.get(k,'')) for k in ['title','premise','question'])
+            terms=set(re.findall(r'[A-Za-z][A-Za-z0-9_-]{2,}',title))
+            terms.update(re.findall(r'[\u4e00-\u9fff]{2,}(?=的定义|是什么|指什么)',title))
+            original=' '.join(self.nodes[nid].get('text','') for nid in assigned)
+            explicit=set(re.findall(r'(?:Definition|定义)\s*(\d+(?:\.\d+)*)',original,re.I))
+            normalized=re.sub(r'\s+','',original).casefold()
+            for index,number,block,subjects in self.definitions:
+                if index>=first:continue
+                if number not in explicit and not any(re.search(r'(?<![A-Za-z0-9_])'+re.escape(term)+r'(?![A-Za-z0-9_])',s,re.I) for term in terms for s in subjects):continue
+                for node in block:
+                    text=node.get('text','')
+                    if node['id'] in assigned or not text or re.sub(r'\s+','',text).casefold() in normalized:continue
+                    dependency_owners[node['id']].add(q['id']);required.add(node['id'])
         records = []
         file_groups = defaultdict(list)
         visual_assets = []
@@ -169,10 +199,11 @@ class NativeSources:
             node = self.nodes[nid]
             locator = self._locator(node)
             text = node.get('text', '')
-            owners = sorted(requested & set(self.owners[nid]))
+            owners = sorted((requested & set(self.owners.get(nid,[]))) | dependency_owners[nid])
             record = {'id': nid, 'type': node['type'], 'source': locator, 'source_refs': [locator],
                       'question_ids': owners, 'child_ids': [c['id'] for c in node.get('children', [])],
                       'original_texts': {}, 'sentences': [], 'native_type': node['type']}
+            if dependency_owners[nid]:record['dependency_definition']=True
             if self.roles.get(nid) == 'reference':
                 record.update(evidence_kind='material_index', reading_role='reference', reference_text=text)
                 records.append(record)

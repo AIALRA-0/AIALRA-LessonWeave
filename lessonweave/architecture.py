@@ -22,6 +22,7 @@ FILES = {
     'source_locations': ('05_writing/source-location/index.json', None),
     'package': ('05_writing/book.json', '05_writing/book.schema.json'),
     'library': ('runtime/trilium/current.json', None),
+    'readweave': ('runtime/readweave/current.json', None),
 }
 
 

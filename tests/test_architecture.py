@@ -58,21 +58,27 @@ def test_section_reference_cannot_read_outside_project(tmp_path):
     assert 'PRIVATE-FIXTURE' not in json.dumps(result)
 
 
-def test_framework_example_reads_real_fields_and_distinguishes_empty_optional_values(tmp_path,monkeypatch):
-    # 框架说明读取案例自己的产物，可空字段显示为空值，缺少的正文结构继续显示未生成
+def test_framework_example_reads_same_call_terms_and_distinguishes_empty_optional_values(tmp_path,monkeypatch):
+    # 框架说明从本问写作产物读取同次生成的术语，可空字段仍按 JSON 空值显示
     root=tmp_path/'example';monkeypatch.setattr('lessonweave.architecture.EXAMPLE',root)
     save(root/'00_source/input.json',{'material':'https://www.iana.org/help/example-domains'})
     save(root/'05_writing/book.json',{'chapters':[{'sections':[{'path':'05_writing/sections/s1.json'}]}]})
-    save(root/'05_writing/sections/s1.json',{'section_id':'s1','writing_contract_version':'0.12',
+    save(root/'05_writing/sections/s1.json',{'section_id':'s1','writing_contract_version':'continuous-unit-2.0',
                                          'grounding':{'inventory_path':'05_writing/work/sections/s1/coverage-inventory.json'},'units':[{'question_id':'q1'}]})
-    save(root/'05_writing/work/sections/s1/glossary.json',{'terms':[{'abbreviation':None,'chinese':'示例域名','english':'Example Domain'}]})
+    save(root/'05_writing/work/sections/s1/unit-q1.json',{'question_id':'q1','appendix':{'terms':[{
+        'abbreviation':None,'chinese':'示例域名','english':'Example Domain',
+        'abbreviation_case_exception':0,'english_case_exception':0,
+        'professional_definition':{'genus':'示例域名'},
+        'intuitive_explanation':{'anchor':'示例'},'typical_example':{'initial_conditions':'示例'}
+    }]}})
     save(root/'05_writing/work/sections/s1/coverage-inventory.json',{'points':[]})
     value=snapshot(Store(tmp_path/'store'))
     assert value['project'] is None and value['using_example'] is True
     assert value['stages'][0]['fields'][0]['value']=='https://www.iana.org/help/example-domains'
-    terms=next(stage for stage in value['stages'] if stage['id']=='06')
-    abbreviation=next(field for field in terms['fields'] if field['path']=='terms[0].abbreviation')
-    assert abbreviation['value']=='null'
+    writing=next(stage for stage in value['stages'] if stage['id']=='04')
+    term=next(field for field in writing['fields'] if field['path']=='appendix.terms[0]')
+    assert json.loads(term['value'])['abbreviation'] is None
+    assert not any('term' in field['path'] for field in next(stage for stage in value['stages'] if stage['id']=='06')['fields'])
     assert value['reader_url']=='/framework-example/book.html'
 
 

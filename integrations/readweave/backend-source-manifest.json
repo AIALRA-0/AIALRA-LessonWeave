@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "baseline_ref": "fb9db58767",
+  "license": "AGPL-3.0-only",
+  "dependency_manifest_changed": false,
+  "generation_harness_changed": false,
+  "files": [
+    {
+      "path": "apps/client/src/entities/fblob.ts",
+      "sha256": "afc9ec985236931219719366cdeeaf6061b7943cc06577bf929f7e217beabaa5",
+      "test": false
+    },
+    {
+      "path": "apps/client/src/services/server.ts",
+      "sha256": "740aa8e47d76e2041c29aa06e0cfa3c728818c62a2454c432b19f7e986607c02",
+      "test": false
+    },
+    {
+      "path": "apps/client/src/services/spaced_update.ts",
+      "sha256": "315cbf1db3f5dbb5ccbe9b5ed6d33bd0bc2dea7f24183013f67e54d1413b3009",
+      "test": false
+    },
+    {
+      "path": "apps/client/src/widgets/react/hooks.tsx",
+      "sha256": "1fb170519f8b6311841dc1e81c5f365e166f72fa39e0083abc5ceb108c083d24",
+      "test": false
+    },
+    {
+      "path": "apps/client/src/widgets/sidebar/ReadWeavePanel.tsx",
+      "sha256": "51822f11709b6ab0d73286e7d879904f8b8599aee3d6a46655a811645969da33",
+      "test": false
+    },
+    {
+      "path": "apps/server/src/routes/api/lessonweave.ts",
+      "sha256": "e4fb9475c74b0daffe9cc098b8d81b3dd4004a5bc7fb961580571a21a4e643c9",
+      "test": false
+    },
+    {
+      "path": "apps/server/src/routes/api/lessonweave.spec.ts",
+      "sha256": "1847c15fbd9afb420d075b14bdd691e6b036d7a62ecbc3987a05a074dbb0fd04",
+      "test": true
+    },
+    {
+      "path": "apps/server/src/routes/api/readweave.ts",
+      "sha256": "fcc14aa3291df4a3ae385a3952bdcfb80197d535c5c4115350c678bc8e7b2056",
+      "test": false
+    },
+    {
+      "path": "apps/server/src/routes/route_api.ts",
+      "sha256": "58372d1cccfde081ae9f42b09b83860c912c89a6db8a76a36a21d3477732fa01",
+      "test": false
+    },
+    {
+      "path": "apps/server/src/routes/routes.ts",
+      "sha256": "d844d00d1ff15a060a87b071b354630e9df9ba8b49f51aead0b7bb50b8aed0f6",
+      "test": false
+    },
+    {
+      "path": "apps/server/src/routes/shared_api.ts",
+      "sha256": "af356fc7c7e3f677dd84972f4b3014a135f4266e226a6c0c8c1c6be9a9eb6340",
+      "test": false
+    },
+    {
+      "path": "apps/server/src/services/lessonweave_bridge.ts",
+      "sha256": "3b58881620e9376547a19aae0be81a0940ef12fc11f4257f55b326f6434015a4",
+      "test": false
+    },
+    {
+      "path": "apps/server/src/services/lessonweave_bridge.spec.ts",
+      "sha256": "9a783677eee7d7f7586fbfc49971ac2463e9447215417f9c5e24e13d0a48cf57",
+      "test": true
+    },
+    {
+      "path": "apps/server/src/services/readweave_repository.ts",
+      "sha256": "9b5b398c3745dedb07922af6fd525320bd04761fdb3d9483ae8673b512be8997",
+      "test": false
+    },
+    {
+      "path": "packages/commons/src/lib/readweave.ts",
+      "sha256": "701b690d91d69276f0f30c5a6f8df3859215d0a14692d05111e87575891017e7",
+      "test": false
+    },
+    {
+      "path": "packages/trilium-core/src/index.ts",
+      "sha256": "a351bd4dbf7d0deff6fa060b2a89796f9b97a1ade7acd70ee5b5554c58636b5b",
+      "test": false
+    },
+    {
+      "path": "packages/trilium-core/src/services/shared_editing.ts",
+      "sha256": "a63672560eea0347e50b5e705a44373594699b3c34be0b2f19bb7f58df97c28b",
+      "test": false
+    },
+    {
+      "path": "packages/trilium-core/src/becca/entities/bnote.ts",
+      "sha256": "dd45cae6e6f2102f28476a8e5c0ba3992d6b3a469ee08f517dee67f275f5ea69",
+      "test": false
+    },
+    {
+      "path": "packages/trilium-core/src/becca/entities/bbranch.ts",
+      "sha256": "1128931d607a99b801bf05b93b5f1636c501644b6a4dd97d153e54ffb39f2d5b",
+      "test": false
+    },
+    {
+      "path": "packages/trilium-core/src/routes/api/notes.ts",
+      "sha256": "2a463b37b81645520c3f447cc6003cfe4f4a8d783c4c5d688266ae6d4eedb07b",
+      "test": false
+    },
+    {
+      "path": "apps/client/src/services/ws.ts",
+      "sha256": "bb24f952c0f1c6a7278834c2aeb1612e558e226409f9ef2ed8ea8871a9243489",
+      "test": false
+    },
+    {
+      "path": "apps/client/src/widgets/sidebar/ReadWeavePanel.spec.tsx",
+      "sha256": "95a86df040a5882af794a85b2117951bebbcc90435e4a1bd6f4eed4f03d76953",
+      "test": true
+    },
+    {
+      "path": "apps/server/src/etapi/etapi_utils.ts",
+      "sha256": "057790ac461c8377271f1b020608690fcbda79135c26abca48dab69458bbefbe",
+      "test": false
+    },
+    {
+      "path": "apps/server/src/services/lessonweave_import_profile.spec.ts",
+      "sha256": "260c08ff3af41d46b438aa8a9e57910a56754ee41c1343c771bd95cae972e416",
+      "test": true
+    },
+    {
+      "path": "apps/server/src/services/readweave_anchor_read.spec.ts",
+      "test": true,
+      "sha256": "92733eb6d9a8ce50586a4c4bc068b7512c81dd17a011988e5fce20239a0a3c99"
+    }
+  ]
+}

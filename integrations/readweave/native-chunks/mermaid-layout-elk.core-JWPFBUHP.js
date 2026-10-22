@@ -1,0 +1,1 @@
+import{a as r}from"./chunk-VHDDRNTA.js";import{i as e}from"./chunk-JDSUVWEQ.js";e();var l=r(async()=>await import("./render-X3XFXER2-UTMHZDLP.js"),"loader"),o=["elk.stress","elk.force","elk.mrtree","elk.sporeOverlap"],t=[{name:"elk",loader:l,algorithm:"elk.layered"},...o.map(a=>({name:a,loader:l,algorithm:a}))],i=t;export{i as default};

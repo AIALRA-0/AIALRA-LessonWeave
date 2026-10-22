@@ -83,11 +83,19 @@ def web_origin(root, source, element, positions):
     # 旧快照可能只标记 body 的后代，裸正文仍按实际 body 范围保留
     located=next((p for p in [element,*element.parents]
                   if getattr(p,'get',None) and p.get('data-iqa-source') in positions),None)
+    if element.find_parent('head') is not None or element.name=='head':located=None
     anchor=located.get('data-iqa-source') if located is not None else None
     snapshot=source['snapshot']
+    path='body'
+    if not anchor and getattr(element,'name',None):
+        parts=[];current=element
+        while getattr(current,'name',None) and current.name!='[document]':
+            siblings=current.find_previous_siblings(current.name)
+            parts.append(current.name+':nth-of-type('+str(len(siblings)+1)+')');current=current.parent
+        path=element.name if element.name in {'html','body'} else ' > '.join(reversed(parts))
     return {**file_origin(root,root/source['entry']),'kind':'html','url':source['material'],
-            'dom_path':f'[data-iqa-source="{anchor}"]' if anchor else 'body',
-            'bbox':positions[anchor]['bbox'] if anchor else [0,0,snapshot['width'],snapshot['height']]}
+            'dom_path':f'[data-iqa-source="{anchor}"]' if anchor else path,
+            'bbox':positions[anchor]['bbox'] if anchor else ([0,0,0,0] if element.find_parent('head') is not None or element.name=='head' else [0,0,snapshot.get('width',0),snapshot.get('height',0)])}
 
 
 def source_inventory(root, document, source):
@@ -112,42 +120,45 @@ def source_inventory(root, document, source):
         scope = '逐页保留全部可视内容，并逐项提取 PDF 文本层的文字，扫描页的 OCR 对象另按 Docling 原始对象核对'
     elif document['format'] == 'html':
         soup = BeautifulSoup((root / source['entry']).read_text(encoding='utf-8'), 'html.parser')
-        body = material_body(soup)
+        body = soup.body or soup.html or soup
         if body is None:
             raise ValueError('本地快照中没有可提取的页面内容')
         positions = json.loads((root / source['positions']).read_text(encoding='utf-8'))
-        roots = [body]
-        for element in soup.select('h1.post-title,.subtitle,.byline-names time,.byline-names .author-name'):
-            if element is not body and body not in element.parents:
-                roots.append(element)
-        seen = set()
+        from web_metadata import metadata_fields, reading_role
         resources = {item['anchor']: item for item in source.get('resources', [])}
-        for container in roots:
-            for element in [container, *container.descendants]:
-                if id(element) in seen:
-                    continue
-                seen.add(id(element))
-                if isinstance(element, Comment) or not in_material(element):
-                    continue
-                parent = element.parent if isinstance(element, NavigableString) else element
-                if not getattr(parent, 'get', None):
-                    continue
-                anchor = parent.get('data-iqa-source')
-                if not anchor and parent.name not in {'body','html'}:
-                    continue
-                origin = web_origin(root,source,parent,positions)
-                if isinstance(element, NavigableString) and str(element).strip():
-                    units.append({'id': f'html-text-{len(units)+1}', 'kind': 'text', 'text': str(element), 'source': origin})
-                elif getattr(element, 'name', None) == 'img':
-                    from urllib.parse import urljoin
-                    address = positions.get(anchor, {}).get('src') or urljoin(source['material'], element.get('src', ''))
-                    path = image_asset(source,anchor,address,urljoin(source['material'],element.get('src','')),element.get('data-src',''))
-                    units.append({'id': 'html-image-' + anchor, 'kind': 'image', 'asset': '/' + path if path else '', 'source': origin})
-                elif getattr(element, 'name', None) in ('svg', 'canvas', 'video', 'audio', 'iframe', 'object', 'embed'):
-                    item = resources.get(anchor, {})
-                    units.append({'id': 'html-resource-' + anchor, 'kind': 'resource',
-                                  'asset': '/' + item['path'] if item.get('path') else '', 'source': origin})
-        scope = '覆盖本地快照中的正文容器、标题和作者信息，排除脚本、样式、模板及操作控件，其他页面内容仍保存在完整快照中'
+        primary=material_body(soup)
+        for element in body.descendants:
+            if isinstance(element, Comment): continue
+            parent = element.parent if isinstance(element, NavigableString) else element
+            if not getattr(parent, 'get', None): continue
+            if any(getattr(p,'name',None) in {'script','style','template'} for p in [parent,*parent.parents]): continue
+            origin = web_origin(root,source,parent,positions)
+            anchor = parent.get('data-iqa-source') or str(len(units)+1)
+            role = reading_role(parent, primary)
+            if not isinstance(element,NavigableString):
+                for attribute in ['alt','title','aria-label','placeholder','value']:
+                    if element.get(attribute) and not (element.name=='input' and element.get('type')=='hidden'):
+                        units.append({'id':f'html-attribute-{len(units)+1}','kind':'text','text':str(element[attribute]),'source':origin,'reading_role':role,'field':attribute})
+            if isinstance(element,NavigableString) and str(element).strip():
+                units.append({'id':f'html-text-{len(units)+1}','kind':'text','text':str(element),'source':origin,'reading_role':role})
+            elif getattr(element,'name',None)=='a' and element.get('href'):
+                units.append({'id':f'html-link-{len(units)+1}','kind':'text','text':element['href'],'source':origin,'reading_role':'reference','field':'link'})
+            elif getattr(element,'name',None) in {'img','svg','canvas','video','audio','iframe','object','embed'}:
+                from urllib.parse import urljoin
+                name=element.name;address=positions.get(anchor,{}).get('src') or urljoin(source['material'],element.get('src',''))
+                path=image_asset(source,anchor,address,urljoin(source['material'],element.get('src','')),element.get('data-src','')) if name=='img' else resources.get(anchor,{}).get('path')
+                units.append({'id':f'html-resource-{anchor}','kind':'image' if name=='img' else 'resource',
+                              'asset':'/'+path if path else '', 'source':origin,'reading_role':role,
+                              'html_fragment':str(element),'resource_type':name,'original_url':address})
+        for row in metadata_fields(soup):
+            units.append({'id':f'html-metadata-{len(units)+1}','kind':'text','text':row['value'],
+                          'field':row['field'],'reading_role':'metadata','source':web_origin(root,source,row['element'],positions)})
+        for element in soup.select('head meta[content],head title,head link[href],script[type="application/ld+json"]'):
+            text=element.get('content') if element.name=='meta' else element.get('href')if element.name=='link'else element.get_text()
+            if text and text.strip():
+                units.append({'id':f'html-head-{len(units)+1}','kind':'text','text':text,
+                              'source':web_origin(root,source,element,positions),'reading_role':'reference'})
+        scope = '逐项覆盖保存页面的全部页面文本、链接、页头元数据和媒体对象；脚本、样式和模板的源码继续完整保存在原 HTML 中，不作为教学文字'
     else:
         with zipfile.ZipFile(root / source['entry']) as archive:
             members = {item.filename for item in archive.infolist() if not item.is_dir()}
@@ -191,8 +202,11 @@ def location_matches(unit, origin, soup=None):
         overlap = max(0, min(a[2], b[2]+3)-max(a[0], b[0]-3)) * max(0, min(a[3], b[3]+3)-max(a[1], b[1]-3))
         return overlap >= max(0, a[2]-a[0])*max(0, a[3]-a[1]) * .5
     if source['kind'] == 'html':
-        element = soup.get(source['dom_path'])
-        owner = soup.get(origin['dom_path'])
+        def find(selector):
+            if selector not in soup:soup[selector]=soup['__document__'].select_one(selector)
+            return soup[selector]
+        element = find(source['dom_path'])
+        owner = find(origin['dom_path'])
         return element is not None and owner is not None and (element is owner or owner in element.parents)
     return True
 
@@ -203,7 +217,7 @@ def attach_missing_content(root, document, inventory, builder):
     soup = None
     if document['format'] == 'html':
         parsed = BeautifulSoup((root / inventory['units'][0]['source']['path']).read_text(encoding='utf-8'), 'html.parser') if inventory['units'] else None
-        soup = {'body':parsed.body,'html':parsed.html,**{f'[data-iqa-source="{e["data-iqa-source"]}"]': e for e in parsed.find_all(attrs={'data-iqa-source': True})}} if parsed else {}
+        soup = {'body':parsed.body,'html':parsed.html,'__document__':parsed,**{f'[data-iqa-source="{e["data-iqa-source"]}"]': e for e in parsed.find_all(attrs={'data-iqa-source': True})}} if parsed else {}
     regions = defaultdict(list)
     for node in nodes:
         for source in node['source']:
@@ -232,6 +246,11 @@ def attach_missing_content(root, document, inventory, builder):
             recovered+=1
             continue
         if unit['kind'] in ('image', 'resource'):
+            if not unit['asset'] and document['format']=='html':
+                node=builder.node('unknown',{'text':unit.get('original_url') or unit['resource_type'],
+                    'representation':'original_dom_fragment','html_fragment':unit['html_fragment'],
+                    'reading_role':unit.get('reading_role','unclassified'),'reason':'媒体的完整原始标签与原页位置已保留'},[unit['source']])
+                document['tree']['children'].append(node);nodes.append(node)
             if unit['asset'] and not any(n['content'].get('asset') == unit['asset'] for n in nodes):
                 if supplement is None:
                     supplement = builder.node('section', {'text': '补充保留的原文'}, document['tree']['source'])
@@ -239,6 +258,10 @@ def attach_missing_content(root, document, inventory, builder):
                 asset = unit['asset']
                 kind = 'image' if Path(asset).suffix.lower() in ('.png', '.svg', '.jpg', '.jpeg', '.webp', '.gif', '.avif') else 'unknown'
                 content = {'asset': asset} if kind == 'image' else {'asset': asset, 'reason': '媒体原文件已经保留，内部内容尚未拆分'}
+                content['reading_role']=unit.get('reading_role','unclassified')
+                if content['reading_role']=='hidden_control':
+                    content.update(representation='original_dom_fragment',html_fragment=unit['html_fragment'],
+                                   reason='网页在后台使用的零尺寸框架，原始标签和归档保留用于定位')
                 node = builder.node(kind, content, [unit['source']])
                 supplement['children'].append(node)
                 nodes.append(node)
@@ -251,14 +274,18 @@ def attach_missing_content(root, document, inventory, builder):
         text = normalized(unit['text'])
         if any(text in normalized(' '.join(text_values(node['content']))) for node in candidates):
             continue
+        if document['format']=='html':
+            candidates=[n for n in candidates if n['type']not in {'webpage','section'}]
         if candidates:
             node = min(candidates, key=lambda n: min((fitz.Rect(s['bbox']).get_area() for s in n['source'] if 'bbox' in s), default=1e20))
         else:
             if supplement is None:
                 supplement = builder.node('section', {'text': '补充保留的原文'}, document['tree']['source'])
                 document['tree']['children'].append(supplement)
-            node = builder.node('paragraph', {'text': unit['text']}, [origin])
+            node = builder.node('metadata' if unit.get('reading_role')=='metadata' else 'paragraph',
+                {'text':unit['text'],'reading_role':unit.get('reading_role','unclassified'),**({'field':unit['field']}if 'field'in unit else{})}, [origin])
             supplement['children'].append(node)
+        node['content'].setdefault('reading_role',unit.get('reading_role','body'))
         node['content'].setdefault('source_text', []).append({'text': unit['text'], 'source': origin})
         recovered += 1
     document['summary']['recovered_text_units'] = recovered
@@ -269,7 +296,7 @@ def coverage_report(root, document, inventory):
     soup = None
     if document['format'] == 'html' and inventory['units']:
         parsed = BeautifulSoup((root / inventory['units'][0]['source']['path']).read_text(encoding='utf-8'), 'html.parser')
-        soup = {'body':parsed.body,'html':parsed.html,**{f'[data-iqa-source="{e["data-iqa-source"]}"]': e for e in parsed.find_all(attrs={'data-iqa-source': True})}}
+        soup = {'body':parsed.body,'html':parsed.html,'__document__':parsed,**{f'[data-iqa-source="{e["data-iqa-source"]}"]': e for e in parsed.find_all(attrs={'data-iqa-source': True})}}
     node_text = {node['id']: normalized(' '.join(text_values(node['content']))) for node in nodes}
     regions = defaultdict(list)
     for node in nodes:
@@ -293,6 +320,8 @@ def coverage_report(root, document, inventory):
             owners = [n['id'] for n, _ in candidates if n['type'] == 'file']
         elif kind in ('image', 'resource'):
             owners = [n['id'] for n in nodes if unit['asset'] and n['content'].get('asset') == unit['asset']]
+            if not owners and not unit['asset'] and document['format']=='html':
+                owners=[n['id']for n,s in candidates if n['content'].get('representation')=='original_dom_fragment' and location_matches(unit,s,soup)]
             if not owners and not unit['asset'] and kind=='image':
                 owners=[n['id'] for n,s in candidates if n['content'].get('representation')=='original_page_region' and n['content'].get('asset') and location_matches(unit,s,soup)]
         else:
@@ -332,6 +361,12 @@ def check_objects(root, document, source_schema):
     raw_cache = {}
     width = document.get('snapshot', {}).get('width', 0)
     height = document.get('snapshot', {}).get('height', 0)
+    if document.get('format')=='html' and document.get('coverage',{}).get('inventory'):
+        record=json.loads((root/Path(document['coverage']['inventory']).parent/'source.json').read_text(encoding='utf-8'))
+        positions=json.loads((root/record['positions']).read_text(encoding='utf-8'))
+        # DOM 布局可能在截图后继续长高，原始 DOM 坐标按自身范围核对，不裁掉原值
+        width=max([width]+[v['bbox'][2]for v in positions.values()if v.get('bbox')])
+        height=max([height]+[v['bbox'][3]for v in positions.values()if v.get('bbox')])
     origins = [(n['id'] + location, origin) for n in walk(document['tree'])
                for location, origin in nested_origins({'source': n['source'], 'content': n['content']})]
     origins += [('relations/' + str(i) + location, origin) for i, edge in enumerate(document['relations'])

@@ -45,7 +45,7 @@ def author_format(value):
     prose = {'premise', 'question', 'title', 'goal', 'starting_point', 'range_description', 'focus',
              'closing_boundary', 'text', 'description', 'scope_note', 'definition', 'meaning',
              'lead_in', 'reference_answer', 'introduction', 'reason', 'explanation', 'answer'}
-    prose.update({'carryover','claim','reasoning','grounding','supplement','generalization',
+    prose.update({'reader_title','carryover','claim','body','reasoning','grounding','supplement','generalization',
                   'genus','differentia','boundary','extension','anchor','mapping','intuition',
                   'initial_conditions','mechanism','outcome','reading_guide','takeaway','purpose','sentence',
                   'conclusion','relation_to_whole','collaboration','action','result','title_premise','title_question','caption'})
@@ -67,7 +67,7 @@ def author_format(value):
                     continue
                 if isinstance(child, str) and key in prose:
                     normalized = re.sub(r'\r\n?|[\u2028\u2029]', '\n', child).replace('。', '；').rstrip('；')
-                    if key=='title_question' and normalized.strip():normalized=normalized.rstrip('？? ')+'？'
+                    if key in {'title_question','reader_title'} and normalized.strip():normalized=normalized.rstrip('？? ')+'？'
                     if normalized != child:
                         node[key] = normalized
                         changes.append(path)

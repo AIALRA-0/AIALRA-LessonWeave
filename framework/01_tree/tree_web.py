@@ -108,6 +108,16 @@ def parse_webpage(builder, root, source_record, output):
             emit(element,sections[-1][1]['children'] if sections else tree['children'])
     for element in body.children:
         traverse(element)
+    from web_metadata import metadata_fields
+    metadata={}
+    title_id=tree['children'][0]['id']if tree['children']and tree['children'][0]['type']=='heading'else tree['id']
+    for row in metadata_fields(soup):
+        key=(row['field'],row['value']);origin=source(row['element'])[0]
+        if key in metadata:
+            if origin not in metadata[key]['source']:metadata[key]['source'].append(origin)
+        else:
+            node=builder.node('metadata',{'text':row['value'],'field':row['field'],'value':row['value'],
+                'reading_role':'metadata','metadata_for':title_id},[origin]);tree['children'].append(node);metadata[key]=node
     image_issues=[]
     for node,address,element in images:
         anchor=element.get('data-iqa-source')

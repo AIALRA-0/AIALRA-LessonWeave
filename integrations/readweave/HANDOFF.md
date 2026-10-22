@@ -1,167 +1,68 @@
-# 1 怎样接入 Trilium 与 ReadWeave
+# LessonWeave 怎样把读本保存到 ReadWeave
 
-ReadWeave 使用 Trilium 的笔记、分支、附件和前端脚本，本项目按这些原生对象保存读本，正式 ReadWeave 的源码、数据库与服务由其维护者管理
+ReadWeave 是这套流程使用的中央笔记库，采用 Trilium 的笔记、分支、附件和前端组件保存正式读本。LessonWeave 在第 13 阶段（流程内部编号 12）按顺序完成两件事：先用 `trilium.sync_project` 保存阅读包、材料树、章节和附件，再用 `readweave.publish_project` 登记正文、原文、译文和术语定义。两件事共用同一个阶段，不会因为服务健康或能力接口响应，就预先记成发布成功。
 
-当前实现已在独立的 ReadWeave 实例中验证，该实例使用与目标项目相同的 TriliumNext 0.104.0 镜像，验证包括 renderNote 挂载、附件读取、原生章节、笔记新建、修改与刷新后读取，宿主的后端脚本执行保持关闭
+本说明记录当前代码结构、隔离导入和正式 cutover 结果。五本读本已经在 staging 库和正式库完成登记，文章与章节映射均为 100%；正式库逐本数量和登记耗时列在验证表中，这些耗时不包含模型生成。普通文章读取默认跳过大型来源附件，调用方明确传入 `includeSource=1` 时才读取来源；附件仍完整保存在 ReadWeave 中。首次安装、回环监听和令牌配置请看[部署指南](../../docs/deployment.md)。
 
-## 1.1 一份读本在原生树中怎样保存
+## 第 13 阶段怎样先保存阅读包再登记正文
 
-```text
-配置的父笔记
-└── 用户选择的文件夹                         book 笔记
-    └── 学习项目                            book 笔记，保留稳定 ID
-        ├── 版本                            book 笔记，保存本版资源附件
-        │   ├── 01 材料树                   JSON code 笔记
-        │   ├── 02 问题树                   JSON code 笔记
-        │   ├── 03 标题树                   JSON code 笔记
-        │   ├── 04 承上启下                 JSON code 笔记
-        │   ├── 章节                        book 笔记
-        │   │   └── 小节                    readOnly text 笔记
-        │   ├── 阅读组件                    frontend code 笔记
-        │   └── 对照原材料阅读              render 笔记
-        └── 我的学习笔记                    book 笔记，跨版本保留
-```
+`trilium.sync_project` 会把项目放入已配置的 LessonWeave 根目录，在其中创建版本笔记，保存材料树、问题树、章节树、承接内容、章节和小节，并把阅读包里的文件作为附件上传。`runtime/trilium/current.json` 和该版本的 `mapping.json` 会记录项目、版本、章节、附件与原生笔记之间的对应关系；二进制原件继续留在附件中，不会被猜成可读文本。
 
-阅读包中的原页、图片、译文、正文 JSON 与来源位置保存在版本笔记的附件中，普通原始 HTML 按文本提供，派生定位 HTML 带有禁止脚本执行的内容安全策略
+随后，`readweave.publish_project` 会按项目与版本生成稳定的导入身份，并将每节连续讲解、可读的原文、中文译文、可读的文本来源和术语定义分别登记到 ReadWeave。服务器将各类正文保存为 `text/html`，并把来源位置和原始结构作为版本映射传给桥接。定义由 ReadWeave 的原生存储创建，这一步不调用生成模型。
 
-SVG 原件按文本保留，阅读组件使用同源的 PNG 静态预览，图片区域继续对应原材料 ID，原始 SVG 字节仍在阅读包中
+ReadWeave 会返回真实的版本与文章 `noteId`。LessonWeave 把导入身份、已登记文章和章节对应关系写入 `runtime/readweave/current.json`。重试时，桥接按稳定身份补齐未登记条目；已存在的改稿和已删除条目不会被旧快照覆盖或复活。网站项目标题与 ReadWeave 原生笔记标题各自保存，文章 `noteId` 是它们共同引用的原生身份。
 
-生成端通过 ETAPI 创建笔记与附件，文件夹重命名、移动和移入回收站同时更新对应原生分支，移动时先创建目标分支，再移除原分支，保留笔记 ID 与其他克隆位置
+这两个保存动作属于同一第 13 阶段。工作台当前显示这个阶段的合并状态；运行记录分别保存在 `runtime/trilium/` 与 `runtime/readweave/`。遇到导入问题时，应查看任务结果和这两类映射记录，不能把笔记树已保存解释为 ReadWeave 正文已经登记。
 
-## 1.2 服务端需要配置什么
+## ReadWeave 原生侧栏怎样复用既有交互
 
-在仓库外的运行配置中设置以下环境变量，令牌只由服务端读取
+LessonWeave 的集成将 ReadWeave 自带的 `Panel` 挂到原生文章页面中，继续使用宿主已有的提问、定义、注解、总结和笔记操作。集成提供当前正文与材料位置，不复制另一套问答面板，也不把服务端 ETAPI 令牌放进浏览器。ReadWeave 原生笔记页使用当前登录会话；浏览器写入仍由宿主的 CSRF 校验保护。
 
-```dotenv
-LESSONWEAVE_TRILIUM_URL=http://127.0.0.1:8080
-LESSONWEAVE_TRILIUM_TOKEN=YOUR_PRIVATE_ETAPI_TOKEN
-LESSONWEAVE_TRILIUM_ROOT=YOUR_PARENT_NOTE_ID
-LESSONWEAVE_TRILIUM_TRASH=YOUR_TRASH_NOTE_ID
-LESSONWEAVE_TRILIUM_PUBLIC_URL=https://notes.example.com
-```
+LessonWeave 的 `/p/<项目>/readweave.html` 路由会转到同一项目的 `book.html`，不会再创建一套平行阅读外壳。阅读页仍读取当前版本，用户笔记、批注和问答则由 ReadWeave 原生接口保存。正文变更通过共享更新事件刷新已保存内容，保持尚未保存的草稿，不必卸载并重新挂载侧栏。
 
-ROOT 与 TRASH 必须是部署者创建的两个不同笔记，应用只在选定父笔记下保存学习项目，接入正式库时由 ReadWeave 维护者选择该分支
+## 修改、并发和删除怎样与原生笔记保持一致
 
-PUBLIC_URL 必须指向同一个笔记实例的浏览器入口，网站的“在 ReadWeave 打开”按钮会根据当前小节的导入回执读取真实父笔记路径，再跳转到原生笔记页，未关联正式库时按钮保持禁用，独立验证库中的笔记 ID 不用于正式库
+文章正文按当前修订号提交，服务端用比较并交换和持久编辑租约处理并发。租约带有递增围栏号；文章或链接发生修订冲突时，客户端保留草稿并显示当前版本。共享变更记录与删除墓碑保存在 ReadWeave，网站可以按游标回读已删除或已恢复的版本，不会用旧本地快照把已删除文章重新创建。
 
-网站中新建项目会自动保存到笔记树，已有项目可以使用以下命令导入当前结果，这个命令只保存已有产物，不调用模型
+版本删除会使用 ReadWeave 原生回收站和墓碑。若将要删除的文章仍有活动编辑租约，服务端会先拒绝删除，避免只移动了一部分树枝。恢复也使用原生版本关系和幂等操作编号；桥接不另造一套独立的回收站目录。
+
+接入不会改变生成 harness、模型参数或生成任务租约。ReadWeave 桥接只接收已生成的正文、来源、译文和定义，管理正式库中的文章身份、修订、删除和用户编辑。
+
+普通文章读取默认跳过大型来源附件；调用方只有明确提供 `includeSource=1` 时才会读取完整来源附件。来源附件仍保存在 ReadWeave 中。本轮接口验证结果见[验证结果](../../docs/readweave-validation.md)。
+
+## 服务器怎样认证 ReadWeave
+
+服务端通过 `LESSONWEAVE_READWEAVE_BRIDGE=1` 启用桥接，并读取 `LESSONWEAVE_READWEAVE_URL`、`LESSONWEAVE_READWEAVE_TOKEN`。同一实例还必须提供兼容 provider 使用的 `LESSONWEAVE_TRILIUM_URL`、`LESSONWEAVE_TRILIUM_TOKEN`，两组网址与令牌都应指向同一正式库。阅读包同步还会使用 `LESSONWEAVE_TRILIUM_ROOT` 和 `LESSONWEAVE_TRILIUM_TRASH`；`LESSONWEAVE_TRILIUM_PUBLIC_URL` 用于生成浏览器入口。
+
+部署器可以复用现有实例，也可以用公开源码附件构建一个独立 ReadWeave。新实例默认只监听本机回环地址、使用单独的数据卷；首次设置、登录和 ETAPI token 仍由管理员在浏览器中完成。配置 token 时，部署器会检查 `GET /api/lessonweave/capabilities` 返回 `version=1`、`schemaVersion=1.2`，并幂等确认 LessonWeave 根目录与回收站。浏览器不会收到 ETAPI token。
+
+能力接口通过只证明桥接版本匹配；`/api/health-check` 通过只证明原生服务能够响应。两种检查都不能代替读本写入、原生侧栏操作、回读和恢复的端到端验收。
+
+## 哪些行为已经验证，哪些还需要继续验证
+
+| 检查内容 | 已有证据 | 当前结论 |
+|---|---|---|
+| 能力接口与认证 | 独立 HTTP 检查确认 `version=1`、`schemaVersion=1.2`；ETAPI token 与 Bearer token 都可访问，无凭据或无效 token 会被拒绝；浏览器会话写入仍要求 CSRF | 接口和认证路径已通过定向检查 |
+| 后端、HTTP、BFF、界面和有界状态检查 | 冻结版本后端测试 129 项通过；最终 HTTP 检查 113 个请求、53 条断言通过；BFF 66 个请求、28 条断言通过；原生界面 36/36 项通过，0 个浏览器错误、0 次模型调用、0 次用户数据写入；有界检查遍历 240 个状态并核对 5,658 条不变量 | 这些检查覆盖了本轮测试的输入和状态范围，不能证明所有环境与状态都绝对稳定；详细范围见[验证结果](../../docs/readweave-validation.md) |
+| 五本读本的完整导入 | 隔离 staging 库完整导入了 web 112 篇、26 个讲解单元；PDF 108 篇、36 个讲解单元；OpenROAD 3,084 篇、60 个讲解单元（其中 2,904 篇为 source）；fresh-web 293 篇、24 个讲解单元；Vera 561 篇、22 个讲解单元。五本的 article 与 section 登记映射都为 100% | 五本完整导入与登记映射检查已通过 |
+| 普通文章读取来源附件 | 普通 GET 默认跳过大型来源附件；请求 `includeSource=1` 时读取来源，库内附件继续保留 | 当前版本已包含这一读取行为 |
+| 正式库 cutover | 158.844 秒内迁移 435 条笔记、458 个分支、520 项属性、4 条修订记录、11,942 个附件和 9,608 个新数据块；模型调用 0 次 | 没有覆盖已有记录、没有缺失外部关系 |
+| 五本读本的正式登记 | web 112 篇/26 节（65.058 秒）；PDF 108 篇/36 节（65.327 秒）；OpenROAD 3,084 篇/60 节（1,462.737 秒，其中 2,904 篇为 source）；fresh-web 293 篇/24 节（177.172 秒）；Vera 561 篇/22 节（232.095 秒） | 合计 4,158 篇/168 节；登记错误 0、模型调用 0、原正文文件改动 0。以上是逐本登记耗时，不是模型生成耗时 |
+| 最终映射与术语引用核验 | 五本正式读本的 section mapping、article registration、default definition mapping 和 7,123 条术语引用；核验用时 29.771 秒 | 三类映射均为 100%；每条默认定义正文回读均匹配；错误 0、模型调用 0 |
+| 正式库锚点读取 | 新负载 168 个 anchors GET 全部返回 200；handler p50 136 ms、p95 254 ms、最大 942 ms，批次共 26,197 ms。旧负载为 35 个读取，p50 9,776 ms、p95 18,105 ms、最大 20,119 ms | 两组负载不同，不按严格成对测试计算速度倍数。每个请求只扫描一次全部链接，并只在当前请求内复用结果；没有跨请求缓存，没有改动术语或正文 |
+| Linux 部署器首次启动 | 最终源码包构建用时 269.958 秒，总用时 273.209 秒；health、根页面、`/bootstrap`、5 个入口 JS 和 13,383 字节的首次设置动态分块均返回 200 | 新库 `dbInitialized=false`，桥接关闭，未创建账号、token 或模型调用 |
+| staging 重启 | 编辑租约与 fencing 重启后仍有效；删除和恢复事件仍保留 | 重启套件 50/52 条断言通过；一次 GET 遇到 38.55 秒启动一致性检查，超过 35 秒测试期限后仍返回 200，当前回读为 8.717 ms；因此重启套件没有全绿 |
+
+## 怎样构建公开源码包
+
+`v0.2.0` 的 ReadWeave 源码包和公开案例包可从[版本页面](https://github.com/AIALRA-0/AIALRA-LessonWeave/releases/tag/v0.2.0)下载。当前源码包 SHA-256 为 `9785a850e3442742b7aa5dfcbd31248f5aebd4fe5966c802b7bd4acc27db4ba8`，包含 25 项桥接覆盖。解包后，复核源码可以运行：
 
 ```bash
-python -m lessonweave sync-trilium PROJECT_ID
+corepack pnpm install --frozen-lockfile --ignore-scripts
+corepack pnpm client:build
+corepack pnpm server:build
 ```
 
-SQLite 保存网站任务与目录索引，文件目录保留生成工作区，Trilium 保存原生阅读版本与宿主笔记，两份数据都需要备份，当前目录操作从 LessonWeave 写入 Trilium，宿主中的外部目录修改尚未自动反向导入
+`--ignore-scripts` 是必要参数：脱敏源码包保留 `apps/web-clipper` 的 workspace 清单以匹配锁文件，但省略了无关的扩展入口；正常 postinstall 会因缺少这些入口而停止。部署器在 Linux Docker builder 中执行源码构建。`server:build` 会重新生成客户端和 PDF viewer，因此容器构建只需执行这一项构建命令。
 
-## 1.3 四栏组件怎样与宿主合作
-
-trilium-render.js 通过 renderNote 加载 reader-component.js，在宿主笔记区域挂载四栏阅读组件，组件使用 Shadow DOM 隔离样式
-
-前端脚本通过 lessonweaveEdition 和 lessonweaveUserNotes 关系查找实际版本与学习笔记目录，再按附件标题和 lessonweaveSectionId 标签获取当前实例的资源与章节 ID，脚本配置只保存逻辑项目 ID 和组件文件名
-
-笔记新建使用宿主的 api.createNote，修改使用已登录会话与 CSRF 保护的笔记接口，浏览器中没有 ETAPI 令牌，也不调用 runOnBackend
-
-完整对照阅读在 render 笔记中提供，点击“在原生章节中提问”会打开对应 text 笔记，由 ReadWeave 已有的选择、提问与保存流程处理追问，render 视图的来源选择事件也通过 lessonweave:source-selection 提供给维护者
-
-当前已验证打开原生章节和笔记往返，ReadWeave 自带问答器的回答质量与跨选区上下文扩展留给其维护者验收
-
-## 1.4 维护者还可以怎样挂载组件
-
-```javascript
-const reader = mountReader(container, {
-  projectId: project.id,
-  base: project.resourceBase,
-  search: '?preview=true',
-  resolveResource: path => attachmentStore.url(path),
-  loadNote: key => noteStore.read(project.id, key),
-  saveNote: (key, text) => noteStore.save(project.id, key, text),
-  onNavigate: search => openSection(search),
-  onSourceSelection: selection => questionPanel.setMaterial(selection)
-});
-// 宿主关闭阅读标签时释放事件、计时器和阅读视图
-reader.unmount();
-```
-
-getState() 返回当前正文、来源包、覆盖记录和选中材料，提问上下文可以据此保留实际原句、图片区域、表格与源码位置
-
-artifact-tree.js 提供 mountArtifactTree，用来展示四个中间阶段的真实 JSON，关闭后调用返回对象的 unmount()
-
-## 1.5 阅读包怎样导入
-
-05_writing/reading-package.zip 中的 manifest.json 使用 lessonweave-reading-package-v1 格式，Schema 位于 framework/05_writing/reading-package.schema.json
-
-import_package 核对文件清单、路径、数量和解压大小后导入空工作区，再由 sync_project 保存到宿主，这条导入路径会重新建立实际附件与笔记对应，个人笔记不包含在阅读包中
-
-宿主原生 ZIP 导出后再导入另一实例的完整往返尚未验证，跨实例交接目前使用上述阅读包导入路径
-
-## 1.6 交接时怎样验收
-
-- 分别用网页、PDF 与代码检查原页、译文、图表与真实位置，代码只标记实际字符范围
-- 检查窄屏、主题、栏宽、上下比例、10%–300% 缩放、自由拖动与适配
-- 保存学习笔记、刷新、再次修改，确认原有笔记与版本继续保留
-- 打开对应原生 text 章节，用宿主已有问答器验证选择与追问
-- 保留生成端真实检查状态，未通过的稿件继续显示待审
-- 检查组件卸载后事件和计时器被释放，再次打开时交互正常
-
-原生接口依据：[ETAPI](https://docs.triliumnotes.org/rest-api/etapi/)、[前端脚本 API](https://docs.triliumnotes.org/script-api/frontend/)、[附件](https://docs.triliumnotes.org/user-guide/concepts/notes/attachments)
-
-## 2 为什么下一版要改造原生笔记页
-
-当前 renderNote 组件可以完整阅读，但用户需要切换到 text 笔记才能使用宿主的划线与提问，因此它尚未实现同一个页面里的完整体验
-
-推荐在 ReadWeave 的原生 text 笔记页增加原文对照、目录与术语表，正文继续使用宿主现有的笔记组件，生成网站承担上传、任务调度与版本发布，个人笔记、划线和问答统一由 ReadWeave 保存
-
-若把问答器复制到生成网站，两边就需要同时处理选区、回答流、追问、保存状态、编辑冲突和离线重连，维护范围明显增大，共用原生笔记页可以直接沿用已经成熟的交互与保存流程
-
-### 2.1 页面怎样组合
-
-```text
-宿主笔记树与章节目录 | 原页和译文 | 宿主原生正文 | 术语表与现有问答面板
-```
-
-只有带 LessonWeave 标记的笔记启用这个布局，普通笔记继续沿用宿主布局，问答打开时右栏切换到宿主问答面板，关闭后恢复术语列表与原先滚动位置，窄屏改为面板切换
-
-正文保持在宿主原有的文本组件和 noteContext 中，旁栏组件按当前笔记创建和卸载，切换标签、分屏和编辑模式时分别管理自己的事件与滚动位置，具体挂载点由 ReadWeave 维护者按当前源码确认
-
-Trilium 的 [NoteContextAwareWidget](https://docs.triliumnotes.org/user-guide/scripts/frontend-basics/custom-widget/note-context-aware-widget) 提供按笔记上下文挂载的扩展方式，正式接入还需要适配 ReadWeave 已有的侧栏与选区实现，单靠嵌入整套 reader 无法完成这些职责
-
-### 2.2 哪一份数据负责保存什么
-
-| 数据 | 由谁保存 | 其他位置怎样读取 |
-|---|---|---|
-| 上传材料、调用回执、生成任务与检查记录 | LessonWeave 工作区 | 网站显示实际状态，发布包保留检查记录 |
-| 已发布正文、译文、来源位置、术语和覆盖记录 | ReadWeave 中不可变的版本资源 | 原生笔记保存版本关系，旁栏按该版本读取 |
-| 用户笔记、划线、追问与回答 | ReadWeave 原生存储 | 网站需要展示时读取宿主结果，避免同时写两份副本 |
-| 文件夹与笔记树 | ReadWeave 原生分支 | 网站经服务端读取实际分支，目录操作通过同一接口完成 |
-
-现有实现仍在网站保存目录索引，且尚未反向接收宿主目录修改，迁移时需要把原生分支作为目录依据，网站索引只作可重建缓存
-
-### 2.3 来源和提问怎样对应
-
-导入回执需要保留 project_id、edition_id、section_id 与实际 noteId 的关系，每个正文块保留 block_id，材料映射继续记录 source_id、sentence_id、图片区域、PDF 页坐标或源码行列
-
-用户在原生正文中选中文字后，宿主选区服务找到正文块，再从当前版本取得原句、译句和相关图表，交给现有问答器作为材料上下文，旁栏也按同一份映射定位原页
-
-需要用宿主编辑器能够持久保存的字段或插件保存正文块关系，并验证刷新与编辑后仍能定位，临时 DOM 属性不足以保证这一点，覆盖标记与用户划线使用各自的 ID，删除一条划线时保留材料映射
-
-编辑生成正文时保留原始版本，检查发生变化的正文块及其覆盖记录，在核对完成前显示映射待核对状态，个人笔记始终单独保存
-
-### 2.4 发布、跳转和迁移怎样完成
-
-1. 生成端产出已有格式的版本包，保留全部正文、材料映射与真实检查状态
-2. ReadWeave 导入端核对包与版本，创建原生小节，返回实际 noteId 与版本回执，相同版本再次导入时复用已有结果
-3. 网站保存回执，当前小节的跳转按钮使用实际笔记路径，导入尚未完成时显示未关联
-4. 原生笔记页读取当前版本的来源与术语，划线、提问和笔记继续经过宿主现有接口
-5. 既有网站笔记按原键一次迁入宿主，存在冲突时保留两份并标明来源，核对完成后由宿主负责后续保存
-
-正式库导入和宿主代码修改由 ReadWeave 维护者执行，当前独立验证实例继续保留，验证实例的回执与正式实例分别保存
-
-### 2.5 怎样确认接入成功
-
-- 在同一原生小节中完成目录跳转、原页与译文对照、术语查询、来源定位和缩放，验证网页、PDF 与源码的实际位置
-- 使用宿主的提问、定义、注解、总结和笔记动作，确认选区文字、材料上下文与保存目标属于当前小节和版本
-- 新建与修改笔记、追问和回答后刷新，确认保存结果和原有笔记都在
-- 验证多标签、分屏、明暗主题、窄屏和组件卸载，普通笔记继续正常使用
-- 移动或重命名原生笔记后，从网站再次跳转，确认路径与目录同步更新
-- 使用旧版正文核对旧版来源，发布新版时保留原来的笔记和问答，失效映射如实标记
-
-以上为下一版的实施与验收方案，当前 renderNote 验证结果不计为原生笔记页验收通过
+公开归档的文件清单和各文件哈希保存在根目录的 `SOURCE-MANIFEST.json`；桥接覆盖文件还须逐项匹配 LessonWeave 的 `integrations/readweave/backend-source-manifest.json`。归档仅包含已授权公开的源码和对应许可证文件，不含私有部署历史、运行数据、凭据或数据库。

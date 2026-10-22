@@ -415,9 +415,9 @@
           "doc": "authored",
           "field": "plan.items",
           "key": "04:authored:plan.items",
-          "label": "问题内部的多条讲解规划",
-          "description": "问题内部的多条讲解规划",
-          "rule": "在 逐问调用内部输出并保留材料对应",
+          "label": "短骨架怎样安排每一步",
+          "description": "先安排理解顺序、核心回答、展开步骤、实际来源与下一组的承接",
+          "rule": "本问全部分配材料都要有讲解去处，来源对应由脚本按实际引用计算",
           "type": "对象列表"
         },
         {
@@ -425,10 +425,20 @@
           "doc": "authored",
           "field": "explanation",
           "key": "04:authored:explanation",
-          "label": "围绕规划展开的正文与媒体",
-          "description": "围绕规划展开的正文与媒体",
-          "rule": "每组保留实际材料与规划 ID",
+          "label": "正文怎样沿骨架连续展开",
+          "description": "每组保留一次核心回答，正文把解释、推导与实例连起来，再附必要媒体与补充",
+          "rule": "骨架与正文逐组对应，正文保留专业限定、计算过程与实例，不用引用编号代替解释",
           "type": "对象列表"
+        },
+        {
+          "side": "输出",
+          "doc": "authored",
+          "field": "explanation[0].body",
+          "key": "04:authored:explanation[0].body",
+          "label": "每组连续正文的示例字段",
+          "description": "连续正文把解释、推导与实例沿着短骨架展开",
+          "rule": "本字段展示已保存正文；旧读本仍按原结构读取",
+          "type": "字符串"
         },
         {
           "side": "输出",
@@ -449,6 +459,16 @@
           "description": "同次输出的练习易错点与术语",
           "rule": "按配额生成，术语直接给出完整定义",
           "type": "对象"
+        },
+        {
+          "side": "输出",
+          "doc": "authored",
+          "field": "appendix.terms[0]",
+          "key": "04:authored:appendix.terms[0]",
+          "label": "同次生成的术语示例",
+          "description": "本问正文调用中生成的第一个术语及完整解释",
+          "rule": "脚本按名称和词义合并展示，不新增术语生成请求",
+          "type": "术语对象"
         }
       ],
       "nodes": [
@@ -462,7 +482,7 @@
         },
         {
           "id": "N1",
-          "label": "问题内部的多条讲解规划",
+          "label": "短骨架安排顺序与材料去处",
           "side": "输出",
           "field_keys": [
             "04:authored:plan.items"
@@ -470,7 +490,7 @@
         },
         {
           "id": "N2",
-          "label": "围绕规划展开的正文与媒体",
+          "label": "核心回答与连续讲解，穿插推导和实例",
           "side": "输出",
           "field_keys": [
             "04:authored:explanation"
@@ -493,8 +513,8 @@
           ]
         }
       ],
-      "diagram": "flowchart TB\nN0[\"本问对应的材料范围\"]\nN1[\"问题内部的多条讲解规划\"]\nN2[\"围绕规划展开的正文与媒体\"]\nN3[\"当前问题的答案与可迁移结论\"]\nN4[\"同次输出的练习易错点与术语\"]\nN0 --> N1\nN0 --> N2\nN0 --> N3\nN0 --> N4",
-      "note": "Sol high 每问同次输出多条讲解规划、问题、多组讲解、媒体、答案、易错点、练习及术语；默认并发 144，已有词义复用完整三段解释"
+      "diagram": "flowchart TB\nN0[\"本问材料和必要定义\"]\nN1[\"短骨架安排顺序与材料去处\"]\nN2[\"核心回答与连续讲解，穿插推导和实例\"]\nN3[\"直接回答与迁移方法\"]\nN4[\"媒体、练习、易错点与术语\"]\nN0 --> N1\nN1 --> N2\nN2 --> N3\nN2 --> N4",
+      "note": "Sol high 对每个问题只调用一次，先生成短骨架，再写连续正文、媒体、答案、练习、易错点和术语；正文保留解释、推导与实例，默认并发 144；已有共通词义复用完整三组解释"
     },
     {
       "id": "05",
@@ -633,66 +653,6 @@
           "description": "启下的问题",
           "rule": "与 premise 合成第二段",
           "type": "字符串"
-        },
-        {
-          "side": "输出",
-          "doc": "term",
-          "field": "abbreviation",
-          "key": "06:term:abbreviation",
-          "label": "可为空的术语缩写",
-          "description": "可为空的术语缩写",
-          "rule": "缩写与英文全称保持不同",
-          "type": "字符串或空值"
-        },
-        {
-          "side": "输出",
-          "doc": "term",
-          "field": "chinese",
-          "key": "06:term:chinese",
-          "label": "术语的中文全称",
-          "description": "术语的中文全称",
-          "rule": "使用规范名称",
-          "type": "字符串"
-        },
-        {
-          "side": "输出",
-          "doc": "term",
-          "field": "english",
-          "key": "06:term:english",
-          "label": "术语的英文全称",
-          "description": "术语的英文全称",
-          "rule": "保留专业规范大小写",
-          "type": "字符串"
-        },
-        {
-          "side": "输出",
-          "doc": "term",
-          "field": "professional_definition",
-          "key": "06:term:professional_definition",
-          "label": "专业定义的组装字段",
-          "description": "专业定义的组装字段",
-          "rule": "上位类别、区别属性、适用边界与必要补充",
-          "type": "对象"
-        },
-        {
-          "side": "输出",
-          "doc": "term",
-          "field": "intuitive_explanation",
-          "key": "06:term:intuitive_explanation",
-          "label": "直观解释的组装字段",
-          "description": "直观解释的组装字段",
-          "rule": "熟悉事物、关系映射、核心直觉与必要补充",
-          "type": "对象"
-        },
-        {
-          "side": "输出",
-          "doc": "term",
-          "field": "typical_example",
-          "key": "06:term:typical_example",
-          "label": "典型实例的组装字段",
-          "description": "典型实例的组装字段",
-          "rule": "初始条件、运作过程、结果与必要补充",
-          "type": "对象"
         }
       ],
       "nodes": [
@@ -727,58 +687,10 @@
           "field_keys": [
             "06:bridge:question"
           ]
-        },
-        {
-          "id": "N4",
-          "label": "可为空的术语缩写",
-          "side": "输出",
-          "field_keys": [
-            "06:term:abbreviation"
-          ]
-        },
-        {
-          "id": "N5",
-          "label": "术语的中文全称",
-          "side": "输出",
-          "field_keys": [
-            "06:term:chinese"
-          ]
-        },
-        {
-          "id": "N6",
-          "label": "术语的英文全称",
-          "side": "输出",
-          "field_keys": [
-            "06:term:english"
-          ]
-        },
-        {
-          "id": "N7",
-          "label": "专业定义的组装字段",
-          "side": "输出",
-          "field_keys": [
-            "06:term:professional_definition"
-          ]
-        },
-        {
-          "id": "N8",
-          "label": "直观解释的组装字段",
-          "side": "输出",
-          "field_keys": [
-            "06:term:intuitive_explanation"
-          ]
-        },
-        {
-          "id": "N9",
-          "label": "典型实例的组装字段",
-          "side": "输出",
-          "field_keys": [
-            "06:term:typical_example"
-          ]
         }
       ],
-      "diagram": "flowchart TB\nN0[\"当前问题实际讲清的结果\"]\nN1[\"第一段承上\"]\nN2[\"启下的直接条件\"]\nN3[\"启下的问题\"]\nN4[\"可为空的术语缩写\"]\nN5[\"术语的中文全称\"]\nN6[\"术语的英文全称\"]\nN7[\"专业定义的组装字段\"]\nN8[\"直观解释的组装字段\"]\nN9[\"典型实例的组装字段\"]\nN0 --> N1\nN0 --> N2\nN0 --> N3\nN0 --> N4\nN0 --> N5\nN0 --> N6\nN0 --> N7\nN0 --> N8\nN0 --> N9",
-      "note": "全部正文完成后，Sol high 根据各节实际答案生成承上与启下两段，每批 16 节、并发 7；术语已经随正文生成，此处仅由脚本合并"
+      "diagram": "flowchart TB\nN0[\"各节实际生成的答案\"]\nN1[\"承上段：接住前节已完成的内容\"]\nN2[\"启下条件：交代下一问的情景\"]\nN3[\"启下问题：提出下一步要回答的问题\"]\nN0 --> N1\nN0 --> N2\nN0 --> N3",
+      "note": "全部正文完成后，Sol high 根据各节实际答案生成承上与启下两段，每批 16 节、并发 7；术语已随正文生成，写后脚本独立整理名称"
     },
     {
       "id": "07",
@@ -903,9 +815,9 @@
           "field": "explanation",
           "key": "08:authored:explanation",
           "side": "输入",
-          "label": "中间阅读区逐点显示的四段正文",
-          "description": "中间阅读区逐点显示的四段正文",
-          "rule": "每个讲解点显示四段，保留实际来源映射，按问题与材料安排连贯顺序",
+          "label": "阅读区逐组显示的连续讲解正文",
+          "description": "阅读器把每组解释、推导和实例按正文顺序连续呈现",
+          "rule": "新稿沿用同次生成的短骨架与连续正文，保留实际来源映射；旧稿按保存时的结构读取",
           "type": "讲解点对象"
         },
         {
@@ -913,10 +825,10 @@
           "field": "result",
           "key": "08:authored:result",
           "side": "输入",
-          "label": "四段讲解结束后的一个升华自然段",
-          "description": "四段讲解结束后的一个升华自然段",
-          "rule": "按顺序合成一个自然段，下一问由下一章承上启下提出",
-          "type": "升华对象"
+          "label": "本问答案与可迁移结论",
+          "description": "阅读器在连续讲解后显示本问直接答案与可迁移结论",
+          "rule": "总结复用 answer，必要的迁移结论保留在读本中",
+          "type": "结果对象"
         },
         {
           "doc": "term",
@@ -953,9 +865,9 @@
           "field": "professional_definition",
           "key": "08:term:professional_definition",
           "side": "输入",
-          "label": "读取第 6 步的专业定义四个字段",
-          "description": "读取第 6 步的专业定义四个字段",
-          "rule": "保留四个细字段及可空拓展字段，按字段顺序合成自然段，脚本检查结构与明确 lint",
+          "label": "与正文同次生成的专业定义",
+          "description": "读本装配时读取本问写作调用生成的专业定义",
+          "rule": "脚本合并已生成词条并按字段顺序装配，不增加术语生成阶段",
           "type": "对象"
         },
         {
@@ -963,9 +875,9 @@
           "field": "intuitive_explanation",
           "key": "08:term:intuitive_explanation",
           "side": "输入",
-          "label": "读取第 6 步的直观解释四个字段",
-          "description": "读取第 6 步的直观解释四个字段",
-          "rule": "保留四个细字段及可空拓展字段，按字段顺序合成自然段，脚本检查结构与明确 lint",
+          "label": "与正文同次生成的直观解释",
+          "description": "读本装配时读取本问写作调用生成的直观解释",
+          "rule": "脚本合并已生成词条并按字段顺序装配，不增加术语生成阶段",
           "type": "对象"
         },
         {
@@ -973,9 +885,9 @@
           "field": "typical_example",
           "key": "08:term:typical_example",
           "side": "输入",
-          "label": "读取第 6 步的典型实例四个字段",
-          "description": "读取第 6 步的典型实例四个字段",
-          "rule": "保留四个细字段及可空拓展字段，按字段顺序合成自然段，脚本检查结构与明确 lint",
+          "label": "与正文同次生成的典型实例",
+          "description": "读本装配时读取本问写作调用生成的典型实例",
+          "rule": "脚本合并已生成词条并按字段顺序装配，不增加术语生成阶段",
           "type": "对象"
         },
         {
@@ -1026,7 +938,7 @@
         },
         {
           "id": "B",
-          "label": "四段正文与升华",
+          "label": "短骨架对应的连续正文与结果",
           "side": "输入",
           "field_keys": [
             "08:authored:explanation",
@@ -1035,7 +947,7 @@
         },
         {
           "id": "G",
-          "label": "名称与三段术语正文",
+          "label": "正文同次生成并由脚本合并的术语",
           "side": "输入",
           "field_keys": [
             "08:term:abbreviation",
@@ -1073,7 +985,7 @@
           ]
         }
       ],
-      "diagram": "flowchart TB\nC[\"章节目录\"]\nS[\"裸材料\"]\nT[\"对应译文\"]\nB[\"四段正文与升华\"]\nG[\"名称与三段术语正文\"]\nA[\"两段承上启下\"]\nK[\"实际脚本检查结果\"]\nR[\"完整阅读页与检查状态\"]\nC -->|\"按目录组装 · 多对一\"| R\nS -->|\"保留材料定位\"| R\nT -->|\"与原句对应\"| R\nB -->|\"读取当前正文\"| R\nG -->|\"保留术语联动\"| R\nA -->|\"放在本章开头\"| R\nK -->|\"保留实际检查结果\"| R",
+      "diagram": "flowchart TB\nC[\"章节目录\"]\nS[\"原始材料与来源位置\"]\nT[\"与原句对应的译文\"]\nB[\"短骨架对应的连续正文与结果\"]\nG[\"正文同次生成、脚本合并的术语\"]\nA[\"两段承上启下\"]\nK[\"实际脚本检查结果\"]\nR[\"完整阅读页与真实检查状态\"]\nC -->|\"按目录组装 · 多对一\"| R\nS -->|\"保留材料定位\"| R\nT -->|\"与原句对应\"| R\nB -->|\"读取当前正文\"| R\nG -->|\"保留术语联动\"| R\nA -->|\"放在本章开头\"| R\nK -->|\"保留实际检查结果\"| R",
       "note": "脚本按目录装配现有正文、总结、术语与笔记框，不重新生成正文"
     },
     {
@@ -1137,19 +1049,94 @@
       ],
       "fields": [
         {
+          "doc": "book",
+          "field": "title",
+          "key": "12:book:title",
+          "side": "输入",
+          "label": "已装配的完整读本",
+          "description": "阶段 09 已经装配好正文、原文映射、译文、术语与检查状态",
+          "rule": "读取当前项目实际保存的书稿，不预填阅读结果",
+          "type": "对象或列表"
+        },
+        {
           "doc": "library",
           "field": "render_note_id",
           "key": "12:library:render_note_id",
           "side": "输出",
-          "label": "保存到笔记库的实际结果",
-          "description": "已配置笔记库时自动保存，继续使用原笔记位置；未配置时完成读本即结束",
-          "rule": "读取已保存的实际结果，不预填成功状态",
+          "label": "ReadWeave 原生读本入口",
+          "description": "同步笔记树时创建原生阅读页；没有配置笔记库时不会生成这个入口",
+          "rule": "读取 trilium.sync_project 保存的实际结果，不预填成功状态",
+          "type": "字符串"
+        },
+        {
+          "doc": "library",
+          "field": "version",
+          "key": "12:library:version",
+          "side": "输出",
+          "label": "同步到笔记树的版本",
+          "description": "ReadWeave 先接收完整阅读包、材料树、章节结构与附件",
+          "rule": "读取当前笔记树映射中的版本号，不依据目标库状态猜测",
+          "type": "字符串"
+        },
+        {
+          "doc": "readweave",
+          "field": "imported",
+          "key": "12:readweave:imported",
+          "side": "输出",
+          "label": "已登记的正文与原材料内容",
+          "description": "笔记树同步完成后，readweave.publish_project 分别登记正文、原文、译文和术语定义",
+          "rule": "读取发布映射中的实际条目；未记录时显示未记录，不把健康检查算作发布成功",
+          "type": "列表"
+        },
+        {
+          "doc": "readweave",
+          "field": "version",
+          "key": "12:readweave:version",
+          "side": "输出",
+          "label": "ReadWeave 发布版本",
+          "description": "正文发布复用同一次同步记录的版本身份",
+          "rule": "读取当前发布映射中的版本号，不预填成功状态",
+          "type": "字符串"
+        },
+        {
+          "doc": "book",
+          "field": "title",
+          "key": "12:book:local_reader",
+          "side": "输出",
+          "label": "本地完整阅读页",
+          "description": "无论是否配置笔记库，已保存的读本仍可在 LessonWeave 阅读或导出",
+          "rule": "以阶段 09 的实际书稿和阅读页文件为准",
           "type": "对象或列表"
         }
       ],
-      "nodes": [],
-      "note": "已配置笔记库时自动保存，继续使用原笔记位置；未配置时完成读本即结束",
-      "diagram": "flowchart TB\nA[\"已保存读本\"] --> B[\"已配置的笔记库\"]\nA --> C[\"本站直接阅读\"]"
+      "nodes": [
+        {
+          "id": "A",
+          "label": "已装配的完整读本",
+          "side": "输入",
+          "field_keys": ["12:book:title"]
+        },
+        {
+          "id": "B",
+          "label": "同步笔记树、阅读包与附件",
+          "side": "输出",
+          "field_keys": ["12:library:version"]
+        },
+        {
+          "id": "C",
+          "label": "分别发布正文、原文、译文与定义",
+          "side": "输出",
+          "field_keys": ["12:readweave:version", "12:readweave:imported"]
+        },
+        {
+          "id": "D",
+          "label": "在 LessonWeave 本地阅读或导出",
+          "side": "输出",
+          "field_keys": ["12:book:local_reader"]
+        }
+      ],
+      "note": "已配置笔记库时，trilium.sync_project 先保存阅读包、材料树、章节与附件，再调用 readweave.publish_project 登记正文、原文、译文和定义；没有配置笔记库时，读本仍可在 LessonWeave 阅读或导出。运行记录分别保存两步实际结果，HTTP 健康或桥接版本检查不能代替端到端验证",
+      "diagram": "flowchart TB\nA[\"已装配的完整读本\"] --> B[\"同步笔记树、阅读包与附件\"]\nB --> C[\"登记正文、原文、译文与定义\"]\nA --> D[\"在 LessonWeave 本地阅读或导出\"]"
     }
   ]
 }

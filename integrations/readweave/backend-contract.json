@@ -1,0 +1,198 @@
+{
+  "version": "1",
+  "schemaVersion": "1.2",
+  "basePath": "/api/lessonweave",
+  "auth": "Existing ReadWeave session with CSRF, or existing ETAPI Authorization token without browser cookies",
+  "contentFormat": "text/html",
+  "identity": "articleId is the native Trilium noteId; website aliases and native titles are independent",
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/capabilities"
+    },
+    {
+      "method": "POST",
+      "path": "/publications/import",
+      "request": {
+        "importKey": "stable-project-edition-key",
+        "editionId": "optional-existing-publication-noteId",
+        "parentNoteId": "optional-parent-noteId",
+        "title": "publication title",
+        "articles": [
+          {
+            "key": "stable-file-key",
+            "articleId": "optional-existing-native-noteId",
+            "title": "new-note title",
+            "body": "<p>complete HTML</p>",
+            "kind": "explanation | translation | source",
+            "definitions": [
+              {
+                "key": "stable-term-key",
+                "title": "term title",
+                "body": "<p>existing definition</p>",
+                "sourceExcerpt": "exact term or source excerpt",
+                "termIdentity": "optional ReadWeaveTermIdentity"
+              }
+            ],
+            "source": "arbitrary source-mapping JSON"
+          }
+        ]
+      },
+      "semantics": "Append in any number of batches. Existing keys return current state without overwriting edits or reviving tombstones. Adoption of an existing article requires exactly matching content. Imported definitions use the native repository with no model requests. Optional legacy termIdentity is used only when native validation accepts it and its formatted title exactly matches the supplied title. Otherwise the generated title and definition remain unchanged and the complete input definition is retained in imported-definitions.json. Each article also retains its original source-map.json and generation-original.html.",
+      "responseFields": [
+        "editionId",
+        "importKey",
+        "title",
+        "noteId",
+        "deleted",
+        "articles[{key,articleId,kind,title,revision,deleted}]",
+        "importStats{articlesCreated,articlesReused,definitionsLinked,compatibleIdentities,identitiesInSidecar,indexedLinks,linkScans}"
+      ],
+      "importStats": "Counts apply to this import request. Reused articles are not rewritten or counted again as linked definitions. Identity counts apply to each newly registered article-definition link. The synchronous import builds a link index once, including append positions; no cache survives the request."
+    },
+    {
+      "method": "GET",
+      "path": "/publications/:editionId",
+      "responseFields": [
+        "editionId",
+        "importKey",
+        "title",
+        "noteId",
+        "deleted",
+        "articles[{key,articleId,kind,title,revision,deleted}]"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/publications/:editionId/restore",
+      "request": {
+        "operationId": "unique-operation-key"
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/publications/:editionId",
+      "request": {
+        "operationId": "unique-operation-key"
+      },
+      "semantics": "Native soft deletion of the publication subtree, atomic and idempotent. An active lease on an article that would actually be deleted returns 423 before the first branch changes. Other clones remain live."
+    },
+    {
+      "method": "GET",
+      "path": "/articles/:articleId",
+      "responseFields": [
+        "articleId",
+        "editionId",
+        "key",
+        "kind",
+        "title",
+        "body",
+        "revision",
+        "deleted",
+        "updatedAt",
+        "lease",
+        "source",
+        "readweave"
+      ],
+      "optionalQuery": {
+        "includeSource": "1 to load the complete original source-map attachment; omitted by default"
+      },
+      "semantics": "The normal reading response keeps body, revisions and ReadWeave objects intact while source is null. The complete original source-map.json remains stored without changes and is returned only with includeSource=1."
+    },
+    {
+      "method": "PUT",
+      "path": "/articles/:articleId",
+      "request": {
+        "expectedRevision": 1,
+        "operationId": "unique-operation-key",
+        "body": "<p>complete HTML</p>",
+        "leaseToken": "optional-active-token",
+        "fence": "optional-active-fence"
+      },
+      "semantics": "CAS and durable idempotency, with draft retained by the caller on conflict"
+    },
+    {
+      "method": "DELETE",
+      "path": "/articles/:articleId",
+      "request": {
+        "expectedRevision": 1,
+        "operationId": "unique-operation-key",
+        "leaseToken": "optional-active-token",
+        "fence": "optional-active-fence"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/articles/:articleId/restore",
+      "request": {
+        "expectedRevision": 2,
+        "operationId": "unique-operation-key"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/edit-sessions",
+      "request": {
+        "articleId": "native-noteId",
+        "ownerId": "unique-editor-tab-id",
+        "ttlSeconds": 90
+      },
+      "responseFields": [
+        "leaseId",
+        "articleId",
+        "ownerId",
+        "token",
+        "fence",
+        "expiresAt"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/edit-sessions/:leaseId",
+      "request": {
+        "token": "lease-token",
+        "fence": 1,
+        "ttlSeconds": 90
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/edit-sessions/:leaseId",
+      "request": {
+        "token": "lease-token",
+        "fence": 1
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/changes?after=0&editionId=optional-editionId",
+      "responseFields": [
+        "changes[{sequence,editionId,articleId,kind,revision,createdAt,detail}]",
+        "nextCursor"
+      ],
+      "semantics": "At most 500 changes per request, poll again with nextCursor. Cursor and tombstones persist across restarts."
+    }
+  ],
+  "conflicts": {
+    "409": {
+      "message": "revision-conflict",
+      "details": {
+        "code": "revision-conflict",
+        "revision": "current version"
+      }
+    },
+    "423": {
+      "message": "article-locked | lease-expired",
+      "details": "owner/expiry or current revision without exposing another editor token"
+    }
+  },
+  "nativeCompatibility": {
+    "GET /api/notes/:noteId/blob": "sharedRevision is present only for managed articles",
+    "PUT /api/notes/:noteId/data": "Optional expectedRevision, leaseToken and fence; returns sharedRevision for managed articles",
+    "PATCH /api/readweave/links/:linkId": "Optional expectedRevision and expectedLinkRevision. Native and embedded panels send current versions. Returns entry.revision and entry.linkRevision",
+    "POST /api/readweave/entries": "Capture a manual note with kind question, contentType note, origin manual, a nonempty sourceExcerpt, title and body. Origins are manual or generated. No model request is made. Clearing an existing note removes its link with the current expectedLinkRevision instead of saving an empty body.",
+    "DELETE /api/readweave/links/:linkId": "Optional expectedLinkRevision query parameter",
+    "generation": "Existing harness, models and generation-job leases remain unchanged",
+    "sharedChangeEvent": "Embedded readers consume readweave:shared-change with optional detail.articleId. Native WebSocket cache updates dispatch the same event. Readers refresh the saved projections without remounting or replacing drafts."
+  }
+}
