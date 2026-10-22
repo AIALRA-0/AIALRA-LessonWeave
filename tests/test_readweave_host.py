@@ -237,3 +237,40 @@ def test_old_poll_cannot_outlive_chapter_scope(new_section_state):
         assert not any(method not in('GET','HEAD')for method,path in calls)
         assert errors==[]
         browser.close()
+
+
+def test_shared_binding_waits_until_reader_document_is_ready():
+    html='''<!doctype html><meta charset="utf-8"><div id="host"></div><script type="module">
+    import {mountSharedReader} from '/integrations/readweave/shared-reader.js';
+    const shadow=document.querySelector('#host').attachShadow({mode:'open'}),root=document.createElement('main');
+    root.innerHTML='<article id="demo-content"><p>正在装配生成快照</p></article><aside id="glossary-result"></aside><div id="source-cards"></div>';shadow.append(root);
+    window.root=root;window.state={doc:{section_id:'s1',glossary:[]},ready:false};
+    window.shared=mountSharedReader(root,{bridge:()=>state,manifest:()=>fetch('/manifest').then(response=>response.json())});window.fixtureMounted=true;
+    window.finishReader=()=>{root.querySelector('#demo-content').innerHTML='<p>生成快照已装配</p>';state.ready=true;root.dispatchEvent(new CustomEvent('reading:document-ready'));};
+    </script>'''
+    calls=[];errors=[]
+    with sync_playwright()as p:
+        browser=p.chromium.launch();page=browser.new_page()
+        page.on('pageerror',lambda error:errors.append(str(error)))
+        def route(r):
+            path=urlsplit(r.request.url).path
+            if path=='/':r.fulfill(body=html,content_type='text/html');return
+            if path=='/manifest':calls.append(path);r.fulfill(json={'editionId':'e','section_articles':{'s1':'canonical'}});return
+            if path=='/api/shared/articles/canonical':
+                calls.append(path);r.fulfill(json={'articleId':'canonical','editionId':'e','key':'explanation:s1','kind':'explanation','title':'共享改稿','body':'<p>用户在共享笔记库保存的正文</p>','revision':2,'deleted':False,'readweave':{'objects':[],'links':[]}});return
+            if path.startswith('/api/'):
+                r.fulfill(json={'anchors':[],'entries':[],'jobs':[],'removedJobIds':[],'changes':[],'nextCursor':0});return
+            file=(ROOT/path.lstrip('/')).resolve()
+            if file.is_relative_to(ROOT)and file.is_file():r.fulfill(path=str(file));return
+            r.fulfill(status=404,body='Not found')
+        page.route('http://127.0.0.1:19876/**',route);page.goto('http://127.0.0.1:19876/')
+        page.wait_for_function('window.fixtureMounted===true');page.wait_for_timeout(150)
+        assert calls==[]
+        assert page.locator('#demo-content').inner_text()=='正在装配生成快照'
+        assert page.locator('#demo-content').get_attribute('data-readweave-article-id')is None
+        page.evaluate('finishReader()')
+        page.wait_for_function("root.querySelector('#demo-content').dataset.readweaveArticleId==='canonical'&&root.querySelector('.lw-shared-state').textContent==='已同步 · 版本 2'")
+        assert page.locator('#demo-content').inner_text()=='用户在共享笔记库保存的正文'
+        assert calls==['/manifest','/api/shared/articles/canonical']
+        assert errors==[]
+        browser.close()

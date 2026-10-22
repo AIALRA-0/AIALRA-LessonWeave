@@ -10,7 +10,7 @@ export function mountSharedReader(root,options){
   if(!response.ok){const error=Error(value.error||value.message||value.code||'这次修改没有保存，请保留输入后重试');error.status=response.status;error.data=value;throw error;}return value;
  });
  const call=(method,path,payload)=>request(path,{method,headers:{'Content-Type':'application/json'},...(payload!==undefined?{body:JSON.stringify(payload)}:{})});
- const style=document.createElement('link');style.rel='stylesheet';style.href=options.styleUrl??'/integrations/readweave/native-panel.css';root.getRootNode().append(style);
+ const style=document.createElement('link');style.rel='stylesheet';style.href=options.styleUrl??'/integrations/readweave/native-panel.css';const surface=root.getRootNode();(surface.nodeType===9?surface.head:surface).append(style);
  const container=document.createElement('div');container.className='lw-readweave-host';find('glossary-result').append(container);
  const panel=mountReadWeave(container,{root:root.getRootNode(),request});
  let manifest=null,active=null,activeRoot=null,disposed=false,cursor=0,polling=false,sectionToken=0,renderingSectionId=null,menu=null;
@@ -91,7 +91,7 @@ export function mountSharedReader(root,options){
  }
  function clearSectionContext(){++sectionToken;renderingSectionId=null;clearCurrentBindings();}
  async function loadSection(){
-  const token=++sectionToken,state=options.bridge(),sid=state?.doc?.section_id;if(!sid)return;
+  const token=++sectionToken,state=options.bridge(),sid=state?.doc?.section_id;if(!sid||state?.ready===false)return;
   const article=find('demo-content');
   if(renderingSectionId!==sid){
    renderingSectionId=sid;clearCurrentBindings();
@@ -126,7 +126,7 @@ export function mountSharedReader(root,options){
     if(!root.ownerDocument.defaultView.confirm('将'+kind+'“'+(target?.title||'未命名文章')+'”移入回收站？原始生成快照会保留，可以恢复'))return;
     try{const row=await call('GET',entry(articleId));await call('DELETE',entry(articleId),{expectedRevision:row.revision,operationId:crypto.randomUUID()});await refreshArticle(articleId,element,true);}catch(error){status(error.message);}
    };menu.append(button);
-  }root.getRootNode().append(menu);
+  }(surface.nodeType===9?surface.body:surface).append(menu);
  });
  listen(root,'click',event=>{if(!event.target.closest?.('.lw-shared-context-menu'))closeMenu();});
  listen(root,'keydown',event=>{if(event.key==='Escape')closeMenu();});

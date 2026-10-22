@@ -4,7 +4,7 @@
  const bridge=()=>window.ReaderSourceBridge?.getState();
  if(config.readweave_shared){
   const {mountSharedReader}=await import('/integrations/readweave/shared-reader.js');
-  mountSharedReader(document.body,{bridge,updateGlossary:terms=>window.ReaderSourceBridge?.updateGlossary(terms),hydrateMedia:element=>window.ReaderSourceBridge?.hydrateSharedMedia(element),manifest:()=>request('/api/readweave-projects/'+config.project_id)});
+  mountSharedReader(document.body,{bridge,updateGlossary:terms=>window.ReaderSourceBridge?.updateGlossary(terms),hydrateMedia:element=>window.ReaderSourceBridge?.hydrateSharedMedia(element),hydrateText:element=>window.ReaderSourceBridge?.hydrateSharedText(element),manifest:()=>request('/api/readweave-projects/'+config.project_id)});
  }
  const bound=new WeakSet(),bindings=new Map();
  const refresh=()=>{for(const [box,binding]of bindings){const {field,path}=binding;if(!box.isConnected){bindings.delete(box);continue;}const snapshot=field.value;request(path).then(data=>{if(!field.hasAttribute('data-note-draft')&&field.value===snapshot&&(config.readweave_shared||!field.value)){field.value=data.value??'';binding.version={revision:data.revision,linkRevision:data.linkRevision};}}).catch(()=>{});}};
