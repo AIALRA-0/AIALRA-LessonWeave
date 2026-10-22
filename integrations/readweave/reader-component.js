@@ -114,7 +114,7 @@ export function mountReader(container, options) {
   const native=globalThis.window;
   const tracked=kind=>class extends native[kind] {constructor(...args){super(...args);observers.add(this)}disconnect(){super.disconnect();observers.delete(this)}};
   const MutationObserver=tracked('MutationObserver'), ResizeObserver=tracked('ResizeObserver'), IntersectionObserver=tracked('IntersectionObserver');
-  const config={project_id:options.projectId,base:options.base,legacy:!!options.legacy,sidebarWidth:options.sidebarWidth};
+  const config={project_id:options.projectId,base:options.base,legacy:!!options.legacy,reader_files:options.readerFiles,sidebarWidth:options.sidebarWidth};
   const path=value=>{let text=String(value||'');const resolved=options.resolveResource?.(text);if(resolved)return resolved;if(/^(https?:|data:|blob:|#)/.test(text))return text;if(text.startsWith(config.base+'/'))return text;return config.base+'/'+text.replace(/^\/+/,'')};
   const fetch=(value, init)=>value==='/design-tokens.json'?Promise.resolve(new Response(JSON.stringify(DESIGN_TOKENS),{headers:{'Content-Type':'application/json'}})):options.fetch?options.fetch(value,init):native.fetch(typeof value==='string'&&/^\/(0[0-5]_)/.test(value)?path(value):value,init);
   const location={pathname:'readweave/book.html',search:options.search??'?preview=true',hash:'',get href(){return native.location.origin+config.base+'/book.html'+this.search},set href(value){options.onNavigate?.(new URL(value,native.location.href).search)}};
@@ -186,10 +186,10 @@ const uiIcon=window.uiIcon;
   const sub = '(?:' + group + '|' + letter + '[A-Za-z0-9\u0370-\u03ff]*|[0-9]+)';
   const command = '\\\\[A-Za-z]+(?:\\[[^\\]\\n]*\\])?(?:' + group + ')*';
   const base = '(?:' + command + '|' + group + '|' + par + '|[0-9]+(?:\\.[0-9]+)?|(?:id|dim|rank|ker|det|sin|cos|tan|log|ln|lim)(?![A-Za-z])|' + letter + '(?![A-Za-z\u0370-\u03ff]))';
-  const atom = base + '(?:[_^]' + sub + '|[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ₀₁₂₃₄₅₆₇₈₉]+)*(?:' + par + ')?!?';
+  const atom = base + '(?:[_^]' + sub + '|[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ₀₁₂₃₄₅₆₇₈₉₋₊]+)*(?:' + par + ')?!?';
   const op = '(?:<=|>=|!=|:=|[=+*/×÷−≤≥≈≠<>∘∈∉⊂⊆⊃⊇∩∪→↦←↔≃≅≡]|-(?=[^A-Za-z]|' + letter + '(?![A-Za-z]))|\\\\(?:circ|times|cdot|div|leq?|geq?|approx|neq?|in|notin|to|mapsto|subseteq?|supseteq?|cap|cup|cong|simeq)\\b)';
-  const expression = new RegExp('(?<![A-Za-z0-9_/:.\\\\])(?:' + atom + '(?:[ \\t]*' + op + '[ \\t]*' + atom + ')+|' + command + '(?:[_^]' + sub + ')*|' + letter + '(?:[_^]' + sub + '|[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ₀₁₂₃₄₅₆₇₈₉]+)(?:' + par + ')?|[0-9]+!(?!=|[A-Za-z0-9_]))(?![A-Za-z0-9_/:.])', 'g');
-  const explicit = /\$\$([\s\S]+?)\$\$|(?<![\\$])\$(?!\$)([^$\n]+?)\$(?!\$)|(?<!\\)(\\{1,2})\(([\s\S]+?)\3\)|(?<!\\)(\\{1,2})\[([\s\S]+?)\5\]|\\begin\{(equation\*?|align\*?|aligned|alignedat|gather\*?|gathered|multline\*?|split|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|cases|array)\}[\s\S]*?\\end\{\7\}/g;
+  const expression = new RegExp('(?<![A-Za-z0-9_/:.\\\\])(?:' + atom + '(?:[ \\t]*' + op + '[ \\t]*' + atom + ')+|' + command + '(?:[_^]' + sub + ')*|' + letter + '(?:[_^]' + sub + '|[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ₀₁₂₃₄₅₆₇₈₉₋₊]+)(?:' + par + ')?|[0-9]+!(?!=|[A-Za-z0-9_]))(?![A-Za-z0-9_/:.])', 'g');
+  const explicit = /\$\$([\s\S]+?)\$\$|(?<![\\$])\$(?!\$)([^$\n]+?)\$(?![$A-Za-z_])|(?<!\\)(\\{1,2})\(([\s\S]+?)\3\)|(?<!\\)(\\{1,2})\[([\s\S]+?)\5\]|\\begin\{(equation\*?|align\*?|aligned|alignedat|gather\*?|gathered|multline\*?|split|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|cases|array)\}[\s\S]*?\\end\{\7\}/g;
   const protectedText = /(`{3,}|~{3,})[^\n]*\n[\s\S]*?\1|(`+)(?!`)[\s\S]*?\2(?!`)|https?:\/\/[^\s<>]+|\b[A-Za-z]:[\\/][^\s<>]+|(?:^|\s)(?:\.{0,2}\/)[\w./-]+|\$\{[^}]+\}|\$(?:past|stable|rose|fell|isunknown|clog2)\b|\$[A-Z_]{2,}[A-Z0-9_]*(?![A-Za-z0-9_$=+*/^<>-])|(?<!\\)\$\d+(?:\.\d+)?(?=[\s，,；;]|$)|\b[\w-]+\.(?:py|v|sv|js|ts|json|md|pdf|png|jpr|cpp|h|html|css)\b/g;
   const unicode = { '∘': '\\circ ', '→': '\\to ', '↦': '\\mapsto ', '←': '\\leftarrow ', '↔': '\\leftrightarrow ', '∈': '\\in ', '∉': '\\notin ', '⊂': '\\subset ', '⊆': '\\subseteq ', '⊃': '\\supset ', '⊇': '\\supseteq ', '∩': '\\cap ', '∪': '\\cup ', '−': '-', '≤': '\\leq ', '≥': '\\geq ', '≠': '\\neq ', '≈': '\\approx ', '×': '\\times ', '÷': '\\div ', '≃': '\\simeq ', '≅': '\\cong ', '≡': '\\equiv ' };
   const superscripts={'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁻':'-','⁺':'+','ᵃ':'a','ᵇ':'b','ᶜ':'c','ᵈ':'d','ᵉ':'e','ᶠ':'f','ᵍ':'g','ʰ':'h','ⁱ':'i','ʲ':'j','ᵏ':'k','ˡ':'l','ᵐ':'m','ⁿ':'n','ᵒ':'o','ᵖ':'p','ʳ':'r','ˢ':'s','ᵗ':'t','ᵘ':'u','ᵛ':'v','ʷ':'w','ˣ':'x','ʸ':'y','ᶻ':'z'};
@@ -201,8 +201,12 @@ const uiIcon=window.uiIcon;
     return text.split(/(\\(?:text|texttt|textrm|mathrm|operatorname)\{[^{}]*\})/g).map((part, index) => index % 2 ? part : part
       .replace(/[∘→↦←↔∈∉⊂⊆⊃⊇∩∪−≤≥≠≈×÷≃≅≡]/g, char => unicode[char])
       .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ]+/g, value => '^{'+[...value].map(char => superscripts[char]).join('')+'}')
-      .replace(/[₀₁₂₃₄₅₆₇₈₉]+/g, value => '_{'+[...value].map(char=>'₀₁₂₃₄₅₆₇₈₉'.indexOf(char)).join('')+'}')
+      .replace(/[₀₁₂₃₄₅₆₇₈₉₋₊]+/g, value => '_{'+[...value].map(char=>char==='₋'?'-':char==='₊'?'+':'₀₁₂₃₄₅₆₇₈₉'.indexOf(char)).join('')+'}')
       .replace(/(?<![A-Za-z0-9_^\\{])id(?=[_^])/g, '\\operatorname{id}')).join('');
+  }
+  function mixedLabel(value) {
+    const text=String(value??'');
+    return scan(text).matches.some(match=>match.declared)||/[\u4e00-\u9fff]/.test(text.replace(/\\(?:text|texttt|textrm|mathrm|operatorname)\{[^{}]*\}/g,''));
   }
   function isCode(value) {
     const layout=/\\begin\{(?:align|array|[pPbBvV]?matrix|cases|gather|split|multline)/.test(value);
@@ -234,6 +238,10 @@ const uiIcon=window.uiIcon;
     const text = String(value ?? ''), found = [], protectedSpans = [];
     const overlaps = (start, end, rows) => rows.some(row => start < row.end && end > row.start);
     for (const match of text.matchAll(protectedText)) protectedSpans.push({ start: match.index, end: match.index + match[0].length, code: /^[`~]/.test(match[0]) });
+    // 花括号里的首尾锚点属于正则表达式，美元符号不参与公式配对
+    for (const match of text.matchAll(/\{\^[^{}\n]*\$\}/g)) protectedSpans.push({start:match.index,end:match.index+match[0].length,code:false});
+    // 命令提示符所在的整行作为代码保留，行尾闭合的美元公式继续按公式读取
+    for(const match of text.matchAll(/(?:^|\n)[ \t]*\$[ \t]+[A-Za-z][\w.-]*[ \t]+[^\n]+/g))if(!match[0].trimEnd().endsWith('$'))protectedSpans.push({start:match.index,end:match.index+match[0].length,code:false});
     const add = (start, end, source, display = false, declared = false) => {
       if (!overlaps(start, end, protectedSpans) && !overlaps(start, end, found)) found.push({ start, end, source: normalize(source), display, declared });
     };
@@ -255,7 +263,7 @@ const uiIcon=window.uiIcon;
     }
     return { matches: found.sort((a, b) => a.start - b.start), protected: protectedSpans };
   }
-  return { normalize, declarations, symbols, scan, prepare, isCode };
+  return { normalize, declarations, symbols, scan, prepare, isCode, mixedLabel };
 });
 
 /* 渲染已有文字与公式，换行和公式标记只影响显示，不修改正文及来源记录 */
@@ -300,7 +308,7 @@ window.ReaderText = (() => {
       const raw = text.slice(part.start,part.end);
       if (part.kind === 'code') {
         const code=document.createElement('code');code.textContent=raw.replace(/^(`{3,}|~{3,})[^\n]*\n|(?:`{3,}|~{3,})$/g,'').replace(/^`+|`+$/g,'');node.append(code);
-      } else if (/[\u4e00-\u9fff]/.test(part.source.replace(/\\(?:text|mathrm)\{[^}]*\}/g,''))) {
+      } else if (!part.declared&&/[\u4e00-\u9fff]/.test(part.source.replace(/\\(?:text|mathrm)\{[^}]*\}/g,''))) {
         node.append(document.createTextNode(raw));
       } else {
         const span=document.createElement('span');span.className='reader-math';span.dataset.mathRaw=raw;span.textContent=raw;node.append(span);
@@ -348,12 +356,28 @@ window.ReaderText = (() => {
   }
   // 已有分号和句末标点提供安全断点，显示拆段时保留每个原字符
   function paragraphs(text) {
-    const pieces = String(text ?? '').split(/\r\n|[\n\r\u2028\u2029]/);
+    const source=String(text??'');
+    const protectedRanges=value=>{
+      const parsed=window.LessonMath.scan(value);
+      return [...parsed.matches.filter(part=>part.declared),...parsed.protected.filter(part=>part.code)].sort((a,b)=>a.start-b.start);
+    };
+    // 完整公式和代码中的换行继续留在原片段里，不能先拆成不成对的标记
+    const ranges=protectedRanges(source),pieces=[];let at=0,rangeIndex=0;
+    for(let i=0;i<source.length;i++){
+      while(ranges[rangeIndex]?.end<=i)rangeIndex++;
+      if(ranges[rangeIndex]?.start<=i)continue;
+      if(/[\n\r\u2028\u2029]/.test(source[i])){
+        pieces.push(source.slice(at,i));if(source[i]==='\r'&&source[i+1]==='\n')i++;at=i+1;
+      }
+    }
+    pieces.push(source.slice(at));
     return pieces.flatMap(part => {
       if (part.length < 300) return [part];
-      const result = []; let start = 0;
-      for (let i = 0; i < part.length; i++) if (i-start >= 180 && /[；。]/.test(part[i])) {
-        result.push(part.slice(start,i+1)); start=i+1;
+      const result = [],protectedParts=protectedRanges(part);let start=0,index=0;
+      for (let i = 0; i < part.length; i++) {
+        while(protectedParts[index]?.end<=i)index++;
+        if(protectedParts[index]?.start<=i)continue;
+        if(i-start>=180&&/[；。]/.test(part[i])){result.push(part.slice(start,i+1));start=i+1;}
       }
       if (start < part.length) result.push(part.slice(start));
       return result;
@@ -487,7 +511,7 @@ window.LessonMedia=(()=>{
    section('综合总结',root).append(p(r.guide.summary.answer),p(r.guide.summary.collaboration));
    function mark(start,end){root.querySelectorAll('.lw-media-code-row').forEach(row=>row.classList.toggle('is-current',Number(row.dataset.line)>=start&&Number(row.dataset.line)<=end));v.label.textContent='第 '+start+(start!==end?'–'+end:'')+' 行';const first=root.querySelector('[data-line="'+start+'"]');if(first)v.stage.scrollTop+=first.getBoundingClientRect().top-v.stage.getBoundingClientRect().top-8}
    let active,frame;const track=()=>{frame=0;if(!root.isConnected||v.fig.closest('dialog'))return;const point=v.fig.getBoundingClientRect().bottom+22,chosen=sections.find(s=>{const box=s.getBoundingClientRect();return box.top<=point+35&&box.bottom>point});if(chosen&&chosen!==active){active=chosen;mark(Number(chosen.dataset.start),Number(chosen.dataset.end))}};root.addEventListener('scroll',()=>{if(!frame)frame=requestAnimationFrame(track)},true);document.addEventListener('scroll',()=>{if(root.isConnected&&!frame)frame=requestAnimationFrame(track)},true);
-  }else{const guide=r.guide;section('阅读指引',root).append(p(guide.reading_guide));const list=make('ul',undefined,'lw-media-components');guide.components.forEach(component=>{const item=make('li'),label=make('span');if(component.math_label)math(label,component.label,false);else label.textContent=component.label;item.append(label,document.createTextNode('：'));rich(item,component.explanation);list.append(item)});section('关键组分',root).append(list);const explanation=section('具体讲解',root);guide.explanation.forEach(item=>{if(item.formula){const n=make('div',undefined,'lw-media-math');math(n,item.formula);explanation.append(n)}explanation.append(p(item.text))});section('理解结论',root).append(p(guide.takeaway))}
+  }else{const guide=r.guide;section('阅读指引',root).append(p(guide.reading_guide));const list=make('ul',undefined,'lw-media-components');guide.components.forEach(component=>{const item=make('li'),label=make('span');if(component.math_label){if(window.LessonMath?.mixedLabel(component.label))rich(label,component.label);else label.mediaReady=math(label,component.label,false);}else rich(label,component.label);item.append(label,document.createTextNode('：'));rich(item,component.explanation);list.append(item)});section('关键组分',root).append(list);const explanation=section('具体讲解',root);guide.explanation.forEach(item=>{if(item.formula){const n=make('div',undefined,'lw-media-math');math(n,item.formula);explanation.append(n)}explanation.append(p(item.text))});section('理解结论',root).append(p(guide.takeaway))}
   return root}
  return {render,label:kind=>assetLabel[kind]||'素材'};
 })();
@@ -1214,6 +1238,15 @@ window.LessonMedia=(()=>{
       heading.id=id;return id;
     };
     if(sharedBody){
+      const sourceHeadings=new Map((data?.units||[]).flatMap(unit=>unit.explanation||[]).filter(block=>block.kind==='heading').map(block=>[block.id,block]));
+      const normalized=value=>String(value??'').replace(/\s+/g,' ').trim();
+      for(const paragraph of sharedBody.querySelectorAll('p[data-lw-block]')){
+        const original=sourceHeadings.get(paragraph.dataset.lwBlock);
+        if(!original||normalized(plainHeading(paragraph))!==normalized(original.text))continue;
+        const heading=document.createElement('h4');
+        for(const attribute of paragraph.attributes)heading.setAttribute(attribute.name,attribute.value);
+        heading.append(...paragraph.childNodes);paragraph.replaceWith(heading);
+      }
       const headings=[...sharedBody.querySelectorAll('h2,h3,h4,h5,h6')].filter(heading=>String(plainHeading(heading)||'').trim());
       const counters=Array(6).fill(0);
       const baseLevel=headings.length?Math.min(...headings.map(heading=>Number(heading.tagName.slice(1)))):3;
@@ -1422,7 +1455,7 @@ window.LessonMedia=(()=>{
         }
       }
     }
-    if (!isBook || (window.LESSONWEAVE && !window.LESSONWEAVE.legacy)) return;
+    if (!isBook || (window.LESSONWEAVE && !window.LESSONWEAVE.legacy) || window.LESSONWEAVE?.reader_files?.note_aliases===false) return;
     try {
       const response = await fetch('/05_writing/demo.json', { cache: 'no-store' });
       if (!response.ok) return;
@@ -2078,8 +2111,8 @@ window.LessonMedia=(()=>{
       get('glossary-search').value='';get('glossary-preview-controls').hidden=true;get('source-preview-controls').hidden=true;
       // 仅恢复原始回执中可逐字核对的换行，原始数据、块编号和来源映射保持原样
       try {
-        const restored = await fetch('/05_writing/reader-whitespace.json');
-        if (restored.ok) {
+        const restored = window.LESSONWEAVE?.reader_files?.whitespace===false?null:await fetch('/05_writing/reader-whitespace.json');
+        if (restored?.ok) {
           const overlay=await restored.json();const replacements = overlay.replacements || {};
           if(overlay.reader_repairs_path){const fixed=await fetch(projectPath(overlay.reader_repairs_path));if(fixed.ok)readerRepairs=await fixed.json();}
           const visit = value => {if(Array.isArray(value))value.forEach(visit);else if(value&&typeof value==='object'){

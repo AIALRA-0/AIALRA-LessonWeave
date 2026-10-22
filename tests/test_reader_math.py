@@ -80,6 +80,36 @@ def test_explicit_math_wins_over_identifier_protection_and_code_stays_verbatim(m
     assert result['audit']['errors'] == []
 
 
+@pytest.mark.parametrize('label', [r'$\exists N$ 与 $\forall N$', r'$a_1$ and $b_2$', 'W₀ 与 W₋₁'])
+def test_media_math_labels_keep_separate_formulas_and_the_words_between_them(math_page, label):
+    resources = json.loads((READER.parent/'examples/media/resources.json').read_text('utf-8'))
+    resource = next(row for row in resources if row['kind'] == 'formula')
+    resource['guide']['components'] = [{'label':label, 'math_label':True, 'explanation':'逐个读取两个记号'}]
+    math_page.add_script_tag(url='/reading-icons.js')
+    math_page.add_script_tag(url='/media-renderer.js')
+    result = math_page.evaluate('''async resource=>{
+      const root=document.querySelector('#reading');root.append(LessonMedia.render(resource));
+      await ReaderText.renderIn(root);
+      const label=root.querySelector('.lw-media-components li > span');
+      return {plain:ReaderText.plain(label),formulas:label.querySelectorAll('.katex').length,audit:ReaderText.audit(root)};
+    }''', resource)
+    assert result['plain'] == label and result['formulas'] == 2
+    assert result['audit']['errors'] == []
+    assert math_syntax.check_documents({'reader':resource}) == []
+
+
+def test_marked_math_with_chinese_text_is_not_silently_skipped(math_page):
+    value = r'\(x=1\text{，成立}\)'
+    result = math_page.evaluate('''async text=>{
+      const root=document.querySelector('#reading');root.textContent=text;await ReaderText.renderIn(root);
+      return {plain:ReaderText.plain(root),formulas:root.querySelectorAll('.katex').length,audit:ReaderText.audit(root)};
+    }''', value)
+    assert result['plain'] == value and result['formulas'] == 1
+    assert result['audit']['errors'] == []
+    invalid = r'\(\unknowncommand{x}\text{，条件}\)'
+    assert math_syntax.check_documents({'reader':{'kind':'formula','text':invalid}})
+
+
 def test_syntax_checker_covers_saved_reader_fields_and_only_repairs_valid_proposals():
     invalid = r'\(\unknowncommand{x}\)'
     doc = {'quiz': [{'options': [invalid], 'reference_answer': invalid}],
@@ -139,3 +169,32 @@ def test_prose_math_repair_preserves_display_layout():
     issues = math_syntax.check_documents({'reader': value})
     assert len(issues) == 1
     assert issues[0]['script_value'] == r'计算结果为 \[\texttt{signal\_name}\]'
+
+
+def test_dollar_code_tokens_do_not_swallow_the_prose_between_them(math_page):
+    source = r'进程调用 $finish 结束，另一个进程在 #100_000 后调用 $display 报告结果，读取 ${STATE}，再检查 $set_isolation 的参数；匹配 {^VDD$} 或 {^u_sram.*$}'+'\n    $ git show $commit | awk \'{print $3}\'\n'
+    result = math_page.evaluate('''async text=>{
+      const root=document.querySelector('#reading');root.textContent=text;await ReaderText.renderIn(root);
+      return {plain:ReaderText.plain(root),formulas:root.querySelectorAll('.katex').length,audit:ReaderText.audit(root)};
+    }''', source)
+    assert result['plain'] == source and result['formulas'] == 0
+    assert result['audit']['errors'] == []
+    assert math_syntax.check_documents({'reader':{'definition':source}}) == []
+    assert math_syntax.check_documents({'reader':{'definition':r'读取 $f(x)$、$x_i$ 和 $x + y$'}}) == []
+    normalized=math_page.evaluate("() => [LessonMath.normalize('W₋₁'),LessonMath.normalize(LessonMath.normalize('W₋₁'))]")
+    assert normalized == ['W_{-1}','W_{-1}']
+
+
+def test_display_math_keeps_its_delimiters_when_reading_paragraphs_are_split(math_page):
+    text = '先看这个式子\n\\[\na=b+c\n\\]\n再读下一段'
+    result=math_page.evaluate('''async text=>{
+      const parts=ReaderText.paragraphs(text),root=document.querySelector('#reading');
+      for(const part of parts){const paragraph=document.createElement('p');ReaderText.rich(paragraph,part);root.append(paragraph);}
+      await ReaderText.renderIn(root);
+      return {parts,formulas:root.querySelectorAll('.katex-display').length,audit:ReaderText.audit(root),plain:[...root.children].map(node=>ReaderText.plain(node)).join('\\n')};
+    }''',text)
+    assert result['parts'] == ['先看这个式子','\\[\na=b+c\n\\]','再读下一段']
+    assert result['formulas'] == 1 and result['audit']['errors'] == []
+    assert result['plain'] == text
+    code='```python\nx = 1\ny = 2\n```'
+    assert math_page.evaluate('text=>ReaderText.paragraphs(text)',code) == [code]

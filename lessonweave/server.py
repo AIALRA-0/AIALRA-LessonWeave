@@ -18,7 +18,13 @@ READER = REPO / 'framework/reader'
 
 
 def public_project(project):
-    return {key: value for key, value in project.items() if key != 'path'}
+    return dict({key: value for key, value in project.items() if key != 'path'},
+                reader_files=reader_files(Path(project['path'])))
+
+
+def reader_files(root):
+    return {'whitespace': (root/'05_writing/reader-whitespace.json').is_file(),
+            'note_aliases': (root/'05_writing/demo.json').is_file()}
 
 
 def public_state(state):
@@ -174,7 +180,7 @@ class Handler(SimpleHTTPRequestHandler):
                 from .architecture import EXAMPLE
                 name = route[len('/framework-example/'):]
                 if name == 'book.html':
-                    config = {'project_id':'framework-example','base':'/framework-example','legacy':True}
+                    config = {'project_id':'framework-example','base':'/framework-example','legacy':True,'reader_files':reader_files(EXAMPLE)}
                     html = (READER/'book.html').read_text('utf-8').replace('<head>', '<head><script>window.LESSONWEAVE='+json.dumps(config)+';</script><script src="/reader-mount.js"></script>')
                     self.file(Path(name), html.encode('utf-8'), 'text/html')
                 else:
@@ -243,7 +249,7 @@ class Handler(SimpleHTTPRequestHandler):
                         return
                     html = (READER/'book.html').read_text('utf-8')
                     from .readweave import current,configured as shared_configured
-                    config = {'project_id': parts[2], 'base': '/p/'+parts[2], 'legacy': bool(project['legacy']),'readweave_shared':shared_configured() and bool(current(root).get('edition_id'))}
+                    config = {'project_id': parts[2], 'base': '/p/'+parts[2], 'legacy': bool(project['legacy']),'readweave_shared':shared_configured() and bool(current(root).get('edition_id')),'reader_files':reader_files(root)}
                     html = html.replace('<head>', '<head><script>window.LESSONWEAVE='+json.dumps(config)+';</script><script src="/reader-mount.js"></script>')
                     if name=='book.html':
                         html = html.replace('</body>', '<script src="/shared-reader-entry.js"></script></body>')

@@ -1,0 +1,84 @@
+diff --git a/apps/server/src/services/readweave_repository.ts b/apps/server/src/services/readweave_repository.ts
+--- a/apps/server/src/services/readweave_repository.ts
++++ b/apps/server/src/services/readweave_repository.ts
+@@ -930,7 +930,14 @@
+     const articleId = articleIdValue === undefined ? undefined : requireReadableArticle(articleIdValue);
+     const links = listReadWeaveLinks().filter(link => !articleId || link.articleId === articleId).toSorted((a, b) => a.linkId.localeCompare(b.linkId));
+     const objectIds = new Set(links.map(link => link.objectId));
+-    const objects = listReadWeaveObjects().filter(object => objectIds.has(object.objectId)).toSorted((a, b) => a.objectId.localeCompare(b.objectId));
++    const objects = listChildNotes(OBJECTS_ROOT_ID).filter(note => objectIds.has(note.noteId)).flatMap(note => {
++        try {
++            const object = parseObject(note);
++            return object ? [ object ] : [];
++        } catch {
++            return [];
++        }
++    }).toSorted((a, b) => a.objectId.localeCompare(b.objectId));
+     const articleIds = articleId ? [ articleId ] : Array.from(new Set(links.map(link => link.articleId))).toSorted();
+     const articles = articleIds.flatMap(currentArticleId => {
+         const article = becca.getNote(currentArticleId);
+diff --git a/apps/server/src/services/readweave_export.spec.ts b/apps/server/src/services/readweave_export.spec.ts
+new file mode 100644
+--- /dev/null
++++ b/apps/server/src/services/readweave_export.spec.ts
+@@ -0,0 +1,60 @@
++import { becca, cls, hidden_subtree as hiddenSubtreeService, note_service as noteService } from "@triliumnext/core";
++import { beforeAll, describe, expect, it, vi } from "vitest";
++
++import { exportReadWeave, getReadWeaveObject, saveReadWeaveEntry } from "./readweave_repository.js";
++import sqlInit from "./sql_init.js";
++
++describe("ReadWeave scoped export reads", () => {
++    beforeAll(async () => {
++        sqlInit.initializeDb();
++        await sqlInit.dbReady;
++        cls.init(() => hiddenSubtreeService.checkHiddenSubtree());
++    });
++
++    it.each(["article", "all"] as const)("keeps the %s export unchanged without reading unrelated object bodies", scope => {
++        cls.init(() => {
++            const article = noteService.createNewNote({ parentNoteId: "root", title: "Scoped export fixture", type: "text", mime: "text/html", content: "<p>Source.</p>" }).note;
++            const saved = ["first", "second"].map(anchorId => saveReadWeaveEntry({
++                articleId: article.noteId, anchorId, anchorType: "paragraph", kind: "question", contentType: "note", origin: "manual",
++                title: "Scoped fixture " + anchorId, body: "Saved fixture body " + anchorId, sourceExcerpt: "Source.", calloutType: "note"
++            }));
++            const exportCurrent = () => exportReadWeave(scope === "article" ? article.noteId : undefined);
++            const before = exportCurrent();
++            const template = getReadWeaveObject(saved[0].objectId);
++            const unrelated = Array.from({ length: 64 }, (_, index) => {
++                const note = noteService.createNewNote({ parentNoteId: "_readweaveObjects", title: "Unrelated export fixture " + index, type: "code", mime: "application/json", content: "{}" }).note;
++                note.setJsonContent({ ...template, objectId: note.noteId, title: note.title, body: "Unrelated payload. ".repeat(512) });
++                return vi.spyOn(note, "getJsonContentSafely");
++            });
++            const linked = saved.map(entry => vi.spyOn(becca.getNoteOrThrow(entry.objectId), "getJsonContentSafely"));
++            try {
++                const after = exportCurrent();
++                for (const key of ["scope", "articles", "anchors", "objects", "links", "integrity"] as const) expect(after[key]).toEqual(before[key]);
++                expect(unrelated.map(read => read.mock.calls.length)).toEqual(Array(64).fill(0));
++                expect(linked.map(read => read.mock.calls.length)).toEqual([1, 1]);
++            } finally {
++                for (const read of [...unrelated, ...linked]) read.mockRestore();
++            }
++        });
++    });
++
++    it("still skips malformed and unavailable linked objects", () => {
++        cls.init(() => {
++            const article = noteService.createNewNote({ parentNoteId: "root", title: "Unavailable export fixture", type: "text", mime: "text/html", content: "<p>Source.</p>" }).note;
++            const saved = ["valid", "malformed", "unavailable"].map(anchorId => saveReadWeaveEntry({
++                articleId: article.noteId, anchorId, anchorType: "paragraph", kind: "question", contentType: "note", origin: "manual",
++                title: "Unavailable fixture " + anchorId, body: "Fixture body " + anchorId, sourceExcerpt: "Source.", calloutType: "note"
++            }));
++            becca.getNoteOrThrow(saved[1].objectId).setJsonContent({ schemaVersion: "unrecognized" });
++            const available = vi.spyOn(becca.getNoteOrThrow(saved[2].objectId), "isContentAvailable").mockReturnValue(false);
++            try {
++                const exported = exportReadWeave(article.noteId);
++                expect(exported.objects.map(object => object.objectId)).toEqual([saved[0].objectId]);
++                expect(exported.links).toHaveLength(3);
++                expect(exported.integrity).toMatchObject({ valid: false, objectCount: 1, linkCount: 3 });
++            } finally {
++                available.mockRestore();
++            }
++        });
++    });
++});

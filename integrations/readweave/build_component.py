@@ -27,7 +27,7 @@ export function mountReader(container, options) {
   const native=globalThis.window;
   const tracked=kind=>class extends native[kind] {constructor(...args){super(...args);observers.add(this)}disconnect(){super.disconnect();observers.delete(this)}};
   const MutationObserver=tracked('MutationObserver'), ResizeObserver=tracked('ResizeObserver'), IntersectionObserver=tracked('IntersectionObserver');
-  const config={project_id:options.projectId,base:options.base,legacy:!!options.legacy,sidebarWidth:options.sidebarWidth};
+  const config={project_id:options.projectId,base:options.base,legacy:!!options.legacy,reader_files:options.readerFiles,sidebarWidth:options.sidebarWidth};
   const path=value=>{let text=String(value||'');const resolved=options.resolveResource?.(text);if(resolved)return resolved;if(/^(https?:|data:|blob:|#)/.test(text))return text;if(text.startsWith(config.base+'/'))return text;return config.base+'/'+text.replace(/^\\/+/,'')};
   const fetch=(value, init)=>value==='/design-tokens.json'?Promise.resolve(new Response(JSON.stringify(DESIGN_TOKENS),{headers:{'Content-Type':'application/json'}})):options.fetch?options.fetch(value,init):native.fetch(typeof value==='string'&&/^\\/(0[0-5]_)/.test(value)?path(value):value,init);
   const location={pathname:'readweave/book.html',search:options.search??'?preview=true',hash:'',get href(){return native.location.origin+config.base+'/book.html'+this.search},set href(value){options.onNavigate?.(new URL(value,native.location.href).search)}};

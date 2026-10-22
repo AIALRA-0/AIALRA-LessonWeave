@@ -40,7 +40,7 @@ window.ReaderText = (() => {
       const raw = text.slice(part.start,part.end);
       if (part.kind === 'code') {
         const code=document.createElement('code');code.textContent=raw.replace(/^(`{3,}|~{3,})[^\n]*\n|(?:`{3,}|~{3,})$/g,'').replace(/^`+|`+$/g,'');node.append(code);
-      } else if (/[\u4e00-\u9fff]/.test(part.source.replace(/\\(?:text|mathrm)\{[^}]*\}/g,''))) {
+      } else if (!part.declared&&/[\u4e00-\u9fff]/.test(part.source.replace(/\\(?:text|mathrm)\{[^}]*\}/g,''))) {
         node.append(document.createTextNode(raw));
       } else {
         const span=document.createElement('span');span.className='reader-math';span.dataset.mathRaw=raw;span.textContent=raw;node.append(span);
@@ -88,12 +88,28 @@ window.ReaderText = (() => {
   }
   // 已有分号和句末标点提供安全断点，显示拆段时保留每个原字符
   function paragraphs(text) {
-    const pieces = String(text ?? '').split(/\r\n|[\n\r\u2028\u2029]/);
+    const source=String(text??'');
+    const protectedRanges=value=>{
+      const parsed=window.LessonMath.scan(value);
+      return [...parsed.matches.filter(part=>part.declared),...parsed.protected.filter(part=>part.code)].sort((a,b)=>a.start-b.start);
+    };
+    // 完整公式和代码中的换行继续留在原片段里，不能先拆成不成对的标记
+    const ranges=protectedRanges(source),pieces=[];let at=0,rangeIndex=0;
+    for(let i=0;i<source.length;i++){
+      while(ranges[rangeIndex]?.end<=i)rangeIndex++;
+      if(ranges[rangeIndex]?.start<=i)continue;
+      if(/[\n\r\u2028\u2029]/.test(source[i])){
+        pieces.push(source.slice(at,i));if(source[i]==='\r'&&source[i+1]==='\n')i++;at=i+1;
+      }
+    }
+    pieces.push(source.slice(at));
     return pieces.flatMap(part => {
       if (part.length < 300) return [part];
-      const result = []; let start = 0;
-      for (let i = 0; i < part.length; i++) if (i-start >= 180 && /[；。]/.test(part[i])) {
-        result.push(part.slice(start,i+1)); start=i+1;
+      const result = [],protectedParts=protectedRanges(part);let start=0,index=0;
+      for (let i = 0; i < part.length; i++) {
+        while(protectedParts[index]?.end<=i)index++;
+        if(protectedParts[index]?.start<=i)continue;
+        if(i-start>=180&&/[；。]/.test(part[i])){result.push(part.slice(start,i+1));start=i+1;}
       }
       if (start < part.length) result.push(part.slice(start));
       return result;

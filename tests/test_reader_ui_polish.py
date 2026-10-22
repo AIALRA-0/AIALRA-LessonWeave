@@ -18,7 +18,7 @@ def test_shared_body_outline_rebuilds_from_current_headings_without_rewriting_co
       <h2 id="saved-heading" data-plain="共享标题"><span class="reader-math"><span class="katex"><span class="katex-mathml">共享标题</span><span class="katex-html">共享标题 x</span></span></span></h2>
       <h3 data-plain="子标题"><span class="reader-math"><span class="katex"><span class="katex-mathml">子标题</span><span class="katex-html">子标题 y</span></span></span></h3>
     </article></main>"""
-    helpers = """const get=id=>document.getElementById(id);
+    helpers = """const data={units:[]};const get=id=>document.getElementById(id);
     const make=(tag,text,cls)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(cls)node.className=cls;return node;};
     const openPane=()=>{};
     window.ReaderText={plain:node=>node.dataset.plain||node.textContent};
@@ -69,6 +69,50 @@ def test_shared_body_outline_rebuilds_from_current_headings_without_rewriting_co
     assert result["assigned"] == "shared-heading-002"
     assert result["hasPrefix"] == "1.1"
     assert result["after"] == result["before"]
+
+
+def test_legacy_shared_heading_keeps_its_text_number_and_anchors_in_the_outline():
+    source = (ROOT / "framework/reader/writing-demo.js").read_text(encoding="utf-8")
+    start = source.index("  function renderOutline() {")
+    outline = source[start:source.index("\n  async function loadGrounding() {", start)]
+    html = '''<aside id="demo-directory"><nav id="demo-outline"></nav></aside>
+    <article id="demo-content" class="lw-shared-body"><h2>内容讲解</h2>
+    <p id="kept-anchor" data-lw-block="saved-heading">1.1.1.2. <em>当前讲解标题</em></p>
+    <p data-lw-block="edited-heading">读者已改成自己的文字</p>
+    <p data-lw-block="ordinary">1.2. 这仍然是正文</p></article>'''
+    helpers = '''const data={units:[{explanation:[{id:'saved-heading',kind:'heading',text:'1.1.1.2. 当前讲解标题'},
+      {id:'edited-heading',kind:'heading',text:'原来的标题'},{id:'ordinary',kind:'paragraph',text:'1.2. 这仍然是正文'}]}]};
+    const get=id=>document.getElementById(id),openPane=()=>{};
+    const make=(tag,text,cls)=>{const node=document.createElement(tag);node.textContent=text;node.className=cls;return node;};
+    ''' + outline + '\nwindow.runOutline=renderOutline;'
+    with sync_playwright() as runtime:
+        browser = runtime.chromium.launch()
+        page = browser.new_page()
+        page.set_content(html)
+        page.add_script_tag(content=helpers)
+        result = page.evaluate('''()=>{
+          const body=document.querySelector('#demo-content'),before=body.textContent,em=body.querySelector('em');
+          runOutline();runOutline();
+          const entry=[...document.querySelectorAll('#demo-outline button')].find(n=>n.textContent==='1.1.1.2. 当前讲解标题');
+          let clicked;Element.prototype.scrollIntoView=function(){clicked=this.id;};entry?.click();
+          return {sameText:before===body.textContent,sameEm:em===body.querySelector('em'),tag:document.querySelector('#kept-anchor').tagName,
+            clicked,entries:[...document.querySelectorAll('#demo-outline button')].map(n=>n.textContent),
+            protectedParagraphs:body.querySelectorAll('p').length};
+        }''')
+        browser.close()
+    assert result['sameText'] and result['sameEm']
+    assert result['tag'] == 'H4' and result['clicked'] == 'kept-anchor'
+    assert result['entries'].count('1.1.1.2. 当前讲解标题') == 1
+    assert result['protectedParagraphs'] == 2
+
+
+def test_new_shared_heading_is_serialized_as_a_heading_without_changing_text():
+    from lessonweave.trilium import block_html
+    from bs4 import BeautifulSoup
+    value = {'kind':'heading','id':'shared-heading','text':'1.1.1.2. 保留 x < y 的条件'}
+    heading = BeautifulSoup(block_html(value), 'html.parser').find('h4')
+    assert heading is not None and heading['data-lw-block'] == value['id']
+    assert heading.get_text() == value['text']
 
 
 def test_reader_startup_theme_toolbar_and_glossary_controls_have_one_clear_state():

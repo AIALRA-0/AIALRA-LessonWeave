@@ -44,6 +44,8 @@ ReadWeave 由独立源码包和 Docker 数据卷运行；部署器不会调用�
 python deploy/bootstrap.py --readweave-source ./readweave-source.tar.gz --readweave-port 18961
 ```
 
+本仓库随附 `integrations/readweave/patches/scoped-export.patch`，安装器先核对上述源码包，再应用补丁后构建；补丁让文章导出只读取当前文章关联的对象，保留原来的返回内容和生成 harness；本地部署还需安装 Git，VPS 安装脚本会自动安装
+
 安装器会校验归档中的桥接文件，使用 Docker 构建 ReadWeave，并把原生数据保存在独立的 `lessonweave-readweave-data` 数据卷；服务只映射到 `127.0.0.1:18961`；健康检查通过后，安装器会把本机网址写入未跟踪的 `.env`，但会让 LessonWeave 桥接保持关闭
 
 浏览器打开 ReadWeave 根页面 `http://127.0.0.1:18961/`，按单页应用显示的首次引导步骤创建账号和初始数据。`/bootstrap` 是用于检查启动状态的接口，首次设置前应返回 `dbInitialized=false`；不要把它当作设置页面直接打开。登录后在 ReadWeave 中创建 ETAPI token；部署器不会代替用户登录，也不会重置已有账号、令牌或库内容

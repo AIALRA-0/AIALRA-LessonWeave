@@ -185,6 +185,8 @@ def block_html(block):
     if isinstance(block,str):
         return '<p>'+html.escape(block)+'</p>'
     kind=block.get('kind')
+    if kind=='heading':
+        return '<h4 data-lw-block="'+html.escape(block.get('id',''))+'">'+html.escape(block.get('text',''))+'</h4>'
     if kind=='image':
         return '<figure><img data-resource="'+html.escape(block.get('asset',''))+'"><figcaption>'+html.escape(block.get('caption',''))+'</figcaption></figure>'
     if kind=='list':

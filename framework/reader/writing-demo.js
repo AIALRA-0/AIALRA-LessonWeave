@@ -657,6 +657,15 @@
       heading.id=id;return id;
     };
     if(sharedBody){
+      const sourceHeadings=new Map((data?.units||[]).flatMap(unit=>unit.explanation||[]).filter(block=>block.kind==='heading').map(block=>[block.id,block]));
+      const normalized=value=>String(value??'').replace(/\s+/g,' ').trim();
+      for(const paragraph of sharedBody.querySelectorAll('p[data-lw-block]')){
+        const original=sourceHeadings.get(paragraph.dataset.lwBlock);
+        if(!original||normalized(plainHeading(paragraph))!==normalized(original.text))continue;
+        const heading=document.createElement('h4');
+        for(const attribute of paragraph.attributes)heading.setAttribute(attribute.name,attribute.value);
+        heading.append(...paragraph.childNodes);paragraph.replaceWith(heading);
+      }
       const headings=[...sharedBody.querySelectorAll('h2,h3,h4,h5,h6')].filter(heading=>String(plainHeading(heading)||'').trim());
       const counters=Array(6).fill(0);
       const baseLevel=headings.length?Math.min(...headings.map(heading=>Number(heading.tagName.slice(1)))):3;
@@ -865,7 +874,7 @@
         }
       }
     }
-    if (!isBook || (window.LESSONWEAVE && !window.LESSONWEAVE.legacy)) return;
+    if (!isBook || (window.LESSONWEAVE && !window.LESSONWEAVE.legacy) || window.LESSONWEAVE?.reader_files?.note_aliases===false) return;
     try {
       const response = await fetch('/05_writing/demo.json', { cache: 'no-store' });
       if (!response.ok) return;
@@ -1521,8 +1530,8 @@
       get('glossary-search').value='';get('glossary-preview-controls').hidden=true;get('source-preview-controls').hidden=true;
       // 仅恢复原始回执中可逐字核对的换行，原始数据、块编号和来源映射保持原样
       try {
-        const restored = await fetch('/05_writing/reader-whitespace.json');
-        if (restored.ok) {
+        const restored = window.LESSONWEAVE?.reader_files?.whitespace===false?null:await fetch('/05_writing/reader-whitespace.json');
+        if (restored?.ok) {
           const overlay=await restored.json();const replacements = overlay.replacements || {};
           if(overlay.reader_repairs_path){const fixed=await fetch(projectPath(overlay.reader_repairs_path));if(fixed.ok)readerRepairs=await fixed.json();}
           const visit = value => {if(Array.isArray(value))value.forEach(visit);else if(value&&typeof value==='object'){

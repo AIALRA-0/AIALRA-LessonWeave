@@ -12,10 +12,10 @@
   const sub = '(?:' + group + '|' + letter + '[A-Za-z0-9\u0370-\u03ff]*|[0-9]+)';
   const command = '\\\\[A-Za-z]+(?:\\[[^\\]\\n]*\\])?(?:' + group + ')*';
   const base = '(?:' + command + '|' + group + '|' + par + '|[0-9]+(?:\\.[0-9]+)?|(?:id|dim|rank|ker|det|sin|cos|tan|log|ln|lim)(?![A-Za-z])|' + letter + '(?![A-Za-z\u0370-\u03ff]))';
-  const atom = base + '(?:[_^]' + sub + '|[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ₀₁₂₃₄₅₆₇₈₉]+)*(?:' + par + ')?!?';
+  const atom = base + '(?:[_^]' + sub + '|[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ₀₁₂₃₄₅₆₇₈₉₋₊]+)*(?:' + par + ')?!?';
   const op = '(?:<=|>=|!=|:=|[=+*/×÷−≤≥≈≠<>∘∈∉⊂⊆⊃⊇∩∪→↦←↔≃≅≡]|-(?=[^A-Za-z]|' + letter + '(?![A-Za-z]))|\\\\(?:circ|times|cdot|div|leq?|geq?|approx|neq?|in|notin|to|mapsto|subseteq?|supseteq?|cap|cup|cong|simeq)\\b)';
-  const expression = new RegExp('(?<![A-Za-z0-9_/:.\\\\])(?:' + atom + '(?:[ \\t]*' + op + '[ \\t]*' + atom + ')+|' + command + '(?:[_^]' + sub + ')*|' + letter + '(?:[_^]' + sub + '|[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ₀₁₂₃₄₅₆₇₈₉]+)(?:' + par + ')?|[0-9]+!(?!=|[A-Za-z0-9_]))(?![A-Za-z0-9_/:.])', 'g');
-  const explicit = /\$\$([\s\S]+?)\$\$|(?<![\\$])\$(?!\$)([^$\n]+?)\$(?!\$)|(?<!\\)(\\{1,2})\(([\s\S]+?)\3\)|(?<!\\)(\\{1,2})\[([\s\S]+?)\5\]|\\begin\{(equation\*?|align\*?|aligned|alignedat|gather\*?|gathered|multline\*?|split|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|cases|array)\}[\s\S]*?\\end\{\7\}/g;
+  const expression = new RegExp('(?<![A-Za-z0-9_/:.\\\\])(?:' + atom + '(?:[ \\t]*' + op + '[ \\t]*' + atom + ')+|' + command + '(?:[_^]' + sub + ')*|' + letter + '(?:[_^]' + sub + '|[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ₀₁₂₃₄₅₆₇₈₉₋₊]+)(?:' + par + ')?|[0-9]+!(?!=|[A-Za-z0-9_]))(?![A-Za-z0-9_/:.])', 'g');
+  const explicit = /\$\$([\s\S]+?)\$\$|(?<![\\$])\$(?!\$)([^$\n]+?)\$(?![$A-Za-z_])|(?<!\\)(\\{1,2})\(([\s\S]+?)\3\)|(?<!\\)(\\{1,2})\[([\s\S]+?)\5\]|\\begin\{(equation\*?|align\*?|aligned|alignedat|gather\*?|gathered|multline\*?|split|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|cases|array)\}[\s\S]*?\\end\{\7\}/g;
   const protectedText = /(`{3,}|~{3,})[^\n]*\n[\s\S]*?\1|(`+)(?!`)[\s\S]*?\2(?!`)|https?:\/\/[^\s<>]+|\b[A-Za-z]:[\\/][^\s<>]+|(?:^|\s)(?:\.{0,2}\/)[\w./-]+|\$\{[^}]+\}|\$(?:past|stable|rose|fell|isunknown|clog2)\b|\$[A-Z_]{2,}[A-Z0-9_]*(?![A-Za-z0-9_$=+*/^<>-])|(?<!\\)\$\d+(?:\.\d+)?(?=[\s，,；;]|$)|\b[\w-]+\.(?:py|v|sv|js|ts|json|md|pdf|png|jpr|cpp|h|html|css)\b/g;
   const unicode = { '∘': '\\circ ', '→': '\\to ', '↦': '\\mapsto ', '←': '\\leftarrow ', '↔': '\\leftrightarrow ', '∈': '\\in ', '∉': '\\notin ', '⊂': '\\subset ', '⊆': '\\subseteq ', '⊃': '\\supset ', '⊇': '\\supseteq ', '∩': '\\cap ', '∪': '\\cup ', '−': '-', '≤': '\\leq ', '≥': '\\geq ', '≠': '\\neq ', '≈': '\\approx ', '×': '\\times ', '÷': '\\div ', '≃': '\\simeq ', '≅': '\\cong ', '≡': '\\equiv ' };
   const superscripts={'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁻':'-','⁺':'+','ᵃ':'a','ᵇ':'b','ᶜ':'c','ᵈ':'d','ᵉ':'e','ᶠ':'f','ᵍ':'g','ʰ':'h','ⁱ':'i','ʲ':'j','ᵏ':'k','ˡ':'l','ᵐ':'m','ⁿ':'n','ᵒ':'o','ᵖ':'p','ʳ':'r','ˢ':'s','ᵗ':'t','ᵘ':'u','ᵛ':'v','ʷ':'w','ˣ':'x','ʸ':'y','ᶻ':'z'};
@@ -27,8 +27,12 @@
     return text.split(/(\\(?:text|texttt|textrm|mathrm|operatorname)\{[^{}]*\})/g).map((part, index) => index % 2 ? part : part
       .replace(/[∘→↦←↔∈∉⊂⊆⊃⊇∩∪−≤≥≠≈×÷≃≅≡]/g, char => unicode[char])
       .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ]+/g, value => '^{'+[...value].map(char => superscripts[char]).join('')+'}')
-      .replace(/[₀₁₂₃₄₅₆₇₈₉]+/g, value => '_{'+[...value].map(char=>'₀₁₂₃₄₅₆₇₈₉'.indexOf(char)).join('')+'}')
+      .replace(/[₀₁₂₃₄₅₆₇₈₉₋₊]+/g, value => '_{'+[...value].map(char=>char==='₋'?'-':char==='₊'?'+':'₀₁₂₃₄₅₆₇₈₉'.indexOf(char)).join('')+'}')
       .replace(/(?<![A-Za-z0-9_^\\{])id(?=[_^])/g, '\\operatorname{id}')).join('');
+  }
+  function mixedLabel(value) {
+    const text=String(value??'');
+    return scan(text).matches.some(match=>match.declared)||/[\u4e00-\u9fff]/.test(text.replace(/\\(?:text|texttt|textrm|mathrm|operatorname)\{[^{}]*\}/g,''));
   }
   function isCode(value) {
     const layout=/\\begin\{(?:align|array|[pPbBvV]?matrix|cases|gather|split|multline)/.test(value);
@@ -60,6 +64,10 @@
     const text = String(value ?? ''), found = [], protectedSpans = [];
     const overlaps = (start, end, rows) => rows.some(row => start < row.end && end > row.start);
     for (const match of text.matchAll(protectedText)) protectedSpans.push({ start: match.index, end: match.index + match[0].length, code: /^[`~]/.test(match[0]) });
+    // 花括号里的首尾锚点属于正则表达式，美元符号不参与公式配对
+    for (const match of text.matchAll(/\{\^[^{}\n]*\$\}/g)) protectedSpans.push({start:match.index,end:match.index+match[0].length,code:false});
+    // 命令提示符所在的整行作为代码保留，行尾闭合的美元公式继续按公式读取
+    for(const match of text.matchAll(/(?:^|\n)[ \t]*\$[ \t]+[A-Za-z][\w.-]*[ \t]+[^\n]+/g))if(!match[0].trimEnd().endsWith('$'))protectedSpans.push({start:match.index,end:match.index+match[0].length,code:false});
     const add = (start, end, source, display = false, declared = false) => {
       if (!overlaps(start, end, protectedSpans) && !overlaps(start, end, found)) found.push({ start, end, source: normalize(source), display, declared });
     };
@@ -81,5 +89,5 @@
     }
     return { matches: found.sort((a, b) => a.start - b.start), protected: protectedSpans };
   }
-  return { normalize, declarations, symbols, scan, prepare, isCode };
+  return { normalize, declarations, symbols, scan, prepare, isCode, mixedLabel };
 });

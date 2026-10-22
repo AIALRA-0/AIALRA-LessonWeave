@@ -31,7 +31,7 @@ CONTAINER_NAME = "lessonweave-readweave"
 VOLUME_NAME = "lessonweave-readweave-data"
 VOLUME_LABEL = "lessonweave.readweave=1"
 CONTAINER_LABEL = "lessonweave.readweave=1"
-IMAGE_BUILD_REVISION = "1"
+IMAGE_BUILD_REVISION = "2"
 CONTAINER_DATA_DIR = "/home/node/trilium-data"
 CONTAINER_PORT = 8080
 SOURCE_ROOT_NAME = "readweave-source"
@@ -141,6 +141,19 @@ def verify_source_manifest(archive: tarfile.TarFile, members: list[tarfile.TarIn
         if digest.hexdigest() != entry["sha256"]:
             raise SystemExit(f"ReadWeave 源码文件哈希与清单不一致：{relative}")
     return manifest
+
+
+def apply_source_patch(source_root: Path, patch_path: Path) -> None:
+    """保留已发布的源码包，在构建前应用本仓库随附的读取修复"""
+    try:
+        result = subprocess.run(
+            ["git", "apply", "--whitespace=nowarn", str(patch_path.resolve())],
+            cwd=source_root, capture_output=True, text=True,
+        )
+    except FileNotFoundError as error:
+        raise SystemExit("请先安装 Git，部署器需要它应用仓库随附的 ReadWeave 源码修复") from error
+    if result.returncode:
+        raise SystemExit("ReadWeave 源码与仓库随附的读取修复不匹配，尚未构建或更改笔记库\n" + result.stderr.strip())
 
 
 def selected_pair(config: dict[str, str]) -> tuple[str, str]:
@@ -610,9 +623,12 @@ def deploy_new(args: argparse.Namespace, root: Path, env_path: Path, config: dic
 
     source_path = Path(source_value).expanduser().resolve()
     manifest_path = root / "integrations" / "readweave" / "backend-source-manifest.json"
+    patch_path = root / "integrations" / "readweave" / "patches" / "scoped-export.patch"
     if args.dry_run:
         with tempfile.TemporaryDirectory(prefix="lessonweave-readweave-check-") as temporary:
-            source_hash, _ = validate_archive(source_path, manifest_path, Path(temporary))
+            source_hash, source_root = validate_archive(source_path, manifest_path, Path(temporary))
+            assert source_root is not None
+            apply_source_patch(source_root, patch_path)
         print(f"dry-run：将从公开源码快照构建独立 ReadWeave 镜像（归档 SHA-256 {source_hash[:12]}），绑定 127.0.0.1:{args.port}，使用独立 Docker 数据卷；不会运行 Docker 或改写配置")
         return 0
     if not shutil.which("docker"):
@@ -620,6 +636,7 @@ def deploy_new(args: argparse.Namespace, root: Path, env_path: Path, config: dic
     with tempfile.TemporaryDirectory(prefix="lessonweave-readweave-") as temporary:
         source_hash, source_root = validate_archive(source_path, manifest_path, Path(temporary))
         assert source_root is not None
+        apply_source_patch(source_root, patch_path)
         base_url = build_and_start(source_root, source_hash, args.port)
     write_env_file(env_path, updates_for_pending_setup(base_url))
     print(f"独立 ReadWeave 已通过 /api/health-check，且只监听 {base_url}")

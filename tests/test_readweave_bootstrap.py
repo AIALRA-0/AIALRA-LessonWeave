@@ -2,10 +2,35 @@ import importlib.util
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 BOOTSTRAP_PATH = Path(__file__).resolve().parents[1] / "deploy" / "readweave_bootstrap.py"
 BOOTSTRAP_SPEC = importlib.util.spec_from_file_location("readweave_bootstrap", BOOTSTRAP_PATH)
 readweave_bootstrap = importlib.util.module_from_spec(BOOTSTRAP_SPEC)
 BOOTSTRAP_SPEC.loader.exec_module(readweave_bootstrap)
+
+
+def test_source_patch_applies_in_unpacked_source_and_keeps_other_files(tmp_path):
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / "reader.ts").write_text("old\n", encoding="utf-8")
+    (source / "notes.txt").write_text("keep\n", encoding="utf-8")
+    patch = tmp_path / "reader.patch"
+    patch.write_text("--- a/reader.ts\n+++ b/reader.ts\n@@ -1 +1 @@\n-old\n+new\n", encoding="utf-8")
+    readweave_bootstrap.apply_source_patch(source, patch)
+    assert (source / "reader.ts").read_text() == "new\n"
+    assert (source / "notes.txt").read_text() == "keep\n"
+
+
+def test_source_patch_mismatch_does_not_change_unpacked_files(tmp_path):
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / "reader.ts").write_text("different\n", encoding="utf-8")
+    patch = tmp_path / "reader.patch"
+    patch.write_text("--- a/reader.ts\n+++ b/reader.ts\n@@ -1 +1 @@\n-old\n+new\n", encoding="utf-8")
+    with pytest.raises(SystemExit, match="尚未构建或更改笔记库"):
+        readweave_bootstrap.apply_source_patch(source, patch)
+    assert (source / "reader.ts").read_text() == "different\n"
 
 
 def test_build_uses_absolute_dockerfile_from_unpacked_source(tmp_path, monkeypatch):

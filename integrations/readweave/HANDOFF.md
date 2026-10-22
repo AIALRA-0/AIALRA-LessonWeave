@@ -55,7 +55,7 @@ LessonWeave 的 `/p/<项目>/readweave.html` 路由会转到同一项目的 `boo
 
 ## 怎样构建公开源码包
 
-当前分支使用[阅读修复版源码包](https://github.com/AIALRA-0/AIALRA-LessonWeave/releases/download/v0.2.0/readweave-source-reader-followup-20261022.tar.gz)，SHA-256 为 `560945276b663e2038b48301eca8975fc4430051ad0bab712f8e758f064ad23a`，包含 34 项桥接覆盖与 2,731 个源文件；旧源码包和公开案例包仍保留在 [v0.2.0 版本页面](https://github.com/AIALRA-0/AIALRA-LessonWeave/releases/tag/v0.2.0)，供对应旧提交使用。解包后，复核源码可以运行：
+当前分支使用[阅读修复版源码包](https://github.com/AIALRA-0/AIALRA-LessonWeave/releases/download/v0.2.0/readweave-source-reader-followup-20261022.tar.gz)，SHA-256 为 `560945276b663e2038b48301eca8975fc4430051ad0bab712f8e758f064ad23a`，包含 34 项桥接覆盖与 2,731 个源文件；旧源码包和公开案例包仍保留在 [v0.2.0 版本页面](https://github.com/AIALRA-0/AIALRA-LessonWeave/releases/tag/v0.2.0)，供对应旧提交使用。当前安装器核对归档后，还会应用仓库自带的 `patches/scoped-export.patch`，让文章导出只读取该篇关联的对象；手动构建时也应先用 Git 应用这份补丁，再运行下列命令
 
 ```bash
 corepack pnpm install --frozen-lockfile --ignore-scripts

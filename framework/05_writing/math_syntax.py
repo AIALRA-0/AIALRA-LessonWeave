@@ -49,7 +49,8 @@ def check_documents(documents):
         for trail, text in explicit.items():
             path = rules.pointer(trail)
             originals[document, path] = text
-            rows.append({'document': document, 'path': path, 'math': text, 'start': 0, 'end': len(text)})
+            rows.append({'document': document, 'path': path, 'math': text, 'start': 0, 'end': len(text),
+                         'inline_math_label': bool(trail and trail[-1] == 'label')})
         for trail, text in readable(value):
             if trail in explicit:continue
             path = rules.pointer(trail)

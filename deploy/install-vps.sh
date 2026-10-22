@@ -30,7 +30,7 @@ cd "$(dirname "$0")/.."
 root="$(pwd)"
 if [ "$(id -u)" -ne 0 ]; then echo '请使用 sudo bash deploy/install-vps.sh'; exit 1; fi
 apt-get update
-apt-get install -y python3 python3-venv nodejs npm docker.io
+apt-get install -y python3 python3-venv nodejs npm docker.io git
 if [ "$(node -p 'Number(process.versions.node.split(".")[0])')" -lt 20 ]; then
   # 发行版自带 Node 太旧时，从官方镜像安装同一长期维护系列
   python3 - <<'PY'
