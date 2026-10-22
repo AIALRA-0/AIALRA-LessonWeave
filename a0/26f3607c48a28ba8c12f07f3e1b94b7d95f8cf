@@ -1,0 +1,71 @@
+framework/reader/math-text.js
+  s_bd317cec756d17::t_98f70a925a4c48 15,17-18,30,33-36,67-68,92
+  s_bd317cec756d17::t_81c40412ab78b6 69-70
+tests/test_reader_ui_polish.py
+  s_bd317cec756d17::t_b47594afe7bcdb 21,74-115
+  s_bd317cec756d17::t_0f4722b42a380a 116-117
+deploy/install-vps.sh
+  s_bd317cec756d17::t_f82bfbb9bb5707 33
+framework/reader/reader-text.js
+  s_bd317cec756d17::t_06d720d553ca7e 91-105,108-112
+  s_bd317cec756d17::t_e9558f99aff75e 43
+tests/test_reader_math.py
+  s_bd317cec756d17::t_01025237c8e164 83,172-174,176-185
+  s_bd317cec756d17::t_20f66d50a13f91 175
+  s_bd317cec756d17::t_f674981aa33fad 84-112
+  s_bd317cec756d17::t_2ea826dc17602f 186-200
+framework/05_writing/math_syntax.py
+  s_bd317cec756d17::t_e9558f99aff75e 52-53
+integrations/readweave/HANDOFF.md
+  s_bd317cec756d17::t_fd44cc9f39f745 58
+tests/test_readweave_bootstrap.py
+  s_bd317cec756d17::t_f82bfbb9bb5707 5-6,13-33
+  s_bd317cec756d17::t_a72c32b6dd21db 34-35
+framework/05_writing/math_syntax.cjs
+  s_bd317cec756d17::t_e9558f99aff75e 8-14
+framework/reader/writing-demo.js
+  s_bd317cec756d17::t_5260af972dc90a 877,1533-1534
+  s_bd317cec756d17::t_b47594afe7bcdb 660-668
+integrations/readweave/build_component.py
+  s_bd317cec756d17::t_5260af972dc90a 30
+lessonweave/trilium.py
+  s_bd317cec756d17::t_b47594afe7bcdb 188-189
+tests/test_reader_optional_files.py
+  s_bd317cec756d17::t_83b93328ead682 1-44
+.gitattributes
+  s_bd317cec756d17::t_2d6b377a581069 1
+docs/deployment.md
+  s_bd317cec756d17::t_6c9c7256af76cd 47-48
+docs/security/publication-risk-notes.md
+  s_bd317cec756d17::t_fd44cc9f39f745 37-40
+deploy/readweave_bootstrap.py
+  s_bd317cec756d17::t_f82bfbb9bb5707 34,146-158,626,629-631,639
+lessonweave/server.py
+  s_bd317cec756d17::t_5260af972dc90a 21-27,183,252
+docs/readweave-validation.md
+  s_bd317cec756d17::t_d3e3a7a52eff57 19,24-26,29-31
+framework/reader/media-renderer.js
+  s_bd317cec756d17::t_5229d9d134b84a 125
+integrations/readweave/patches/scoped-export.patch
+  s_bd317cec756d17::t_8d0be630880c5e 1-84
+integrations/readweave/reader-component.js
+  s_bd317cec756d17::t_cc454026d5b749 117,189,191-192,204,207-210,241-244,266,311,359-373,376-380,514,1241-1249,1458,2114-2115
+web/workspace.js
+  s_bd317cec756d17::t_176a8505564d18 64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a026f3607c48a28ba8c12f07f3e1b94b7d95f8cf",
+  "prompts": {},
+  "sessions": {
+    "s_bd317cec756d17": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b69-207f-7e61-ba85-f7edc501349a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <71060413+AIALRA-0@users.noreply.github.com>"
+    }
+  }
+}
