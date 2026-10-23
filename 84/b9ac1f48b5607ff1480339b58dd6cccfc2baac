@@ -1,0 +1,36 @@
+framework/reader/reader-text.js
+  s_bd317cec756d17::t_0c5ed86acf259c 59-60,63,73-74,83,86,98-102
+  s_bd317cec756d17::t_89318f434aa622 61
+  s_bd317cec756d17::t_6440e909df5b1e 33,35-37,62,64-72,88-90
+tests/test_reader_math.py
+  s_bd317cec756d17::t_5a968ee095a949 289-292,294-301
+  s_bd317cec756d17::t_6440e909df5b1e 249,293,302-318,321-323
+  s_bd317cec756d17::t_48fe4c5685a644 245-248,250-288
+  s_bd317cec756d17::t_915aee7128b8d0 319-320,324-333
+docs/readweave-validation.md
+  s_bd317cec756d17::t_313557bbab8535 24-25
+  s_bd317cec756d17::t_22dce97dbbd0b9 19
+docs/security/publication-risk-notes.md
+  s_bd317cec756d17::t_313557bbab8535 59-64
+framework/reader/math-text.js
+  s_bd317cec756d17::t_89318f434aa622 13
+  s_bd317cec756d17::t_c985714e636290 14-17,21
+integrations/readweave/reader-component.js
+  s_bd317cec756d17::t_21aeec0b376208 187-191,195,309,311-313,335-350,359,362,364-366,374-378
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "84b9ac1f48b5607ff1480339b58dd6cccfc2baac",
+  "prompts": {},
+  "sessions": {
+    "s_bd317cec756d17": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b69-207f-7e61-ba85-f7edc501349a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "AIALRA-0 <71060413+AIALRA-0@users.noreply.github.com>"
+    }
+  }
+}
