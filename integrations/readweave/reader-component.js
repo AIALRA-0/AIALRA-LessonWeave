@@ -184,11 +184,15 @@ const uiIcon=window.uiIcon;
   const group = '\\{(?:[^{}\\n]|' + group1 + ')*\\}';
   const par0 = '\\([^()\\n]*\\)', par = '\\((?:[^()\\n]|' + par0 + ')*\\)';
   const sub = '(?:' + group + '|' + letter + '[A-Za-z0-9\u0370-\u03ff]*|[0-9]+)';
-  const command = '\\\\[A-Za-z]+(?:\\[[^\\]\\n]*\\])?(?:' + group + ')*';
+  // KaTeX 中这些装饰命令需要一个参数，裸写时也要把后面的数学 token 一起读取
+  const accents = 'acute|grave|ddot|tilde|bar|breve|check|hat|vec|dot|mathring|widecheck|widehat|widetilde|overrightarrow|overleftarrow|Overrightarrow|overleftrightarrow|overgroup|overlinesegment|overleftharpoon|overrightharpoon|underleftarrow|underrightarrow|underleftrightarrow|undergroup|underlinesegment|utilde|overline|underline|overbrace|underbrace';
+  const ordinaryCommand = '\\\\(?!(?:' + accents + ')\\b)[A-Za-z]+(?:\\[[^\\]\\n]*\\])?(?:' + group + ')*';
+  const accentArgument = '(?:' + group + '|' + ordinaryCommand + '|' + letter + '|[0-9])';
+  const command = '(?:(?:\\\\(?:' + accents + ')\\b[ \\t]*)+' + accentArgument + '|' + ordinaryCommand + ')';
   const base = '(?:' + command + '|' + group + '|' + par + '|[0-9]+(?:\\.[0-9]+)?|(?:id|dim|rank|ker|det|sin|cos|tan|log|ln|lim)(?![A-Za-z])|' + letter + '(?![A-Za-z\u0370-\u03ff]))';
   const atom = base + '(?:[_^]' + sub + '|[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ₀₁₂₃₄₅₆₇₈₉₋₊]+)*(?:' + par + ')?!?';
   const op = '(?:<=|>=|!=|:=|[=+*/×÷−≤≥≈≠<>∘∈∉⊂⊆⊃⊇∩∪→↦←↔≃≅≡]|-(?=[^A-Za-z]|' + letter + '(?![A-Za-z]))|\\\\(?:circ|times|cdot|div|leq?|geq?|approx|neq?|in|notin|to|mapsto|subseteq?|supseteq?|cap|cup|cong|simeq)\\b)';
-  const expression = new RegExp('(?<![A-Za-z0-9_/:.\\\\])(?:' + atom + '(?:[ \\t]*' + op + '[ \\t]*' + atom + ')+|' + command + '(?:[_^]' + sub + ')*|' + letter + '(?:[_^]' + sub + '|[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ₀₁₂₃₄₅₆₇₈₉₋₊]+)(?:' + par + ')?|[0-9]+!(?!=|[A-Za-z0-9_]))(?![A-Za-z0-9_/:.])', 'g');
+  const expression = new RegExp('(?<![A-Za-z0-9_/:.\\\\])(?:' + atom + '(?:[ \\t]*' + op + '[ \\t]*' + atom + ')+|' + command + '(?:[_^]' + sub + ')*(?:' + par + ')?|' + letter + '(?:[_^]' + sub + '|[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ₀₁₂₃₄₅₆₇₈₉₋₊]+)(?:' + par + ')?|[0-9]+!(?!=|[A-Za-z0-9_]))(?![A-Za-z0-9_/:.])', 'g');
   const explicit = /\$\$([\s\S]+?)\$\$|(?<![\\$])\$(?!\$)([^$\n]+?)\$(?![$A-Za-z_])|(?<!\\)(\\{1,2})\(([\s\S]+?)\3\)|(?<!\\)(\\{1,2})\[([\s\S]+?)\5\]|\\begin\{(equation\*?|align\*?|aligned|alignedat|gather\*?|gathered|multline\*?|split|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|cases|array)\}[\s\S]*?\\end\{\7\}/g;
   const protectedText = /(`{3,}|~{3,})[^\n]*\n[\s\S]*?\1|(`+)(?!`)[\s\S]*?\2(?!`)|https?:\/\/[^\s<>]+|\b[A-Za-z]:[\\/][^\s<>]+|(?:^|\s)(?:\.{0,2}\/)[\w./-]+|\$\{[^}]+\}|\$(?:past|stable|rose|fell|isunknown|clog2)\b|\$[A-Z_]{2,}[A-Z0-9_]*(?![A-Za-z0-9_$=+*/^<>-])|(?<!\\)\$\d+(?:\.\d+)?(?=[\s，,；;]|$)|\b[\w-]+\.(?:py|v|sv|js|ts|json|md|pdf|png|jpr|cpp|h|html|css)\b/g;
   const unicode = { '∘': '\\circ ', '→': '\\to ', '↦': '\\mapsto ', '←': '\\leftarrow ', '↔': '\\leftrightarrow ', '∈': '\\in ', '∉': '\\notin ', '⊂': '\\subset ', '⊆': '\\subseteq ', '⊃': '\\supset ', '⊇': '\\supseteq ', '∩': '\\cap ', '∪': '\\cup ', '−': '-', '≤': '\\leq ', '≥': '\\geq ', '≠': '\\neq ', '≈': '\\approx ', '×': '\\times ', '÷': '\\div ', '≃': '\\simeq ', '≅': '\\cong ', '≡': '\\equiv ' };
@@ -302,10 +306,11 @@ window.ReaderText = (() => {
     window.katex.render(value, node, {displayMode: display, throwOnError: false, trust: false, strict: 'ignore'});
     const error=node.querySelector('.katex-error');if(error){node.dataset.mathError=error.title;node.classList.add('reader-math-unresolved');node.textContent=value;}
   }
-  function rich(node, value, symbols = []) {
+  function rich(node, value, symbols = [], protectedRanges = []) {
     const text = String(value ?? ''), parsed = window.LessonMath.scan(text, symbols);
-    const parts = [...parsed.matches.map(match => ({...match, kind:'math'})),
-      ...parsed.protected.filter(part => part.code).map(part => ({...part, kind:'code'}))].sort((a,b) => a.start-b.start);
+    const allowed=part=>!protectedRanges.some(range=>part.start<range.end&&part.end>range.start);
+    const parts = [...parsed.matches.filter(allowed).map(match => ({...match, kind:'math'})),
+      ...parsed.protected.filter(part => part.code&&allowed(part)).map(part => ({...part, kind:'code'}))].sort((a,b) => a.start-b.start);
     let at = 0;
     for (const part of parts) {
       node.append(document.createTextNode(text.slice(at,part.start)));
@@ -327,6 +332,22 @@ window.ReaderText = (() => {
     node.append(document.createTextNode(text.slice(at)));
     return node;
   }
+  const mathSkip='pre,code,script,style,textarea,input,select,svg,math,.katex,.reader-math,[data-math-candidate],[contenteditable="true"],[data-no-math]';
+  function contextProtection(symbols = []) {
+    // 词条会拆开文本节点，命令行的保护范围仍按所在段落或单元格完整读取
+    const contexts=new Map();
+    return text=>{
+      const context=text.parentElement?.closest('p,td,th,li,figcaption,summary');if(!context)return [];
+      if(!contexts.has(context)){
+        const parsed=window.LessonMath.scan(context.textContent,symbols),offsets=new WeakMap();
+        const ranges=parsed.protected.filter(part=>!parsed.matches.some(match=>match.declared&&match.start<part.start&&part.start<match.end));
+        if(ranges.length){const nodes=document.createTreeWalker(context,NodeFilter.SHOW_TEXT);let at=0;while(nodes.nextNode()){offsets.set(nodes.currentNode,at);at+=nodes.currentNode.nodeValue.length;}}
+        contexts.set(context,{ranges,offsets});
+      }
+      const {ranges,offsets}=contexts.get(context),at=offsets.get(text);if(at===undefined)return [];
+      return ranges.filter(part=>part.start<at+text.nodeValue.length&&part.end>at).map(part=>({start:Math.max(0,part.start-at),end:Math.min(text.nodeValue.length,part.end-at)}));
+    };
+  }
   function renderIn(element, symbols = []) {
     if (!element) return Promise.resolve();
     const pending=[...element.querySelectorAll('.reader-math')].map(node=>node.mediaReady).filter(Boolean);
@@ -334,14 +355,15 @@ window.ReaderText = (() => {
       if(node.querySelector('.katex'))continue;
       node.mediaReady=math(node,node.dataset.mathSource||node.textContent,true);pending.push(node.mediaReady);
     }
-    const skip='pre,code,script,style,textarea,input,select,svg,math,.katex,.reader-math,[contenteditable="true"],[data-no-math]';
     const walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT,{
-      acceptNode:node=>node.parentElement?.closest(skip)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT
+      acceptNode:node=>node.parentElement?.closest(mathSkip)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT
     });
     const texts=[];while(walker.nextNode())texts.push(walker.currentNode);
+    const protectedContext=contextProtection(symbols);
     for(const text of texts) {
-      if(!window.LessonMath.scan(text.nodeValue,symbols).matches.length)continue;
-      const fragment=document.createDocumentFragment();rich(fragment,text.nodeValue,symbols);
+      const protectedRanges=protectedContext(text);
+      if(!window.LessonMath.scan(text.nodeValue,symbols).matches.some(part=>!protectedRanges.some(range=>part.start<range.end&&part.end>range.start)))continue;
+      const fragment=document.createDocumentFragment();rich(fragment,text.nodeValue,symbols,protectedRanges);
       for(const node of fragment.querySelectorAll('.reader-math'))if(node.mediaReady)pending.push(node.mediaReady);
       text.replaceWith(fragment);
     }
@@ -349,8 +371,11 @@ window.ReaderText = (() => {
   }
   function audit(element) {
     const errors=[...element.querySelectorAll('[data-math-error]')].map(node=>({source:node.dataset.mathSource||node.dataset.mathRaw||node.textContent,error:node.dataset.mathError}));
-    const walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT,{acceptNode:node=>node.parentElement?.closest('pre,code,script,style,textarea,input,select,svg,math,.katex,.reader-math,[contenteditable="true"],[data-no-math]')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
-    while(walker.nextNode())for(const match of window.LessonMath.scan(walker.currentNode.nodeValue).matches)if(match.declared)errors.push({source:match.source,error:'公式已经有标记，但当前位置还没有渲染'});
+    const walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT,{acceptNode:node=>node.parentElement?.closest(mathSkip)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}),protectedContext=contextProtection();
+    while(walker.nextNode()){
+      const ranges=protectedContext(walker.currentNode);
+      for(const match of window.LessonMath.scan(walker.currentNode.nodeValue).matches)if(match.declared&&!ranges.some(range=>match.start<range.end&&match.end>range.start))errors.push({source:match.source,error:'公式已经有标记，但当前位置还没有渲染'});
+    }
     return {rendered:element.querySelectorAll('.katex').length,errors};
   }
   function plain(element) {

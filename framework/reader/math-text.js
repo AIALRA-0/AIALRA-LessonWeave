@@ -10,11 +10,15 @@
   const group = '\\{(?:[^{}\\n]|' + group1 + ')*\\}';
   const par0 = '\\([^()\\n]*\\)', par = '\\((?:[^()\\n]|' + par0 + ')*\\)';
   const sub = '(?:' + group + '|' + letter + '[A-Za-z0-9\u0370-\u03ff]*|[0-9]+)';
-  const command = '\\\\[A-Za-z]+(?:\\[[^\\]\\n]*\\])?(?:' + group + ')*';
+  // KaTeX 中这些装饰命令需要一个参数，裸写时也要把后面的数学 token 一起读取
+  const accents = 'acute|grave|ddot|tilde|bar|breve|check|hat|vec|dot|mathring|widecheck|widehat|widetilde|overrightarrow|overleftarrow|Overrightarrow|overleftrightarrow|overgroup|overlinesegment|overleftharpoon|overrightharpoon|underleftarrow|underrightarrow|underleftrightarrow|undergroup|underlinesegment|utilde|overline|underline|overbrace|underbrace';
+  const ordinaryCommand = '\\\\(?!(?:' + accents + ')\\b)[A-Za-z]+(?:\\[[^\\]\\n]*\\])?(?:' + group + ')*';
+  const accentArgument = '(?:' + group + '|' + ordinaryCommand + '|' + letter + '|[0-9])';
+  const command = '(?:(?:\\\\(?:' + accents + ')\\b[ \\t]*)+' + accentArgument + '|' + ordinaryCommand + ')';
   const base = '(?:' + command + '|' + group + '|' + par + '|[0-9]+(?:\\.[0-9]+)?|(?:id|dim|rank|ker|det|sin|cos|tan|log|ln|lim)(?![A-Za-z])|' + letter + '(?![A-Za-z\u0370-\u03ff]))';
   const atom = base + '(?:[_^]' + sub + '|[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ₀₁₂₃₄₅₆₇₈₉₋₊]+)*(?:' + par + ')?!?';
   const op = '(?:<=|>=|!=|:=|[=+*/×÷−≤≥≈≠<>∘∈∉⊂⊆⊃⊇∩∪→↦←↔≃≅≡]|-(?=[^A-Za-z]|' + letter + '(?![A-Za-z]))|\\\\(?:circ|times|cdot|div|leq?|geq?|approx|neq?|in|notin|to|mapsto|subseteq?|supseteq?|cap|cup|cong|simeq)\\b)';
-  const expression = new RegExp('(?<![A-Za-z0-9_/:.\\\\])(?:' + atom + '(?:[ \\t]*' + op + '[ \\t]*' + atom + ')+|' + command + '(?:[_^]' + sub + ')*|' + letter + '(?:[_^]' + sub + '|[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ₀₁₂₃₄₅₆₇₈₉₋₊]+)(?:' + par + ')?|[0-9]+!(?!=|[A-Za-z0-9_]))(?![A-Za-z0-9_/:.])', 'g');
+  const expression = new RegExp('(?<![A-Za-z0-9_/:.\\\\])(?:' + atom + '(?:[ \\t]*' + op + '[ \\t]*' + atom + ')+|' + command + '(?:[_^]' + sub + ')*(?:' + par + ')?|' + letter + '(?:[_^]' + sub + '|[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿ₀₁₂₃₄₅₆₇₈₉₋₊]+)(?:' + par + ')?|[0-9]+!(?!=|[A-Za-z0-9_]))(?![A-Za-z0-9_/:.])', 'g');
   const explicit = /\$\$([\s\S]+?)\$\$|(?<![\\$])\$(?!\$)([^$\n]+?)\$(?![$A-Za-z_])|(?<!\\)(\\{1,2})\(([\s\S]+?)\3\)|(?<!\\)(\\{1,2})\[([\s\S]+?)\5\]|\\begin\{(equation\*?|align\*?|aligned|alignedat|gather\*?|gathered|multline\*?|split|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|cases|array)\}[\s\S]*?\\end\{\7\}/g;
   const protectedText = /(`{3,}|~{3,})[^\n]*\n[\s\S]*?\1|(`+)(?!`)[\s\S]*?\2(?!`)|https?:\/\/[^\s<>]+|\b[A-Za-z]:[\\/][^\s<>]+|(?:^|\s)(?:\.{0,2}\/)[\w./-]+|\$\{[^}]+\}|\$(?:past|stable|rose|fell|isunknown|clog2)\b|\$[A-Z_]{2,}[A-Z0-9_]*(?![A-Za-z0-9_$=+*/^<>-])|(?<!\\)\$\d+(?:\.\d+)?(?=[\s，,；;]|$)|\b[\w-]+\.(?:py|v|sv|js|ts|json|md|pdf|png|jpr|cpp|h|html|css)\b/g;
   const unicode = { '∘': '\\circ ', '→': '\\to ', '↦': '\\mapsto ', '←': '\\leftarrow ', '↔': '\\leftrightarrow ', '∈': '\\in ', '∉': '\\notin ', '⊂': '\\subset ', '⊆': '\\subseteq ', '⊃': '\\supset ', '⊇': '\\supseteq ', '∩': '\\cap ', '∪': '\\cup ', '−': '-', '≤': '\\leq ', '≥': '\\geq ', '≠': '\\neq ', '≈': '\\approx ', '×': '\\times ', '÷': '\\div ', '≃': '\\simeq ', '≅': '\\cong ', '≡': '\\equiv ' };

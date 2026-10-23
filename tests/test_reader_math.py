@@ -242,3 +242,92 @@ def test_syntax_checker_validates_whole_declared_formula_with_colon_commands():
     issues = math_syntax.check_documents({'reader': {'definition': formula}})
     assert len(issues) == 1 and issues[0]['path'] == '/definition'
     assert r'\unknowncommand' in issues[0]['message']
+
+
+@pytest.mark.parametrize('source', [
+    r'\hat r(u,v)', r'\bar x', r'\vec \alpha', r'\tilde\theta',
+    r'\widehat{\mathbf{x}}', r'\hat\imath', r'\dot{x}', r'\hat{r}(u,v)',
+])
+def test_bare_accent_commands_keep_their_single_math_argument(math_page, source):
+    result = math_page.evaluate('''async source=>{
+      const root=document.querySelector('#reading');ReaderText.rich(root,source);
+      await ReaderText.renderIn(root);await ReaderText.renderIn(root);
+      return {matches:LessonMath.scan(source).matches,plain:ReaderText.plain(root),
+        formulas:root.querySelectorAll('.katex').length,candidates:root.querySelectorAll('[data-math-candidate]').length,
+        errors:root.querySelectorAll('[data-math-error],.katex-error').length};
+    }''', source)
+    assert len(result['matches']) == 1
+    assert result['matches'][0]['source'] == source
+    assert result['plain'] == source and result['formulas'] == 1
+    assert result['candidates'] == result['errors'] == 0
+    assert math_syntax.check_documents({'reader': {'definition': source}}) == []
+
+
+def test_failed_bare_math_candidate_is_not_nested_by_repeated_hydration(math_page):
+    source = r'\unknownAccent{x}'
+    result = math_page.evaluate('''async source=>{
+      const root=document.querySelector('#reading');ReaderText.rich(root,source);
+      await Promise.all([...root.querySelectorAll('.reader-math')].map(node=>node.mediaReady));
+      const before=root.innerHTML;await ReaderText.renderIn(root);await ReaderText.renderIn(root);
+      return {before,after:root.innerHTML,plain:ReaderText.plain(root),
+        candidates:root.querySelectorAll('[data-math-candidate]').length,
+        nested:root.querySelectorAll('[data-math-candidate] [data-math-candidate]').length};
+    }''', source)
+    assert result['candidates'] == 1 and result['nested'] == 0
+    assert result['before'] == result['after'] and result['plain'] == source
+
+
+def test_accent_commands_inside_code_and_paths_remain_verbatim(math_page):
+    source = chr(96) + r'\hat r(u,v)' + chr(96) + r'，C:\hat\file.txt，https://example.test/hat'
+    result = math_page.evaluate('''async source=>{
+      const root=document.querySelector('#reading');ReaderText.rich(root,source);await ReaderText.renderIn(root);
+      return {code:root.querySelector('code').textContent,formulas:root.querySelectorAll('.katex').length,
+        candidates:root.querySelectorAll('[data-math-candidate]').length};
+    }''', source)
+    assert result == {'code': r'\hat r(u,v)', 'formulas': 0, 'candidates': 0}
+    assert math_syntax.check_documents({'reader': {'definition': source}}) == []
+
+
+def test_shared_checker_receives_complete_bare_accent_ranges(tmp_path):
+    import subprocess
+    sources = [r'\hat r(u,v)', r'\vec\alpha', r'\hat\imath', r'\bar{x}']
+    input_path, output_path = tmp_path / 'input.json', tmp_path / 'output.json'
+    input_path.write_text(json.dumps([{'document': 'reader', 'path': '/definition', 'text': text} for text in sources]), 'utf-8')
+    subprocess.run(['node', str(READER.parent / '05_writing/math_syntax.cjs'),
+                    str(READER / 'media-vendor/katex/dist/katex.min.js'), str(input_path), str(output_path)],
+                   capture_output=True, check=True, timeout=30)
+    result = json.loads(output_path.read_text('utf-8'))
+    assert result['checked'] == len(sources) and result['errors'] == []
+    assert [row['math'] for row in result['results']] == sources
+
+
+@pytest.mark.parametrize('command,line', [
+    ('git', "$ git log --format=%h; do git show $commit | awk '{print $3}'; done"),
+    ('find', "$ find . -name '*.txt' | while read item; do printf '%s' \"$item\" | sed 's/^/file /'; done"),
+    ('python', "$ python tool.py \"$input\" | awk '{print $1}'"),
+])
+def test_shell_line_stays_protected_after_inline_term_splits_its_text_nodes(math_page, command, line):
+    source = line + '\n再看数学 $f(x)$'
+    result = math_page.evaluate('''async input=>{
+      const root=document.querySelector('#reading'),table=document.createElement('table'),row=document.createElement('tr'),cell=document.createElement('td');
+      cell.id='command-cell';const at=input.source.indexOf(input.command),term=document.createElement('span');term.className='inline-term';term.dataset.termId='fixture-term';term.textContent=input.command;
+      cell.append(document.createTextNode(input.source.slice(0,at)),term,document.createTextNode(input.source.slice(at+input.command.length)));
+      row.append(cell);table.append(row);root.append(table);
+      await ReaderText.renderIn(root);await ReaderText.renderIn(root);
+      return {plain:ReaderText.plain(cell),sameTerm:term.isConnected&&term.dataset.termId==='fixture-term',
+        formulas:[...cell.querySelectorAll('[data-math-source]')].map(node=>node.dataset.mathSource),
+        candidates:cell.querySelectorAll('[data-math-candidate]').length,errors:cell.querySelectorAll('.katex-error,[data-math-error]').length,
+        audit:ReaderText.audit(cell)};
+    }''', {'source': source, 'command': command})
+    assert result['plain'] == source and result['sameTerm']
+    assert result['formulas'] == ['f(x)'] and result['candidates'] == result['errors'] == 0
+    assert result['audit']['errors'] == []
+
+
+def test_audit_still_reports_a_real_unrendered_declared_formula(math_page):
+    result = math_page.evaluate(r'''()=>{
+      const root=document.querySelector('#reading');root.textContent='这里保留一个尚未渲染的公式 \\(x=1\\)';
+      return ReaderText.audit(root);
+    }''')
+    assert result['rendered'] == 0 and len(result['errors']) == 1
+    assert result['errors'][0]['source'] == 'x=1'
