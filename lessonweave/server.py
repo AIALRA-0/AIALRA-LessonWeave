@@ -4,6 +4,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlsplit, parse_qs
 import json
+import gzip
 import mimetypes
 import os
 import sqlite3
@@ -60,12 +61,41 @@ class Handler(SimpleHTTPRequestHandler):
 
     def json(self, value, status=200):
         content = json.dumps(value, ensure_ascii=False).encode('utf-8')
+        content, compressed = self.gzip_json(content)
         self.send_response(status)
         self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.send_header('Cache-Control', 'no-store')
+        self.send_header('Vary', 'Accept-Encoding')
+        if compressed:
+            self.send_header('Content-Encoding', 'gzip')
         self.send_header('Content-Length', str(len(content)))
         self.end_headers()
         self.wfile.write(content)
+
+    def gzip_json(self, content):
+        if len(content) < 1024 or self.headers.get('Range') is not None:
+            return content, False
+        qualities = {}
+        for item in self.headers.get('Accept-Encoding', '').split(','):
+            parts = item.lower().strip().split(';')
+            coding = parts[0].strip()
+            if coding not in {'gzip', '*'}:
+                continue
+            quality = 1.0
+            for parameter in parts[1:]:
+                name, _, value = parameter.strip().partition('=')
+                if name.strip() == 'q':
+                    try:
+                        quality = float(value)
+                    except ValueError:
+                        quality = 0
+                    if not 0 <= quality <= 1:
+                        quality = 0
+            qualities[coding] = quality
+        if qualities.get('gzip', qualities.get('*', 0)) <= 0:
+            return content, False
+        compressed = gzip.compress(content, compresslevel=1, mtime=0)
+        return (compressed, True) if len(compressed) < len(content) else (content, False)
 
     def allowed(self):
         if os.environ.get('LESSONWEAVE_AUTH_REQUIRED') == '1' and not self.headers.get('X-Aialra-User'):
@@ -121,8 +151,14 @@ class Handler(SimpleHTTPRequestHandler):
                 return
             content = path.read_bytes()
         mime = kind or mimetypes.guess_type(str(path))[0] or 'application/octet-stream'
+        is_json = mime.split(';', 1)[0].strip().lower() == 'application/json'
+        content, compressed = self.gzip_json(content) if is_json else (content, False)
         self.send_response(200)
         self.send_header('Content-Type', mime + ('; charset=utf-8' if mime.startswith('text/') or mime == 'application/javascript' else ''))
+        if is_json:
+            self.send_header('Vary', 'Accept-Encoding')
+        if compressed:
+            self.send_header('Content-Encoding', 'gzip')
         self.send_header('Content-Length', str(len(content)))
         self.send_header('X-Content-Type-Options', 'nosniff')
         self.send_header('Cache-Control', 'no-store' if mime.endswith('json') else 'private, max-age=60')

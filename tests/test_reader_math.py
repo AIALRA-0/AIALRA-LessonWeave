@@ -198,3 +198,47 @@ def test_display_math_keeps_its_delimiters_when_reading_paragraphs_are_split(mat
     assert result['plain'] == text
     code='```python\nx = 1\ny = 2\n```'
     assert math_page.evaluate('text=>ReaderText.paragraphs(text)',code) == [code]
+
+
+@pytest.mark.parametrize('formula', [
+    r'\[\exists a,b\in R:\qquad ad-bc=\gcd(a,b)\]',
+    r'\[G^+=\{f\in G:\forall u,\ f(u)>0\}\]',
+    r'$$I=\{i:\{p_i,z_i\}\cap E\ne\varnothing\}$$',
+])
+def test_complete_declared_math_keeps_colon_commands_inside_the_formula(math_page, formula):
+    formula = formula.replace(r'\[', '\\[\n').replace(r'\]', '\n\\]')
+    source = '先看这个式子\n' + formula + '\n再看它的结果'
+    result = math_page.evaluate('''async text=>{
+      const parts=ReaderText.paragraphs(text),root=document.querySelector('#reading');
+      for(const part of parts){const node=document.createElement('p');ReaderText.rich(node,part);root.append(node);}
+      await ReaderText.renderIn(root);
+      return {parts,declared:LessonMath.scan(text).matches.filter(part=>part.declared),
+        displays:root.querySelectorAll('.katex-display').length,audit:ReaderText.audit(root),
+        plain:[...root.children].map(node=>ReaderText.plain(node)).join('\\n')};
+    }''', source)
+    assert result['parts'] == ['先看这个式子', formula, '再看它的结果']
+    assert len(result['declared']) == result['displays'] == 1
+    assert result['plain'] == source and result['audit']['errors'] == []
+
+
+def test_declared_math_does_not_escape_code_or_paths_that_start_outside_it(math_page):
+    values = [r'C:\docs\[chapter\]', r'https://example.test/\[chapter\]',
+              r'`\[x:\unknowncommand{y}\]`', '```tex\n\\[x:\\unknowncommand{y}\\]\n```']
+    result = math_page.evaluate('''async values=>{
+      const root=document.querySelector('#reading');return await Promise.all(values.map(async text=>{
+        const node=document.createElement('p');root.append(node);ReaderText.rich(node,text);await ReaderText.renderIn(node);
+        return {plain:ReaderText.plain(node),formulas:node.querySelectorAll('.katex').length,
+          declared:LessonMath.scan(text).matches.filter(part=>part.declared).length};
+      }));
+    }''', values)
+    for text, row in zip(values, result):
+        expected = text.split('\n', 1)[1][:-3] if text.startswith('```') else text[1:-1] if text.startswith('`') else text
+        assert row['plain'] == expected and row['formulas'] == row['declared'] == 0
+        assert math_syntax.check_documents({'reader': {'definition': text}}) == []
+
+
+def test_syntax_checker_validates_whole_declared_formula_with_colon_commands():
+    formula = r'\[\forall x\in R:\unknowncommand{x}>0\]'
+    issues = math_syntax.check_documents({'reader': {'definition': formula}})
+    assert len(issues) == 1 and issues[0]['path'] == '/definition'
+    assert r'\unknowncommand' in issues[0]['message']

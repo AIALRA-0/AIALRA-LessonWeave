@@ -235,15 +235,19 @@ const uiIcon=window.uiIcon;
       .filter(value => /^[A-Za-z\u0370-\u03ff](?:[_^](?:[A-Za-z0-9\u0370-\u03ff]+|\{[^{}]+\}))*$/.test(value)).sort((a, b) => b.length - a.length);
   }
   function scan(value, known = []) {
-    const text = String(value ?? ''), found = [], protectedSpans = [];
+    const text = String(value ?? ''), found = [], protectedSpans = [], pathStarts = new Set();
     const overlaps = (start, end, rows) => rows.some(row => start < row.end && end > row.start);
-    for (const match of text.matchAll(protectedText)) protectedSpans.push({ start: match.index, end: match.index + match[0].length, code: /^[`~]/.test(match[0]) });
+    for (const match of text.matchAll(protectedText)) {
+      protectedSpans.push({ start: match.index, end: match.index + match[0].length, code: /^[`~]/.test(match[0]) });
+      if (/^(?:https?:\/\/|[A-Za-z]:[\\/]|\.{0,2}\/)/.test(match[0].trimStart())) pathStarts.add(match.index);
+    }
     // 花括号里的首尾锚点属于正则表达式，美元符号不参与公式配对
     for (const match of text.matchAll(/\{\^[^{}\n]*\$\}/g)) protectedSpans.push({start:match.index,end:match.index+match[0].length,code:false});
     // 命令提示符所在的整行作为代码保留，行尾闭合的美元公式继续按公式读取
     for(const match of text.matchAll(/(?:^|\n)[ \t]*\$[ \t]+[A-Za-z][\w.-]*[ \t]+[^\n]+/g))if(!match[0].trimEnd().endsWith('$'))protectedSpans.push({start:match.index,end:match.index+match[0].length,code:false});
     const add = (start, end, source, display = false, declared = false) => {
-      if (!overlaps(start, end, protectedSpans) && !overlaps(start, end, found)) found.push({ start, end, source: normalize(source), display, declared });
+      const protectedRanges = declared ? protectedSpans.filter(part => part.code || part.start <= start || !pathStarts.has(part.start)) : protectedSpans;
+      if (!overlaps(start, end, protectedRanges) && !overlaps(start, end, found)) found.push({ start, end, source: normalize(source), display, declared });
     };
     for (const match of text.matchAll(explicit)) {
       const source = match[1] ?? match[2] ?? match[4] ?? match[6] ?? match[0];
